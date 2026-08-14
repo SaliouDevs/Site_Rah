@@ -3769,6 +3769,17 @@
             window.location.href = 'auth.html';
         }
         
+        // ===== COMMUNICATION IFRAMES (postMessage) =====
+        window.addEventListener('message', function(e) {
+            const nav = document.querySelector('.bottom-nav');
+            if (!nav) return;
+            if (e.data && e.data.type === 'hideBottomNav') {
+                nav.style.display = 'none';
+            } else if (e.data && e.data.type === 'showBottomNav') {
+                nav.style.display = 'flex';
+            }
+        });
+
         // ===== FONCTIONS UTILITAIRES =====
         
         function togglePasswordVisibility(inputId, button) {
