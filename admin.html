@@ -242,6 +242,37 @@
             to   { transform: translateX(0);    opacity: 1; }
         }
 
+        /* Modal reset MDP */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal h3 { margin-bottom: 16px; font-size: 17px; }
+        .modal input {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid #ddd; border-radius: 10px;
+            font-size: 15px; font-family: inherit;
+            outline: none; margin-bottom: 16px;
+        }
+        .modal input:focus { border-color: var(--primary-color); }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions button { flex: 1; padding: 11px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-save   { background: var(--gradient-blue); color: white; }
+        .btn-cancel { background: #f0f0f0; color: #555; }
+
         @media (max-width: 600px) {
             .stats-row { grid-template-columns: repeat(3, 1fr); }
             table { font-size: 12px; }
@@ -263,6 +294,18 @@
         <button class="btn-logout" onclick="doLogout()">
             <i class="fas fa-sign-out-alt"></i> Déconnexion
         </button>
+    </div>
+</div>
+
+<!-- Modal réinitialisation MDP -->
+<div class="modal-overlay" id="resetModal">
+    <div class="modal">
+        <h3><i class="fas fa-key"></i> Nouveau mot de passe</h3>
+        <input type="text" id="newPasswordInput" placeholder="Minimum 6 caractères">
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeResetModal()">Annuler</button>
+            <button class="btn-save"   onclick="doResetPassword()">Confirmer</button>
+        </div>
     </div>
 </div>
 
@@ -459,6 +502,9 @@
                     <button class="btn-action btn-block" onclick="changeStatus('${p.id}', 'blocked')">
                         <i class="fas fa-ban"></i> Bloquer
                     </button>
+                    <button class="btn-action btn-unblock" onclick="openResetModal('${p.id}')">
+                        <i class="fas fa-key"></i> MDP
+                    </button>
                 </div>
             </td>`;
     }
@@ -475,7 +521,10 @@
                         <i class="fas fa-unlock"></i> Débloquer
                     </button>
                     <button class="btn-action btn-block" onclick="changeStatus('${p.id}', 'pending')">
-                        <i class="fas fa-undo"></i> Remettre en attente
+                        <i class="fas fa-undo"></i> En attente
+                    </button>
+                    <button class="btn-action btn-accept" onclick="openResetModal('${p.id}')">
+                        <i class="fas fa-key"></i> MDP
                     </button>
                 </div>
             </td>`;
@@ -507,6 +556,41 @@
         document.getElementById('tab-btn-'  + tab).classList.add('active');
         document.getElementById('content-' + tab).classList.add('active');
     }
+
+    // ── Réinitialisation mot de passe ─────────────────────────────
+    let resetTargetId = null;
+
+    function openResetModal(userId) {
+        resetTargetId = userId;
+        document.getElementById('newPasswordInput').value = '';
+        document.getElementById('resetModal').classList.add('active');
+        setTimeout(() => document.getElementById('newPasswordInput').focus(), 100);
+    }
+
+    function closeResetModal() {
+        resetTargetId = null;
+        document.getElementById('resetModal').classList.remove('active');
+    }
+
+    async function doResetPassword() {
+        const newPass = document.getElementById('newPasswordInput').value.trim();
+        if (!newPass || newPass.length < 6) {
+            toast('❌ Minimum 6 caractères', true);
+            return;
+        }
+        try {
+            await sbAdminResetPassword(resetTargetId, newPass);
+            closeResetModal();
+            toast('✅ Mot de passe réinitialisé !');
+        } catch (err) {
+            toast('❌ ' + err.message, true);
+        }
+    }
+
+    // Fermer le modal en cliquant en dehors
+    document.getElementById('resetModal').addEventListener('click', function(e) {
+        if (e.target === this) closeResetModal();
+    });
 
     // ── Déconnexion ────────────────────────────────────────────────
     async function doLogout() {

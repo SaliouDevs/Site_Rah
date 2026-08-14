@@ -309,6 +309,23 @@
             <i class="fas fa-sign-in-alt"></i> Se connecter
         </button>
 
+        <div class="switch-link" style="margin-top: 12px;">
+            <a href="#" onclick="showForgotPassword()">
+                <i class="fas fa-key"></i> Mot de passe oublié ?
+            </a>
+        </div>
+
+        <!-- Panel mot de passe oublié -->
+        <div id="forgot-panel" style="display:none; margin-top: 16px; background: #f0f4ff; border-radius: 12px; padding: 16px; font-size: 13px; color: #555; line-height: 1.6;">
+            <strong style="color: #333;"><i class="fas fa-info-circle"></i> Réinitialisation du mot de passe</strong><br><br>
+            Contactez l'administrateur de l'auto-école pour réinitialiser votre mot de passe.<br><br>
+            <i class="fas fa-phone"></i> <strong>762 57 28 77</strong>
+            <br><br>
+            <a href="#" onclick="hideForgotPassword()" style="color: #4a90e2; font-weight: 600;">
+                <i class="fas fa-times"></i> Fermer
+            </a>
+        </div>
+
         <div class="switch-link">
             Pas encore de compte ?
             <a href="#" onclick="switchTab('inscription')">S'inscrire</a>
@@ -538,6 +555,14 @@
         if (activeTab === 'tab-connexion')   doLogin();
         if (activeTab === 'tab-inscription') doRegister();
     });
+
+    // Mot de passe oublié
+    function showForgotPassword() {
+        document.getElementById('forgot-panel').style.display = 'block';
+    }
+    function hideForgotPassword() {
+        document.getElementById('forgot-panel').style.display = 'none';
+    }
 
     // Pré-remplir depuis payment.html si on revient en arrière
     const prefillPhone = sessionStorage.getItem('pending_phone');

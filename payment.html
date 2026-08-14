@@ -199,6 +199,9 @@
         }
 
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74,144,226,0.4); }
+
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -320,16 +323,32 @@
         }, 2000);
     }
 
-    function confirmerPaiement() {
-        // Nettoyer sessionStorage
-        sessionStorage.removeItem('pending_phone');
-        sessionStorage.removeItem('pending_formule');
-        sessionStorage.removeItem('pending_prix');
+    async function confirmerPaiement() {
+        const btn = document.getElementById('btn-confirm');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Activation…';
 
-        // Passer à l'étape de confirmation
-        document.getElementById('step-pay').classList.remove('active');
-        document.getElementById('step-confirm').classList.add('active');
+        try {
+            // Activer le compte automatiquement via Supabase
+            await sbConfirmPayment();
+
+            // Nettoyer sessionStorage
+            sessionStorage.removeItem('pending_phone');
+            sessionStorage.removeItem('pending_formule');
+            sessionStorage.removeItem('pending_prix');
+
+            // Passer à l'étape de confirmation
+            document.getElementById('step-pay').classList.remove('active');
+            document.getElementById('step-confirm').classList.add('active');
+
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> J\'ai effectué le paiement';
+            alert('Erreur : ' + err.message);
+        }
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
+<script src="supabase.js"></script>
 </body>
 </html>

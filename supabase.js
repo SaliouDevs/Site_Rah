@@ -110,6 +110,21 @@ async function sbAdminUpdateStatus(userId, newStatus) {
     return data;
 }
 
+// Auto-activer le compte après confirmation du paiement Wave
+async function sbConfirmPayment() {
+    const { error } = await sb.rpc('confirm_payment');
+    if (error) throw error;
+}
+
+// Admin : réinitialiser le mot de passe d'un utilisateur
+async function sbAdminResetPassword(userId, newPassword) {
+    const { error } = await sb.rpc('admin_reset_password', {
+        target_user_id: userId,
+        new_password:   newPassword
+    });
+    if (error) throw error;
+}
+
 // ── Storage (photos de profil) ────────────────────────────────────
 
 async function sbUploadPhoto(file) {
