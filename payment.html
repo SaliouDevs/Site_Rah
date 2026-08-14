@@ -310,7 +310,7 @@
 
     function payerWave() {
         const desc = encodeURIComponent('eAutoecole - ' + pendingFormule);
-        const url  = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${pendingPrix}&description=${desc}`;
+        const url  = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${pendingPrix}`;
         window.open(url, '_blank');
 
         waveOpened = true;

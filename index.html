@@ -2889,7 +2889,7 @@
             
             const prix = selectedPrix;
             
-            const waveLink = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${prix}&description=${encodeURIComponent('eAutoecole - ' + selectedFormule)}`;
+            const waveLink = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${prix}`;
             window.open(waveLink, '_blank');
             
             showNotification('✅ Redirection vers Wave en cours... Paiement de ' + prix + ' FCFA');
@@ -2907,7 +2907,7 @@
                 return;
             }
             
-            const waveLink = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${prix}&description=${encodeURIComponent('eAutoecole - ' + selectedFormule)}`;
+            const waveLink = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${prix}`;
             const waveWindow = window.open(waveLink, '_blank');
             
             showNotification('✅ Redirection vers Wave en cours...');
