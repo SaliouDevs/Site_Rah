@@ -2587,16 +2587,14 @@
         async function initializeApp() {
             initializeCommonFeatures();
 
-            // Mode développement local (DEV_MODE) — inchangé
-            if (initializeDevMode()) {
-                return;
-            }
-
-            // Vérifier la session Supabase
+            // Vérifier la session Supabase EN PREMIER
+            // (si session réelle existe, on l'utilise même en localhost)
             const session = await sbGetSession();
 
             if (!session) {
-                // Pas de session → page d'auth
+                // Pas de session → essayer le mode développement local
+                if (initializeDevMode()) return;
+                // Sinon → page d'auth
                 window.location.href = 'auth.html';
                 return;
             }
@@ -2608,39 +2606,34 @@
             }
 
             // Charger le profil depuis Supabase
+            let profile;
             try {
-                const profile = await sbGetProfile();
-
-                if (profile.status === 'pending') {
-                    await sbLogout();
-                    window.location.href = 'auth.html';
-                    return;
-                }
-
-                if (profile.status === 'blocked') {
-                    await sbLogout();
-                    window.location.href = 'auth.html';
-                    return;
-                }
-
-                // Construire l'objet currentUser à partir du profil Supabase
-                currentUser = {
-                    prenom:          profile.prenom || 'Élève',
-                    telephone:       profile.telephone,
-                    dateInscription: profile.created_at,
-                    formule:         profile.formule,
-                    prix:            profile.prix,
-                    status:          profile.status,
-                    photo:           profile.photo_url || null
-                };
-
-                accederEspaceEleve(currentUser, false);
-
+                profile = await sbGetProfile();
             } catch (err) {
-                console.error('Erreur profil:', err);
+                console.error('Erreur chargement profil:', err);
                 await sbLogout();
                 window.location.href = 'auth.html';
+                return;
             }
+
+            if (profile.status === 'pending' || profile.status === 'blocked') {
+                await sbLogout();
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            // Construire l'objet currentUser à partir du profil Supabase
+            currentUser = {
+                prenom:          profile.prenom || 'Élève',
+                telephone:       profile.telephone,
+                dateInscription: profile.created_at,
+                formule:         profile.formule,
+                prix:            profile.prix,
+                status:          profile.status,
+                photo:           profile.photo_url || null
+            };
+
+            accederEspaceEleve(currentUser, false);
 
             checkConnection();
         }
@@ -3021,72 +3014,23 @@
         // ===== FONCTIONS NAVIGATION =====
         
         function showConnexion() {
-            document.getElementById('inscriptionSection').classList.remove('active');
-            document.getElementById('connexionSection').classList.add('active');
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
-            document.getElementById('aboutPage').classList.remove('active');
-            
-            const warningMsg = document.getElementById('warningMessage');
-            if (warningMsg) {
-                warningMsg.remove();
-            }
-            
-            resetForms();
-            
-            // PRÉ-REMPLIR LES CHAMPS DE CONNEXION
-            const pendingPhone = localStorage.getItem('pendingLoginPhone');
-            const pendingPassword = localStorage.getItem('pendingLoginPassword');
-            
-            if (pendingPhone && pendingPassword) {
-                setTimeout(function() {
-                    const phoneInput = document.getElementById('login-telephone');
-                    const passwordInput = document.getElementById('login-password');
-                    
-                    if (phoneInput && passwordInput) {
-                        phoneInput.value = pendingPhone;
-                        passwordInput.value = pendingPassword;
-                        
-                        document.querySelector('.connexion-btn').focus();
-                    }
-                }, 200);
-            }
+            // Auth déplacée sur auth.html — rediriger
+            window.location.href = 'auth.html';
         }
-        
+
         function showInscription() {
-            const phone = localStorage.getItem('pendingPhone');
-            if (phone) {
-                showWarningMessage("Vous ne pouvez pas créer un compte. Votre compte est en attente de validation par l'administrateur.");
-                
-                document.getElementById('login-telephone').value = formatPhoneNumber(phone);
-                document.getElementById('login-password').focus();
-                return;
-            }
-            
-            document.getElementById('connexionSection').classList.remove('active');
-            document.getElementById('inscriptionSection').classList.add('active');
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
-            document.getElementById('aboutPage').classList.remove('active');
-            resetForms();
+            // Inscription déplacée sur auth.html — rediriger
+            window.location.href = 'auth.html';
         }
-        
+
         function showEspaceEleve() {
-            document.getElementById('connexionSection').classList.remove('active');
-            document.getElementById('inscriptionSection').classList.remove('active');
             document.getElementById('espaceEleveSection').classList.add('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
             document.getElementById('aboutPage').classList.remove('active');
         }
 
         function showEspaceAdmin() {
-            document.getElementById('connexionSection').classList.remove('active');
-            document.getElementById('inscriptionSection').classList.remove('active');
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.add('active');
-            document.getElementById('aboutPage').classList.remove('active');
-            
-            refreshAdminLists();
+            // Admin déplacé sur admin.html — rediriger
+            window.location.href = 'admin.html';
         }
         
         function closeAboutPage() {
