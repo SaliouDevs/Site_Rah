@@ -476,7 +476,17 @@
                 return;
             }
 
-            const profile = await sbGetProfile();
+            let profile = await sbGetProfile();
+
+            // Si le compte est en attente, tenter l'activation automatique
+            // (cas où payment.html n'a pas pu appeler confirm_payment à cause
+            //  d'une session expirée lors de la navigation vers Wave)
+            if (profile.status === 'pending') {
+                try {
+                    await sbConfirmPayment();
+                    profile = await sbGetProfile(); // recharger après activation
+                } catch (_) { /* activation échouée → message ci-dessous */ }
+            }
 
             if (profile.status === 'pending') {
                 await sbLogout();
