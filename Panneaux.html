@@ -1265,6 +1265,7 @@
             if (!category) return;
             
             // Masquer le header principal
+            window.parent.postMessage({ type: 'hideBottomNav' }, '*');
             document.getElementById('main-header').style.display = 'none';
             
             document.getElementById('study-title').textContent = `${category.name} - ${category.signs.length} Panneaux`;
@@ -1539,6 +1540,7 @@
         }
         
         function backToCategories() {
+            window.parent.postMessage({ type: 'showBottomNav' }, '*');
             // Réafficher le header principal
             document.getElementById('main-header').style.display = 'block';
             

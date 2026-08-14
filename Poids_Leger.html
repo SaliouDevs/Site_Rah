@@ -4251,6 +4251,7 @@ const questionsB10 = [
         }
 
         function startExam(series) {
+            window.parent.postMessage({ type: 'hideBottomNav' }, '*');
             currentSeries = series;
             currentQuestion = 1;
             selectedAnswers = {};
@@ -4779,6 +4780,7 @@ const questionsB10 = [
         }
 
         function returnToMain() {
+            window.parent.postMessage({ type: 'showBottomNav' }, '*');
             // Arrêter tous les audios en cours
             stopAllAudio();
             
@@ -4800,6 +4802,7 @@ let examData = null;
 
 // Modifier la fonction startExam :
 function startExam(series) {
+    window.parent.postMessage({ type: 'hideBottomNav' }, '*');
     currentSeries = series;
     currentQuestion = 1;
     selectedAnswers = {};
@@ -5007,6 +5010,7 @@ function finishExam() {
 
 // Modifier la fonction returnToMain pour nettoyer :
 function returnToMain() {
+    window.parent.postMessage({ type: 'showBottomNav' }, '*');
     // Arrêter tous les audios en cours
     stopAllAudio();
     

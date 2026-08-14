@@ -1264,6 +1264,7 @@ function updateSeriesAccess() {
 }
 
 function startExam(series) {
+    window.parent.postMessage({ type: 'hideBottomNav' }, '*');
     currentSeries = series;
     currentQuestion = 1;
     selectedAnswers = {};
@@ -2126,8 +2127,9 @@ function getNextSeries(current) {
 }
 
 function returnToMain() {
+    window.parent.postMessage({ type: 'showBottomNav' }, '*');
     stopAllAudio();
-    
+
     // Sauvegarder l'état avant de retourner
     if (examInProgress) {
         saveExamState();
