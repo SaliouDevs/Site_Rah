@@ -2661,12 +2661,81 @@
         let selectedPrix = 0;
         let selectedFormule = 'Formule Illimitée';
 
+        // ===== DEVELOPMENT MODE =====
+        const DEV_CONFIG = {
+            enabled: true,
+            autoLogin: true,
+            role: 'student', // 'student', 'admin' ou 'normal'
+            skipWelcome: true
+        };
+
+        const DEV_STUDENT = {
+            prenom: 'Test',
+            telephone: '770000000',
+            password: 'dev1234',
+            dateInscription: new Date().toISOString(),
+            formule: 'Formule Illimitée',
+            prix: 2000,
+            status: 'active',
+            isDevUser: true
+        };
+
+        const DEV_ADMIN = {
+            prenom: 'Administrateur DEV',
+            telephone: '760000000',
+            password: 'devadmin',
+            dateInscription: new Date().toISOString(),
+            status: 'active',
+            isAdmin: true,
+            isDevUser: true
+        };
+
+        const DEV_ALLOWED_ROLES = ['student', 'admin', 'normal'];
+        const DEV_AUTO_LOGIN_DISABLED_KEY = 'devAutoLoginDisabled';
+
+        // ===== DEMO MODE PUBLIC =====
+        const DEMO_CONFIG = {
+            enabled: true,
+            autoLoginStudent: true
+        };
+
+        const DEMO_STUDENT = {
+            prenom: 'Visiteur',
+            telephone: '770000000',
+            password: '',
+            dateInscription: new Date().toISOString(),
+            formule: 'Formule Illimitée',
+            prix: 2000,
+            status: 'active',
+            isDemoUser: true
+        };
+
+        // TODO PROD: remplacer l'authentification localStorage par une authentification backend sécurisée.
+
         // Compte admin
         const ADMIN_PHONE = '762572877';
         const ADMIN_PASSWORD = 'AA00ARD';
 
         // ===== CHARGEMENT DE LA SESSION AU DÉMARRAGE =====
         document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            initializeCommonFeatures();
+            
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify([]));
+            }
+
+            if (initializeDevMode()) {
+                return;
+            }
+
+            if (initializeDemoMode()) {
+                return;
+            }
+
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 try {
@@ -2689,13 +2758,12 @@
                     localStorage.removeItem('currentUser');
                 }
             }
-            
-            if (!localStorage.getItem('users')) {
-                localStorage.setItem('users', JSON.stringify([]));
-            }
-            
+
             startCountdown();
-            
+            checkConnection();
+        }
+
+        function initializeCommonFeatures() {
             const phoneInputs = document.querySelectorAll('input[type="tel"]');
             phoneInputs.forEach(phoneInput => {
                 phoneInput.addEventListener('input', function(e) {
@@ -2741,9 +2809,175 @@
             window.addEventListener('offline', function() {
                 document.getElementById('connectionAlert').style.display = 'block';
             });
-            
+
+            window.addEventListener('beforeunload', function() {
+                sessionStorage.removeItem(DEV_AUTO_LOGIN_DISABLED_KEY);
+            });
+        }
+
+        function getDevRoleFromUrl() {
+            if (!isLocalDevelopmentHost()) {
+                return null;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const devRole = params.get('dev');
+            return DEV_ALLOWED_ROLES.includes(devRole) ? devRole : null;
+        }
+
+        function getActiveDevRole() {
+            const urlRole = getDevRoleFromUrl();
+            if (urlRole) {
+                return urlRole;
+            }
+
+            if (!DEV_CONFIG.enabled || !DEV_CONFIG.autoLogin) {
+                return 'normal';
+            }
+
+            return DEV_ALLOWED_ROLES.includes(DEV_CONFIG.role) ? DEV_CONFIG.role : 'normal';
+        }
+
+        function initializeDevMode() {
+            if (!isLocalDevelopmentHost()) {
+                hideDevModeBadge();
+                return false;
+            }
+
+            const urlRole = getDevRoleFromUrl();
+            const activeRole = getActiveDevRole();
+            const autoLoginDisabled = sessionStorage.getItem(DEV_AUTO_LOGIN_DISABLED_KEY) === 'true';
+
+            if (activeRole === 'normal') {
+                hideDevModeBadge();
+                return false;
+            }
+
+            if (!urlRole && autoLoginDisabled) {
+                hideDevModeBadge();
+                return false;
+            }
+
+            sessionStorage.removeItem(DEV_AUTO_LOGIN_DISABLED_KEY);
+
+            if (DEV_CONFIG.skipWelcome) {
+                skipWelcome();
+            }
+
+            console.log('[DEV] Mode développement activé');
+            showDevModeBadge(activeRole);
+
+            if (activeRole === 'student') {
+                console.log('[DEV] Connexion automatique élève');
+                accederEspaceEleve({ ...DEV_STUDENT, dateInscription: new Date().toISOString() }, false);
+                showSection('accueil');
+                checkConnection();
+                return true;
+            }
+
+            if (activeRole === 'admin') {
+                console.log('[DEV] Connexion automatique admin');
+                accederEspaceAdmin({ ...DEV_ADMIN, dateInscription: new Date().toISOString() }, false);
+                checkConnection();
+                return true;
+            }
+
+            return false;
+        }
+
+        function isLocalDevelopmentHost() {
+            const hostname = window.location.hostname;
+            return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '';
+        }
+
+        function initializeDemoMode() {
+            if (isLocalDevelopmentHost() || !DEMO_CONFIG.enabled || !DEMO_CONFIG.autoLoginStudent) {
+                hideDemoModeBadge();
+                return false;
+            }
+
+            skipWelcome();
+            console.log('[DEMO] Connexion automatique élève');
+            showDemoModeBadge();
+            accederEspaceEleve({ ...DEMO_STUDENT, dateInscription: new Date().toISOString() }, false);
+            showSection('accueil');
             checkConnection();
-        });
+            return true;
+        }
+
+        function showDevModeBadge(role) {
+            let badge = document.getElementById('devModeBadge');
+
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'devModeBadge';
+                badge.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    left: 10px;
+                    z-index: 2000;
+                    padding: 6px 10px;
+                    border-radius: 6px;
+                    background: rgba(20, 20, 20, 0.82);
+                    color: #fff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                    pointer-events: none;
+                `;
+                document.body.appendChild(badge);
+            }
+
+            badge.textContent = `DEV MODE - ${role.toUpperCase()}`;
+            badge.style.display = 'block';
+        }
+
+        function hideDevModeBadge() {
+            const badge = document.getElementById('devModeBadge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+
+        function showDemoModeBadge() {
+            let badge = document.getElementById('demoModeBadge');
+
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'demoModeBadge';
+                badge.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    left: 10px;
+                    z-index: 2000;
+                    padding: 6px 10px;
+                    border-radius: 6px;
+                    background: rgba(0, 82, 255, 0.86);
+                    color: #fff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                    pointer-events: none;
+                `;
+                document.body.appendChild(badge);
+            }
+
+            badge.textContent = 'MODE DEMO';
+            badge.style.display = 'block';
+        }
+
+        function hideDemoModeBadge() {
+            const badge = document.getElementById('demoModeBadge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+
+        function isTemporaryAuthUser(user) {
+            return !!(user && (user.isDevUser || user.isDemoUser));
+        }
 
         // ===== GESTION DES TARIFS =====
         
@@ -2839,7 +3073,9 @@
                     
                     if (currentUser) {
                         currentUser.photo = photoData;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        if (!isTemporaryAuthUser(currentUser)) {
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        }
                         
                         const users = JSON.parse(localStorage.getItem('users')) || [];
                         const userIndex = users.findIndex(u => u.telephone === currentUser.telephone);
@@ -2872,7 +3108,9 @@
                 document.getElementById('userAvatar').textContent = newName.charAt(0);
                 document.getElementById('profil-nom-complet').textContent = newName;
                 
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                if (!isTemporaryAuthUser(currentUser)) {
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
                 
                 const users = JSON.parse(localStorage.getItem('users')) || [];
                 const userIndex = users.findIndex(u => u.telephone === currentUser.telephone);
@@ -3576,6 +3814,16 @@
         
         function deconnexion() {
             // déconnexion immédiate sans demande de confirmation
+            if (currentUser && currentUser.isDevUser) {
+                sessionStorage.setItem(DEV_AUTO_LOGIN_DISABLED_KEY, 'true');
+                hideDevModeBadge();
+            }
+
+            if (currentUser && currentUser.isDemoUser) {
+                hideDemoModeBadge();
+                showNotification('ℹ️ Vous consultez une version de démonstration.');
+            }
+
             localStorage.removeItem('currentUser');
             currentUser = null;
             

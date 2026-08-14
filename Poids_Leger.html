@@ -220,6 +220,7 @@
             
             <div class="audio-controls">
                 <div class="audio-btn" id="audio-fr" title="Audio Français">FR</div>
+                <div class="audio-btn" id="audio-sn" title="Audio Wolof">SN</div>
             </div>
             
             <div id="options-container">
@@ -3918,8 +3919,100 @@ const questionsB10 = [
         let timerInterval;
         let selectedAnswers = {};
         let examScore = 0;
-        let audioPlayer = null;
+        let speechAudio = null;
+        let mp3Audio = null;
         let isAudioPlaying = false;
+        let activeAudioButton = null;
+
+        // Fonctions audio communes
+        function stopAllAudio() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
+            if (mp3Audio) {
+                mp3Audio.pause();
+                mp3Audio.currentTime = 0;
+                mp3Audio = null;
+            }
+
+            isAudioPlaying = false;
+
+            document.querySelectorAll('.audio-btn, .detail-audio-btn').forEach(btn => {
+                btn.classList.remove('playing');
+            });
+
+            activeAudioButton = null;
+        }
+
+        function playFrenchTTS(text, button) {
+            stopAllAudio();
+
+            if (!('speechSynthesis' in window)) {
+                alert("La synthèse vocale n'est pas supportée par votre navigateur.");
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+
+            speechAudio = utterance;
+            isAudioPlaying = true;
+            activeAudioButton = button;
+
+            if (button) button.classList.add('playing');
+
+            utterance.onend = () => {
+                isAudioPlaying = false;
+                if (button) button.classList.remove('playing');
+                activeAudioButton = null;
+                speechAudio = null;
+            };
+
+            utterance.onerror = () => {
+                isAudioPlaying = false;
+                if (button) button.classList.remove('playing');
+                activeAudioButton = null;
+                speechAudio = null;
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function playSnMp3(filePath, button) {
+            if (activeAudioButton === button && isAudioPlaying && mp3Audio) {
+                stopAllAudio();
+                return;
+            }
+
+            stopAllAudio();
+
+            mp3Audio = new Audio(filePath);
+            activeAudioButton = button;
+            isAudioPlaying = true;
+
+            if (button) button.classList.add('playing');
+
+            mp3Audio.onended = () => {
+                isAudioPlaying = false;
+                if (button) button.classList.remove('playing');
+                activeAudioButton = null;
+                mp3Audio = null;
+            };
+
+            mp3Audio.onerror = () => {
+                isAudioPlaying = false;
+                if (button) button.classList.remove('playing');
+                activeAudioButton = null;
+                mp3Audio = null;
+                alert("Audio introuvable : " + filePath);
+            };
+
+            mp3Audio.play();
+        }
 
         // Initialisation
         function initApp() {
@@ -3974,6 +4067,29 @@ const questionsB10 = [
             });
         }
 
+        function getCurrentLegerAudioText() {
+            const questionData = getQuestionData(currentQuestion);
+            if (!questionData) return '';
+
+            let audioText = questionData.text + ". ";
+
+            if (questionData.optionType === "type2") {
+                audioText += "Options : OUI ou NON.";
+            } else if (questionData.optionType === "type4") {
+                const options = [questionData.type4Text1, questionData.type4Text2, questionData.type4Text3].filter(Boolean);
+                audioText += "Options : ";
+                options.forEach((option, index) => {
+                    audioText += `${String.fromCharCode(65 + index)} : ${option}. `;
+                });
+            } else if (questionData.optionType === "type3") {
+                audioText =
+                    `${questionData.type3Q1Title} : ${questionData.type3Q1Text1.replace('A : ', '')} ou ${questionData.type3Q1Text2.replace('B : ', '')}. ` +
+                    `${questionData.type3Q2Title} : ${questionData.type3Q2Text1.replace('C : ', '')} ou ${questionData.type3Q2Text2.replace('D : ', '')}.`;
+            }
+
+            return audioText;
+        }
+
         function setupEventListeners() {
             // Boutons de démarrage (délégué d'événement)
             document.getElementById('series-container').addEventListener('click', function(e) {
@@ -4015,7 +4131,14 @@ const questionsB10 = [
             });
 
             // Contrôles audio
-            document.getElementById('audio-fr').addEventListener('click', () => playAudio('fr'));
+            document.getElementById('audio-fr').addEventListener('click', function () {
+                playFrenchTTS(getCurrentLegerAudioText(), this);
+            });
+
+            document.getElementById('audio-sn').addEventListener('click', function () {
+                const filePath = `Audio/leger/${currentSeries}_${currentQuestion}.mp3`;
+                playSnMp3(filePath, this);
+            });
         }
 
         function handleOptionSelection(e) {
@@ -4092,83 +4215,6 @@ const questionsB10 = [
             }
         }
 
-        function playAudio(lang) {
-            // Arrêter l'audio en cours
-            if (audioPlayer && window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-                isAudioPlaying = false;
-                document.getElementById('audio-fr').classList.remove('playing');
-            }
-            
-            const questionData = getQuestionData(currentQuestion);
-            if (!questionData) return;
-            
-            // Créer le texte audio
-            let audioText = questionData.text + ". ";
-            
-            // Ajouter les options selon le type de question
-            if (questionData.optionType === "type2") {
-                audioText += "Options : OUI ou NON.";
-            } else if (questionData.optionType === "type4") {
-                const options = [questionData.type4Text1, questionData.type4Text2, questionData.type4Text3].filter(t => t);
-                audioText += "Options : ";
-                options.forEach((option, index) => {
-                    audioText += `${String.fromCharCode(65 + index)} : ${option}. `;
-                });
-            } else if (questionData.optionType === "type3") {
-                audioText = questionData.type3Q1Title + " : " + questionData.type3Q1Text1.replace('A : ', '') + " ou " + 
-                           questionData.type3Q1Text2.replace('B : ', '') + ". " +
-                           questionData.type3Q2Title + " : " + questionData.type3Q2Text1.replace('C : ', '') + " ou " + 
-                           questionData.type3Q2Text2.replace('D : ', '') + ".";
-            }
-            
-            // Utiliser l'API de synthèse vocale
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(audioText);
-                utterance.lang = 'fr-FR';
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 1;
-                
-                // Sélectionner une voix masculine si disponible
-                const voices = window.speechSynthesis.getVoices();
-                const maleVoice = voices.find(voice => 
-                    voice.lang === 'fr-FR' && 
-                    (voice.name.toLowerCase().includes('male') ||
-                     voice.name.includes('Homme') ||
-                     voice.name.includes('homme') ||
-                     voice.name.includes('Paul') ||
-                     voice.name.includes('paule'))
-                );
-                
-                if (maleVoice) {
-                    utterance.voice = maleVoice;
-                }
-                
-                const button = document.getElementById('audio-fr');
-                button.classList.add('playing');
-                
-                utterance.onstart = () => {
-                    isAudioPlaying = true;
-                };
-                
-                utterance.onend = () => {
-                    isAudioPlaying = false;
-                    button.classList.remove('playing');
-                };
-                
-                utterance.onerror = () => {
-                    isAudioPlaying = false;
-                    button.classList.remove('playing');
-                };
-                
-                window.speechSynthesis.speak(utterance);
-                audioPlayer = utterance;
-            } else {
-                alert("La synthèse vocale n'est pas supportée par votre navigateur.");
-            }
-        }
-
         function isQuestionAnswered() {
             const questionData = getQuestionData(currentQuestion);
             if (!questionData) return false;
@@ -4211,12 +4257,7 @@ const questionsB10 = [
             examScore = 0;
             
             // Arrêter l'audio
-            if (audioPlayer && window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-                audioPlayer = null;
-                isAudioPlaying = false;
-                document.getElementById('audio-fr').classList.remove('playing');
-            }
+            stopAllAudio();
             
             // Mettre à jour l'interface
             document.getElementById('exam-series-title').textContent = `${seriesData[series].name}`;
@@ -4738,12 +4779,8 @@ const questionsB10 = [
         }
 
         function returnToMain() {
-            if (audioPlayer && window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-                audioPlayer = null;
-                isAudioPlaying = false;
-                document.getElementById('audio-fr').classList.remove('playing');
-            }
+            // Arrêter tous les audios en cours
+            stopAllAudio();
             
             document.getElementById('header').style.display = 'block';
             document.querySelector('.main-container').style.display = 'flex';
@@ -4783,12 +4820,7 @@ function startExam(series) {
     localStorage.setItem('examData', JSON.stringify(examData));
     
     // Arrêter l'audio
-    if (audioPlayer && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        audioPlayer = null;
-        isAudioPlaying = false;
-        document.getElementById('audio-fr').classList.remove('playing');
-    }
+    stopAllAudio();
     
     // Mettre à jour l'interface
     document.getElementById('exam-series-title').textContent = `${seriesData[series].name}`;
@@ -4975,12 +5007,8 @@ function finishExam() {
 
 // Modifier la fonction returnToMain pour nettoyer :
 function returnToMain() {
-    if (audioPlayer && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        audioPlayer = null;
-        isAudioPlaying = false;
-        document.getElementById('audio-fr').classList.remove('playing');
-    }
+    // Arrêter tous les audios en cours
+    stopAllAudio();
     
     // Nettoyer l'examen en cours si on retourne à l'accueil
     clearExamStorage();

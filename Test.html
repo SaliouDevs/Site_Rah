@@ -237,6 +237,7 @@
             
             <div class="audio-controls">
                 <div class="audio-btn" id="audio-fr" title="Audio Français">FR</div>
+                <div class="audio-btn" id="audio-sn" title="Audio Wolof">SN</div>
             </div>
             
             <!-- OPTIONS A, B, C seulement -->
@@ -654,8 +655,10 @@
     let timeLeft = 10 * 60;
     let selectedAnswers = {};
     let examScore = 0;
-    let audioPlayer = null;
+    let speechAudio = null;
+    let mp3Audio = null;
     let isAudioPlaying = false;
+    let activeAudioButton = null;
     let canModifyAnswers = true;
 
     // Texte audio pour les questions
@@ -698,12 +701,114 @@
         }
     };
 
-    // Initialisation
+    // Fonctions audio communes
+function stopAllAudio() {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+
+    if (mp3Audio) {
+        mp3Audio.pause();
+        mp3Audio.currentTime = 0;
+        mp3Audio = null;
+    }
+
+    isAudioPlaying = false;
+
+    document.querySelectorAll('.audio-btn, .detail-audio-btn').forEach(btn => {
+        btn.classList.remove('playing');
+    });
+
+    activeAudioButton = null;
+}
+
+function playFrenchTTS(text, button) {
+    stopAllAudio();
+
+    if (!('speechSynthesis' in window)) {
+        alert("La synthèse vocale n'est pas supportée par votre navigateur.");
+        return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    speechAudio = utterance;
+    isAudioPlaying = true;
+    activeAudioButton = button;
+
+    if (button) button.classList.add('playing');
+
+    utterance.onend = () => {
+        isAudioPlaying = false;
+        if (button) button.classList.remove('playing');
+        activeAudioButton = null;
+        speechAudio = null;
+    };
+
+    utterance.onerror = () => {
+        isAudioPlaying = false;
+        if (button) button.classList.remove('playing');
+        activeAudioButton = null;
+        speechAudio = null;
+    };
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function playSnMp3(filePath, button) {
+    if (activeAudioButton === button && isAudioPlaying && mp3Audio) {
+        stopAllAudio();
+        return;
+    }
+
+    stopAllAudio();
+
+    mp3Audio = new Audio(filePath);
+    activeAudioButton = button;
+    isAudioPlaying = true;
+
+    if (button) button.classList.add('playing');
+
+    mp3Audio.onended = () => {
+        isAudioPlaying = false;
+        if (button) button.classList.remove('playing');
+        activeAudioButton = null;
+        mp3Audio = null;
+    };
+
+    mp3Audio.onerror = () => {
+        isAudioPlaying = false;
+        if (button) button.classList.remove('playing');
+        activeAudioButton = null;
+        mp3Audio = null;
+        alert("Audio introuvable : " + filePath);
+    };
+
+    mp3Audio.play();
+}
+
+// Initialisation
     function initApp() {
         setupEventListeners();
         updateSeriesAccess();
         loadRecentTests();
         updatePerformanceChart();
+    }
+
+    function getCurrentTestAudioText() {
+        const questionData = getQuestionData(currentQuestion);
+        if (!questionData) return '';
+
+        return audioQuestions[currentSeries] && audioQuestions[currentSeries][currentQuestion]
+            ? audioQuestions[currentSeries][currentQuestion]
+            : `Question ${currentQuestion}: ${questionData.text}. 
+               A: ${questionData.options.A}. 
+               B: ${questionData.options.B}. 
+               C: ${questionData.options.C}.`;
     }
 
     function setupEventListeners() {
@@ -786,58 +891,14 @@
         });
 
         // Contrôle audio français
-        document.getElementById('audio-fr').addEventListener('click', playAudio);
-    }
+        document.getElementById('audio-fr').addEventListener('click', function() {
+            playFrenchTTS(getCurrentTestAudioText(), this);
+        });
 
-    function playAudio() {
-        // Arrêter l'audio en cours
-        if (audioPlayer && window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-            audioPlayer = null;
-            isAudioPlaying = false;
-            document.getElementById('audio-fr').classList.remove('playing');
-        }
-        
-        const questionData = getQuestionData(currentQuestion);
-        if (!questionData) return;
-        
-        // Créer le texte audio
-        let audioText = audioQuestions[currentSeries] && audioQuestions[currentSeries][currentQuestion] 
-            ? audioQuestions[currentSeries][currentQuestion] 
-            : `Question ${currentQuestion}: ${questionData.text} Options: A: ${questionData.options.A}, B: ${questionData.options.B}, C: ${questionData.options.C}`;
-        
-        // Utiliser l'API de synthèse vocale du navigateur
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(audioText);
-            utterance.lang = 'fr-FR';
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
-            utterance.volume = 1;
-            
-            // Mettre à jour le bouton audio
-            const button = document.getElementById('audio-fr');
-            button.classList.add('playing');
-            
-            utterance.onstart = () => {
-                isAudioPlaying = true;
-            };
-            
-            utterance.onend = () => {
-                isAudioPlaying = false;
-                button.classList.remove('playing');
-            };
-            
-            utterance.onerror = () => {
-                isAudioPlaying = false;
-                button.classList.remove('playing');
-                console.error('Erreur de synthèse vocale');
-            };
-            
-            window.speechSynthesis.speak(utterance);
-            audioPlayer = utterance;
-        } else {
-            alert("La synthèse vocale n'est pas supportée par votre navigateur.");
-        }
+        document.getElementById('audio-sn').addEventListener('click', function() {
+            const filePath = `Audio/test/${currentSeries}_${currentQuestion}.mp3`;
+            playSnMp3(filePath, this);
+        });
     }
 
     function isQuestionAnswered() {
@@ -870,12 +931,7 @@
         canModifyAnswers = true;
         
         // Arrêter l'audio
-        if (audioPlayer && window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-            audioPlayer = null;
-            isAudioPlaying = false;
-            document.getElementById('audio-fr').classList.remove('playing');
-        }
+        stopAllAudio();
         
         // Mettre à jour l'interface
         document.getElementById('exam-series-title').textContent = `Niveau ${series.slice(1)}`;
@@ -1290,12 +1346,7 @@
     }
 
     function returnToMain() {
-        if (audioPlayer && window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-            audioPlayer = null;
-            isAudioPlaying = false;
-            document.getElementById('audio-fr').classList.remove('playing');
-        }
+        stopAllAudio();
         
         document.getElementById('header').style.display = 'block';
         document.querySelector('.main-container').style.display = 'flex';
@@ -1575,12 +1626,7 @@ function startExam(series) {
     canModifyAnswers = true;
     
     // Arrêter l'audio
-    if (audioPlayer && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        audioPlayer = null;
-        isAudioPlaying = false;
-        document.getElementById('audio-fr').classList.remove('playing');
-    }
+    stopAllAudio();
     
     // Mettre à jour l'interface
     document.getElementById('exam-series-title').textContent = `Niveau ${series.slice(1)}`;
@@ -1702,12 +1748,7 @@ function finishExam() {
 
 // Modifier la fonction returnToMain pour effacer l'état
 function returnToMain() {
-    if (audioPlayer && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        audioPlayer = null;
-        isAudioPlaying = false;
-        document.getElementById('audio-fr').classList.remove('playing');
-    }
+    stopAllAudio();
     
     // Effacer l'état de l'examen
     clearExamState();

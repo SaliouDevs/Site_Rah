@@ -252,6 +252,18 @@
             box-shadow: 0 3px 8px rgba(0,0,0,0.1); 
         }
         .audio-btn.fr { background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue)); color: white; }
+        .audio-btn.sn,
+        .detail-audio-btn.sn {
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+            color: white;
+        }
+
+        .audio-btn.playing,
+        .detail-audio-btn.playing {
+            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.35);
+            transform: translateY(-2px);
+        }
+
         .audio-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 12px rgba(0,0,0,0.2); }
         
         /* Navigation */
@@ -1308,8 +1320,11 @@
                         <p class="sign-description">${sign.description}</p>
                         
                         <div class="audio-controls">
-                            <button class="audio-btn fr" onclick="playAudio('${sign.name}. ${sign.description}', 'fr')">
-                                <i class="fas fa-volume-up"></i> Fr
+                            <button class="audio-btn fr" onclick="playPanelFr('${sign.name}. ${sign.description}', this)">
+                                <i class="fas fa-volume-up"></i> FR
+                            </button>
+                            <button class="audio-btn sn" onclick="playPanelSn('Audio/panneaux/P_${index + 1}.mp3', this)">
+                                <i class="fas fa-volume-up"></i> SN
                             </button>
                         </div>
                     </div>
@@ -1380,6 +1395,7 @@
             closeBtn.className = 'btn btn-primary';
             closeBtn.innerHTML = '<i class="fas fa-times"></i>';
             closeBtn.onclick = () => {
+                stopPanelAudio();
                 detailContainer.remove();
                 document.getElementById('study-view').style.display = 'block';
             };
@@ -1434,9 +1450,15 @@
             const audioBtnFr = document.createElement('button');
             audioBtnFr.className = 'detail-audio-btn fr';
             audioBtnFr.innerHTML = '<i class="fas fa-volume-up"></i> Écouter en Français';
-            audioBtnFr.onclick = () => playAudio(`${sign.name}. ${sign.description}`, 'fr');
-            
+            audioBtnFr.onclick = () => playPanelFr(`${sign.name}. ${sign.description}`, audioBtnFr);
+
+            const audioBtnSn = document.createElement('button');
+            audioBtnSn.className = 'detail-audio-btn sn';
+            audioBtnSn.innerHTML = '<i class="fas fa-volume-up"></i> Écouter en wolof';
+            audioBtnSn.onclick = () => playPanelSn(`Audio/panneaux/P_${appState.currentSignIndex + 1}.mp3`, audioBtnSn);
+
             audioControls.appendChild(audioBtnFr);
+            audioControls.appendChild(audioBtnSn);
             infoContainer.appendChild(audioControls);
             
             detailCard.appendChild(infoContainer);
@@ -1460,6 +1482,7 @@
                 prevBtn.disabled = appState.currentSignIndex === 0;
                 prevBtn.onclick = () => {
                     if (appState.currentSignIndex > 0) {
+                        stopPanelAudio();
                         appState.currentSignIndex--;
                         detailContainer.remove();
                         renderDetailView();
@@ -1472,6 +1495,7 @@
                 nextBtn.disabled = appState.currentSignIndex === signs.length - 1;
                 nextBtn.onclick = () => {
                     if (appState.currentSignIndex < signs.length - 1) {
+                        stopPanelAudio();
                         appState.currentSignIndex++;
                         detailContainer.remove();
                         renderDetailView();
@@ -1489,6 +1513,7 @@
             backBtn.innerHTML = '<i class="fas fa-th-large"></i>';
             backBtn.title = 'Retour à la grille';
             backBtn.onclick = () => {
+                stopPanelAudio();
                 detailContainer.remove();
                 document.getElementById('study-view').style.display = 'block';
             };
@@ -1613,6 +1638,9 @@
         window.backToCategories = backToCategories;
         window.switchTab = switchTab;
         window.playAudio = playAudio;
+        window.playPanelFr = playPanelFr;
+        window.playPanelSn = playPanelSn;
+        window.stopPanelAudio = stopPanelAudio;
 // ============================================
 // FILTRER LES CATÉGORIES - MASQUER SIGNALISATION LUMINEUSE
 // ============================================
@@ -1648,52 +1676,99 @@ function renderCategories() {
         grid.appendChild(card);
     });
 }
+
 // ============================================
-// 
+// AUDIO PANEL - GESTION DES LECTURES
 // ============================================
 
-let currentAudio = null;
-let isAudioPlaying = false;
+let currentPanelPlayback = null;
+let currentPlayingButton = null;
 
-function playAudio(text, language) {
-    // Arrêter l'audio en cours s'il joue
-    if (isAudioPlaying) {
-        stopAudio();
+function setButtonPlaying(btn, playing) {
+    if (!btn) return;
+    btn.classList.toggle('playing', playing);
+    btn.disabled = playing;
+}
+
+function playPanelFr(text, button) {
+    stopPanelAudio();
+
+    if (!('speechSynthesis' in window)) {
+        showNotification('❌ Synthèse vocale non supportée');
+        return;
     }
-    
-    // Créer nouvel audio
-    const utterance = new SpeechSynthesisUtterance();
-    utterance.text = text;
-    utterance.lang = 'fr-FR'; // Seulement français
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
     utterance.rate = 0.9;
     utterance.pitch = 1;
-    
-    // Gérer les événements
+
     utterance.onstart = () => {
-        isAudioPlaying = true;
-        currentAudio = utterance;
+        currentPanelPlayback = utterance;
+        currentPlayingButton = button;
+        setButtonPlaying(button, true);
+        showNotification('🔊 Lecture en français');
     };
-    
+
     utterance.onend = () => {
-        isAudioPlaying = false;
-        currentAudio = null;
+        currentPanelPlayback = null;
+        setButtonPlaying(button, false);
     };
-    
+
     utterance.onerror = () => {
-        isAudioPlaying = false;
-        currentAudio = null;
+        currentPanelPlayback = null;
+        setButtonPlaying(button, false);
+        showNotification('❌ Impossible de lire l\'audio');
     };
-    
-    // Lancer la lecture
+
     speechSynthesis.speak(utterance);
 }
 
-function stopAudio() {
-    if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-        isAudioPlaying = false;
-        currentAudio = null;
+function playPanelSn(src, button) {
+    stopPanelAudio();
+
+    const audio = new Audio(src);
+    currentPanelPlayback = audio;
+    currentPlayingButton = button;
+
+    setButtonPlaying(button, true);
+
+    audio.onended = () => {
+        currentPanelPlayback = null;
+        setButtonPlaying(button, false);
+    };
+
+    audio.onerror = () => {
+        currentPanelPlayback = null;
+        setButtonPlaying(button, false);
+        showNotification(`❌ Audio introuvable : ${src}`);
+    };
+
+    audio.play().catch(() => {
+        currentPanelPlayback = null;
+        setButtonPlaying(button, false);
+        showNotification(`❌ Audio introuvable : ${src}`);
+    });
+
+    showNotification('🔊 Lecture en wolof');
+}
+
+function stopPanelAudio() {
+    if (currentPanelPlayback) {
+        if (currentPanelPlayback instanceof Audio) {
+            currentPanelPlayback.pause();
+            currentPanelPlayback.currentTime = 0;
+        } else if (typeof speechSynthesis !== 'undefined') {
+            speechSynthesis.cancel();
+        }
     }
+
+    if (currentPlayingButton) {
+        setButtonPlaying(currentPlayingButton, false);
+    }
+
+    currentPanelPlayback = null;
+    currentPlayingButton = null;
 }
     </script>
 </body>
