@@ -278,6 +278,7 @@
             if (activeRole === 'student') {
                 console.log('[DEV] Connexion automatique élève');
                 accederEspaceEleve({ ...DEV_STUDENT, dateInscription: new Date().toISOString() }, false);
+                setupLessonDashboard();
                 showSection('accueil');
                 checkConnection();
                 return true;
@@ -307,6 +308,7 @@
             console.log('[DEMO] Connexion automatique élève');
             showDemoModeBadge();
             accederEspaceEleve({ ...DEMO_STUDENT, dateInscription: new Date().toISOString() }, false);
+            setupLessonDashboard();
             showSection('accueil');
             checkConnection();
             return true;
@@ -320,7 +322,7 @@
                 badge.id = 'devModeBadge';
                 badge.style.cssText = `
                     position: fixed;
-                    top: 10px;
+                    bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 10px);
                     left: 10px;
                     z-index: 2000;
                     padding: 6px 10px;
@@ -336,7 +338,8 @@
                 document.body.appendChild(badge);
             }
 
-            badge.textContent = `DEV MODE - ${role.toUpperCase()}`;
+            badge.textContent = 'DEV';
+            badge.title = `DEV MODE - ${role.toUpperCase()}`;
             badge.style.display = 'block';
         }
 
@@ -355,7 +358,7 @@
                 badge.id = 'demoModeBadge';
                 badge.style.cssText = `
                     position: fixed;
-                    top: 10px;
+                    bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 10px);
                     left: 10px;
                     z-index: 2000;
                     padding: 6px 10px;
@@ -371,7 +374,8 @@
                 document.body.appendChild(badge);
             }
 
-            badge.textContent = 'MODE DEMO';
+            badge.textContent = 'DEMO';
+            badge.title = 'MODE DEMO';
             badge.style.display = 'block';
         }
 
@@ -1331,7 +1335,7 @@
                 section.classList.remove('active');
             });
             
-            const mainNavSections = ['accueil', 'lecons', 'test', 'progres', 'profil', 'suggestions', 'contact', 'parametres'];
+            const mainNavSections = ['accueil', 'lecons', 'panneaux', 'test', 'videos', 'progres', 'profil', 'suggestions', 'contact', 'parametres'];
             const bottomNav = document.querySelector('.bottom-nav');
             if (bottomNav) {
                 bottomNav.style.display = mainNavSections.includes(sectionId) ? 'flex' : 'none';
@@ -1347,6 +1351,10 @@
                         changerOnglet('apprentissage');
                     }, 100);
                 }
+
+                if (bottomNav && sectionId === 'lecons' && section.classList.contains('reader-mode')) {
+                    bottomNav.style.display = 'none';
+                }
             }
 
             if (sectionId === 'progres' || sectionId === 'accueil') {
@@ -1354,6 +1362,7 @@
             }
             
             updateBottomNav(sectionId);
+            requestAnimationFrame(resizeActiveIframe);
         }
         
         function updateBottomNav(sectionId) {
@@ -1378,6 +1387,8 @@
                 document.documentElement.setAttribute('data-theme', 'light');
                 showNotification('Mode clair activé');
             }
+
+            syncIframeThemes();
         }
         
         async function deconnexion() {
@@ -1531,8 +1542,34 @@
             });
 
             window.addEventListener('message', function(event) {
+                if (event.data && (event.data.type === 'hideBottomNav' || event.data.type === 'showBottomNav')) {
+                    const bottomNav = document.querySelector('.bottom-nav');
+                    const activeSection = document.querySelector('.content-section.active');
+                    if (bottomNav && activeSection && activeSection.id === 'test') {
+                        bottomNav.style.display = event.data.type === 'hideBottomNav' ? 'none' : 'flex';
+                    }
+                    requestAnimationFrame(resizeActiveIframe);
+                    return;
+                }
+
                 if (!event.data || event.data.source !== 'eautoecole-lessons') {
                     return;
+                }
+
+                if (event.data.type === 'lesson-reader-opened' || event.data.type === 'lesson-reader-closed') {
+                    const leconsSection = document.getElementById('lecons');
+                    const bottomNav = document.querySelector('.bottom-nav');
+                    const isReaderOpen = event.data.type === 'lesson-reader-opened';
+
+                    if (leconsSection) {
+                        leconsSection.classList.toggle('reader-mode', isReaderOpen);
+                    }
+
+                    if (bottomNav && leconsSection && leconsSection.classList.contains('active')) {
+                        bottomNav.style.display = isReaderOpen ? 'none' : 'flex';
+                    }
+
+                    requestAnimationFrame(resizeActiveIframe);
                 }
 
                 if (event.data.type === 'lesson-viewed') {
@@ -1545,6 +1582,92 @@
             });
 
             updateLessonDashboard();
+            setupResponsiveIframes();
+        }
+
+        function getIframeContentHeight(iframe) {
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                if (!doc) {
+                    return 0;
+                }
+
+                const body = doc.body;
+                const html = doc.documentElement;
+                if (!body || !html) {
+                    return 0;
+                }
+
+                return Math.max(
+                    body.scrollHeight,
+                    body.offsetHeight,
+                    html.clientHeight,
+                    html.scrollHeight,
+                    html.offsetHeight
+                );
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function resizeIframe(iframe) {
+            const height = getIframeContentHeight(iframe);
+            if (height > 0) {
+                iframe.style.height = `${height}px`;
+            }
+        }
+
+        function resizeActiveIframe() {
+            const iframe = document.querySelector('.external-section.active .external-page');
+            if (iframe) {
+                resizeIframe(iframe);
+            }
+        }
+
+        function setupResponsiveIframes() {
+            document.querySelectorAll('.external-page').forEach((iframe) => {
+                if (iframe.dataset.resizeReady === 'true') {
+                    return;
+                }
+
+                iframe.dataset.resizeReady = 'true';
+                iframe.addEventListener('load', function() {
+                    resizeIframe(iframe);
+
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        if (doc && doc.documentElement) {
+                            syncIframeTheme(iframe);
+                            doc.documentElement.style.overflow = 'hidden';
+                            doc.body.style.overflow = 'hidden';
+                            const observer = new ResizeObserver(() => resizeIframe(iframe));
+                            observer.observe(doc.documentElement);
+                            observer.observe(doc.body);
+                        }
+                    } catch (e) {
+                        resizeIframe(iframe);
+                    }
+                });
+            });
+
+            window.addEventListener('resize', resizeActiveIframe);
+        }
+
+        function syncIframeTheme(iframe) {
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                const isDark = document.body.classList.contains('dark-mode');
+                if (doc && doc.documentElement && doc.body) {
+                    doc.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                    doc.body.classList.toggle('dark-mode', isDark);
+                }
+            } catch (e) {
+                return;
+            }
+        }
+
+        function syncIframeThemes() {
+            document.querySelectorAll('.external-page').forEach(syncIframeTheme);
         }
 
         function updateLessonDashboard() {

@@ -2106,10 +2106,17 @@ body {
   font-family: var(--font-sans);
   background: var(--surface-soft);
   color: var(--text-primary);
+  overflow-x: hidden;
 }
 
 body.dark-mode {
   background: var(--surface-soft);
+}
+
+.espace-eleve.active {
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
 }
 
 button,
@@ -2148,8 +2155,19 @@ button {
   top: 0;
   z-index: var(--z-header);
   padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--navy-950);
+  border-bottom: 1px solid rgba(244, 197, 66, 0.22);
+}
+
+.app-header::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: var(--yellow-500);
+  z-index: -1;
 }
 
 .app-header-inner,
@@ -2169,7 +2187,7 @@ button {
 .brand-lockup {
   min-height: 48px;
   gap: 10px;
-  color: var(--text-primary);
+  color: #fff;
   background: transparent;
   border: 0;
   text-align: left;
@@ -2184,7 +2202,7 @@ button {
 .brand-lockup small {
   display: block;
   margin-top: 2px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 0.75rem;
 }
 
@@ -2193,8 +2211,8 @@ button {
   width: 38px;
   height: 38px;
   place-items: center;
-  color: var(--yellow-500);
-  background: var(--navy-950);
+  color: var(--navy-950);
+  background: var(--yellow-500);
   border-radius: 12px;
 }
 
@@ -2208,9 +2226,9 @@ button {
   width: 44px;
   height: 44px;
   place-items: center;
-  color: var(--text-primary);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 14px;
   text-decoration: none;
 }
@@ -2524,21 +2542,25 @@ button {
 }
 
 .external-section.active {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  min-height: calc(100dvh - 78px - env(safe-area-inset-top));
+  display: block;
+  min-height: 0;
 }
 
 .external-page {
   width: 100%;
-  height: calc(100dvh - 146px - env(safe-area-inset-bottom));
-  min-height: 560px;
+  height: auto;
+  min-height: 320px;
+  overflow: hidden;
   border: 0;
   background: var(--surface);
 }
 
 .external-section .card {
   display: contents;
+}
+
+.external-section > .back-button {
+  display: none;
 }
 
 .back-button {

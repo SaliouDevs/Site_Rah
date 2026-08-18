@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TEST - Évaluation des Connaissances</title>
+    <link rel="stylesheet" href="./assets/css/tokens.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
         body{background:#ffffff;color:#333;line-height:1.6;padding:10px;min-height:100vh;overflow-x:hidden;max-width:100vw}
@@ -152,6 +153,193 @@
             .audio-btn{width:55px;height:55px;font-size:0.95rem}
             .result-btn{width:40px;height:40px;font-size:1rem}
             .result-btn-number{width:18px;height:18px;font-size:0.7rem}
+        }
+        /* ===== eAutoecole V2.1 visual integration ===== */
+        html { background: var(--surface-soft); overflow-x: hidden; }
+        body {
+            padding: 0;
+            background: var(--surface-soft);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+        }
+        .header {
+            max-width: 1120px;
+            margin: 0 auto 16px;
+            padding: 6px 16px 14px;
+            text-align: left;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+        }
+        .header h1 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: clamp(1.65rem, 5vw, 2rem);
+            text-shadow: none;
+        }
+        .header p {
+            margin-top: 6px;
+            color: var(--text-secondary);
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+            gap: 12px;
+            width: min(100%, 1120px);
+            padding: 0 16px 28px;
+        }
+        .series-container {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .series-section > h2,
+        .recent-tests-card h2,
+        .result-container h2 {
+            color: var(--text-primary) !important;
+            font-size: 1rem;
+            text-align: left !important;
+        }
+        .series-card,
+        .recent-tests-card,
+        .question-container,
+        .result-container,
+        .correction-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .series-card {
+            padding: 14px;
+        }
+        .series-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .series-card h2 {
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            font-size: 1.05rem;
+            text-align: left;
+        }
+        .series-info,
+        .series-info p,
+        .test-date,
+        .correction-question {
+            color: var(--text-secondary);
+        }
+        .series-info span,
+        .score-value {
+            color: var(--text-primary);
+        }
+        .btn {
+            min-height: 40px;
+            padding: 9px 12px;
+            color: var(--navy-950);
+            background: var(--yellow-500);
+            border: 1px solid rgba(8, 28, 47, 0.08);
+            border-radius: var(--radius-md);
+            box-shadow: none;
+            font-weight: 800;
+        }
+        .btn:hover:not(:disabled) {
+            color: var(--navy-950);
+            background: var(--yellow-400);
+            transform: translateY(-1px);
+        }
+        .exam-container,
+        .result-container {
+            width: min(100%, 820px);
+            padding: 0 16px 28px;
+        }
+        .exam-header {
+            height: auto;
+            min-height: 48px;
+            background: var(--navy-950);
+            border-radius: var(--radius-md);
+        }
+        .question-text {
+            color: var(--text-primary);
+            background: var(--surface-soft);
+            border-left-color: var(--yellow-500);
+        }
+        .question-number,
+        .option-value,
+        .correction-answer-letter {
+            color: var(--teal-600);
+        }
+        .audio-btn {
+            width: 52px;
+            height: 52px;
+            color: #fff;
+            background: var(--teal-600);
+            border: 1px solid rgba(23, 126, 137, 0.2);
+            border-radius: var(--radius-md);
+        }
+        .audio-btn:hover,
+        .audio-btn.playing {
+            color: var(--navy-950);
+            background: var(--yellow-500);
+            transform: translateY(-1px);
+        }
+        .simple-option {
+            min-height: 48px;
+            color: var(--text-primary);
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius-md);
+            box-shadow: none;
+        }
+        .simple-option:not(.selected) .option-label {
+            color: var(--text-primary) !important;
+        }
+        .simple-option:not(.selected) .option-value {
+            background: var(--surface-soft) !important;
+            color: var(--teal-600) !important;
+        }
+        .simple-option:hover {
+            border-color: var(--teal-600);
+            background: rgba(23, 126, 137, 0.06);
+            transform: none;
+        }
+        .simple-option.selected {
+            background: var(--navy-950) !important;
+            border-color: var(--navy-950) !important;
+        }
+        .simple-option.selected .option-value {
+            background: var(--yellow-500) !important;
+            color: var(--navy-950) !important;
+            border-color: var(--yellow-500);
+        }
+        .progress-container {
+            background: var(--surface-muted);
+        }
+        .result-actions {
+            flex-wrap: wrap;
+        }
+        .dark-mode .series-card,
+        .dark-mode .recent-tests-card,
+        .dark-mode .question-container,
+        .dark-mode .result-container,
+        .dark-mode .correction-container,
+        [data-theme="dark"] .series-card,
+        [data-theme="dark"] .recent-tests-card,
+        [data-theme="dark"] .question-container,
+        [data-theme="dark"] .result-container,
+        [data-theme="dark"] .correction-container {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding-inline: 12px;
+            }
+            .exam-container,
+            .result-container {
+                padding-inline: 12px;
+            }
         }
     </style>
 </head>

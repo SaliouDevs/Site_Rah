@@ -15,6 +15,10 @@
   let currentLesson = null;
 
   document.addEventListener('DOMContentLoaded', function () {
+    if (window.parent && window.parent !== window) {
+      document.body.classList.add('is-embedded');
+    }
+
     renderLessonList();
     bindReaderActions();
     updateProgressUi();
@@ -107,6 +111,7 @@
     document.getElementById('prevLesson').disabled = lessonNumber === 1;
     document.getElementById('nextLesson').disabled = lessonNumber === LESSONS.length;
     setLastLesson(lessonNumber);
+    postProgress('lesson-reader-opened', lessonNumber);
     window.location.hash = `lesson-${lessonNumber}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -118,6 +123,7 @@
     document.querySelectorAll('.lesson-content').forEach((section) => section.classList.remove('active'));
     history.replaceState(null, '', window.location.pathname);
     updateProgressUi();
+    postProgress('lesson-reader-closed', null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

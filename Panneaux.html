@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panneaux de Signalisation Routière</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/tokens.css">
     <style>
         :root {
             --primary-blue: #2c6fd1;
@@ -811,6 +812,190 @@
             .detail-back-btn:hover {
                 transform: none;
             }
+        }
+        /* ===== eAutoecole V2.1 visual integration ===== */
+        html { background: var(--surface-soft); overflow-x: hidden; }
+        body {
+            max-width: none;
+            background: var(--surface-soft);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+        }
+        #main-header {
+            padding: 6px 0 16px;
+            color: var(--text-primary);
+            background: transparent;
+            box-shadow: none;
+        }
+        #main-header::before { display: none; }
+        #main-header h1 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: clamp(1.65rem, 5vw, 2rem);
+            text-shadow: none;
+        }
+        #header-description {
+            max-width: 52ch;
+            margin: 6px auto 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .main-container {
+            width: min(100%, 1120px);
+            margin: 0 auto;
+            padding: 0 16px 28px;
+        }
+        .categories-grid,
+        .signs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 12px;
+            overflow: visible;
+        }
+        .category-card,
+        .sign-card,
+        .study-container,
+        .detail-card {
+            color: var(--text-primary);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .category-card { overflow: hidden; }
+        .category-card:hover,
+        .sign-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .card-header {
+            min-height: 78px;
+            padding: 14px;
+            background: var(--navy-950) !important;
+        }
+        .card-title,
+        .study-title,
+        .sign-name,
+        .detail-name {
+            color: var(--text-primary);
+        }
+        .card-logo { font-size: 2rem; }
+        .card-content { padding: 14px; }
+        .card-text,
+        .sign-description,
+        .detail-description {
+            color: var(--text-secondary);
+        }
+        .btn,
+        .nav-btn,
+        .audio-btn,
+        .detail-audio-btn,
+        .detail-back-btn,
+        .detail-nav-btn {
+            border-radius: var(--radius-md);
+            box-shadow: none;
+            font-weight: 800;
+        }
+        .btn-primary,
+        .nav-btn.next,
+        .audio-btn.fr,
+        .detail-audio-btn.fr {
+            color: var(--navy-950) !important;
+            background: var(--yellow-500) !important;
+            border: 1px solid rgba(8, 28, 47, 0.08) !important;
+        }
+        .audio-btn.sn,
+        .detail-audio-btn.sn {
+            color: #fff !important;
+            background: var(--teal-600) !important;
+            border: 1px solid rgba(23, 126, 137, 0.2) !important;
+        }
+        .tabs-container {
+            gap: 8px;
+            margin-bottom: 16px;
+            border: 0;
+            overflow-x: auto;
+        }
+        .tab {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            background: var(--surface);
+        }
+        .tab.active {
+            color: var(--navy-950);
+            background: rgba(244, 197, 66, 0.18);
+            border-color: rgba(244, 197, 66, 0.45);
+        }
+        .study-container {
+            padding: 16px;
+            overflow: visible;
+        }
+        .study-header {
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sign-image-container {
+            height: 132px;
+            background: var(--surface-soft);
+        }
+        .detail-container {
+            position: static;
+            min-height: 0;
+            padding: 16px;
+            overflow: visible;
+            background: var(--surface-soft);
+        }
+        .detail-content {
+            max-width: 760px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        .detail-card {
+            padding: 18px;
+            animation: none;
+        }
+        .detail-header {
+            position: static;
+            padding: 0 0 14px;
+            background: transparent;
+            color: var(--text-primary);
+        }
+        .detail-title { color: var(--text-primary); }
+        .detail-nav-controls,
+        .detail-back-btn {
+            position: static;
+            transform: none;
+            margin: 14px auto 0;
+        }
+        .detail-nav-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .dark-mode .category-card,
+        .dark-mode .sign-card,
+        .dark-mode .study-container,
+        .dark-mode .detail-card,
+        [data-theme="dark"] .category-card,
+        [data-theme="dark"] .sign-card,
+        [data-theme="dark"] .study-container,
+        [data-theme="dark"] .detail-card {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+        @media (min-width: 1180px) {
+            .categories-grid,
+            .signs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 520px) {
+            .main-container { padding-inline: 12px; }
+            .categories-grid,
+            .signs-grid { grid-template-columns: 1fr; }
+            .study-header { flex-direction: column; align-items: stretch; text-align: left; }
         }
     </style>
 </head>

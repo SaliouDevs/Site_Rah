@@ -5,6 +5,7 @@
 html {
   min-height: 100%;
   background: var(--surface-soft);
+  overflow-x: hidden;
 }
 
 body {
@@ -14,6 +15,7 @@ body {
   background: var(--surface-soft);
   font-family: var(--font-sans);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 button,
@@ -49,6 +51,10 @@ button {
   padding: 10px 12px;
   text-decoration: none;
   font-weight: 800;
+}
+
+.is-embedded .back-home-link {
+  display: none;
 }
 
 .reader-back {
@@ -124,6 +130,7 @@ button {
   display: grid;
   gap: 10px;
   margin-top: 18px;
+  grid-template-columns: 1fr;
 }
 
 .lesson-card {
@@ -363,7 +370,7 @@ ol {
   }
 
   .lesson-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 
   .grid-2 {
@@ -375,6 +382,12 @@ ol {
   }
 
   .reader-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .lesson-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
