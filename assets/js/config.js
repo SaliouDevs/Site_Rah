@@ -1,12 +1,60 @@
 (function () {
+  const APP_CONFIG = {
+    name: 'eAutoecole',
+    schoolName: 'Auto-école Dieynaba',
+    storagePrefix: 'eautoecole'
+  };
+
+  const DEV_CONFIG = {
+    enabled: true,
+    autoLogin: true,
+    role: 'student',
+    skipWelcome: true,
+    allowedRoles: ['student', 'admin', 'normal']
+  };
+
+  const DEMO_CONFIG = {
+    enabled: true,
+    autoLoginStudent: true,
+    showBadge: false
+  };
+
+  const EXAMS_CONFIG = {
+    poidsLegerEnabled: false,
+    poidsLourdEnabled: false
+  };
+
+  const LEARNING_CONFIG = {
+    masteryThreshold: 80,
+    totalLessons: 9,
+    storageKey: 'eautoecole.learningProgress'
+  };
+
+  const CONTACT_CONFIG = {
+    phone: '77 583 20 37',
+    phoneHref: '+221775832037',
+    whatsapp: '221775832037',
+    email: 'eautoecole1@gmail.com',
+    address: 'Dakar HLM5, Castors Parc Nadio, Keurmassar'
+  };
+
+  window.APP_CONFIG = APP_CONFIG;
+  window.DEV_CONFIG = DEV_CONFIG;
+  window.DEMO_CONFIG = DEMO_CONFIG;
+  window.EXAMS_CONFIG = EXAMS_CONFIG;
+  window.LEARNING_CONFIG = LEARNING_CONFIG;
+  window.CONTACT_CONFIG = CONTACT_CONFIG;
+
   window.EAUTO_CONFIG = {
-    exams: {
-      poidsLegerEnabled: false,
-      poidsLourdEnabled: false
-    },
+    app: APP_CONFIG,
+    dev: DEV_CONFIG,
+    demo: DEMO_CONFIG,
+    exams: EXAMS_CONFIG,
+    learning: LEARNING_CONFIG,
+    contact: CONTACT_CONFIG,
     lessons: {
-      total: 9,
-      storageKey: "eautoecole.lessonProgress"
+      total: LEARNING_CONFIG.totalLessons,
+      storageKey: LEARNING_CONFIG.storageKey
     }
   };
 })();

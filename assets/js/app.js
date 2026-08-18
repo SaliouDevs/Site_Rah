@@ -1,1725 +1,588 @@
-        // ===== VARIABLES GLOBALES =====
-        let pendingRegistration = false;
-        let countdownTimer;
-        let countdownSeconds = 1;
-        let currentUser = null;
-        let selectedTarif = null;
-        let selectedPrix = 0;
-        let selectedFormule = 'Formule Illimitée';
-
-        const EXAMS_CONFIG = (window.EAUTO_CONFIG && window.EAUTO_CONFIG.exams) || {
-            poidsLegerEnabled: false,
-            poidsLourdEnabled: false
-        };
-
-        const EXAM_SECTION_CONFIG = {
-            'examen-pl': 'poidsLegerEnabled',
-            'examen-pld': 'poidsLourdEnabled'
-        };
-
-        // ===== DEVELOPMENT MODE =====
-        const DEV_CONFIG = {
-            enabled: true,
-            autoLogin: true,
-            role: 'student', // 'student', 'admin' ou 'normal'
-            skipWelcome: true
-        };
-
-        const DEV_STUDENT = {
-            prenom: 'Test',
-            telephone: '770000000',
-            password: 'dev1234',
-            dateInscription: new Date().toISOString(),
-            formule: 'Formule Illimitée',
-            prix: 2000,
-            status: 'active',
-            isDevUser: true
-        };
-
-        const DEV_ADMIN = {
-            prenom: 'Administrateur DEV',
-            telephone: '760000000',
-            password: 'devadmin',
-            dateInscription: new Date().toISOString(),
-            status: 'active',
-            isAdmin: true,
-            isDevUser: true
-        };
-
-        const DEV_ALLOWED_ROLES = ['student', 'admin', 'normal'];
-        const DEV_AUTO_LOGIN_DISABLED_KEY = 'devAutoLoginDisabled';
-
-        // ===== DEMO MODE PUBLIC =====
-        const DEMO_CONFIG = {
-            enabled: true,
-            autoLoginStudent: true
-        };
-
-        const DEMO_STUDENT = {
-            prenom: 'Visiteur',
-            telephone: '770000000',
-            password: '',
-            dateInscription: new Date().toISOString(),
-            formule: 'Formule Illimitée',
-            prix: 2000,
-            status: 'active',
-            isDemoUser: true
-        };
-
-        // TODO PROD: remplacer l'authentification localStorage par une authentification backend sécurisée.
-
-        // Compte admin
-        const ADMIN_PHONE = '762572877';
-        const ADMIN_PASSWORD = 'AA00ARD';
-
-        // ===== CHARGEMENT DE LA SESSION AU DÉMARRAGE =====
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-
-        async function initializeApp() {
-            initializeCommonFeatures();
-            
-            if (!localStorage.getItem('users')) {
-                localStorage.setItem('users', JSON.stringify([]));
-            }
-
-            if (initializeDemoMode()) {
-                return;
-            }
-
-            if (hasSupabaseHelpers()) {
-                const session = await sbGetSession();
-
-                if (!session) {
-                    if (initializeDevMode()) {
-                        return;
-                    }
-                    window.location.href = 'auth.html';
-                    return;
-                }
-
-                if (sbIsAdmin(session.user)) {
-                    window.location.href = 'admin.html';
-                    return;
-                }
-
-                let profile;
-                try {
-                    profile = await sbGetProfile();
-                } catch (err) {
-                    console.error('Erreur chargement profil:', err);
-                    await sbLogout();
-                    window.location.href = 'auth.html';
-                    return;
-                }
-
-                if (!profile || profile.status === 'pending' || profile.status === 'blocked') {
-                    await sbLogout();
-                    window.location.href = 'auth.html';
-                    return;
-                }
-
-                currentUser = {
-                    prenom: profile.prenom || 'Élève',
-                    telephone: profile.telephone,
-                    dateInscription: profile.created_at,
-                    status: profile.status,
-                    formule: profile.formule || 'Formule Illimitée',
-                    prix: profile.prix || 2000,
-                    photo: profile.photo_url || profile.photo || null,
-                    isSupabaseUser: true
-                };
-
-                accederEspaceEleve(currentUser, false);
-                setupLessonDashboard();
-                startCountdown();
-                checkConnection();
-                return;
-            }
-
-            if (initializeDevMode()) {
-                return;
-            }
-
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                try {
-                    currentUser = JSON.parse(savedUser);
-                    
-                    if (currentUser.telephone === ADMIN_PHONE && currentUser.password === ADMIN_PASSWORD) {
-                        accederEspaceAdmin(currentUser, false);
-                    } else {
-                        const users = JSON.parse(localStorage.getItem('users')) || [];
-                        const userExists = users.find(u => u.telephone === currentUser.telephone && u.status === 'active');
-                        
-                        if (userExists) {
-                            accederEspaceEleve(currentUser, false);
-                        } else {
-                            localStorage.removeItem('currentUser');
-                            currentUser = null;
-                        }
-                    }
-                } catch (e) {
-                    localStorage.removeItem('currentUser');
-                }
-            }
-
-            setupLessonDashboard();
-            startCountdown();
-            checkConnection();
-        }
-
-        function initializeCommonFeatures() {
-            const phoneInputs = document.querySelectorAll('input[type="tel"]');
-            phoneInputs.forEach(phoneInput => {
-                phoneInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    
-                    if (value.length > 9) {
-                        value = value.slice(0, 9);
-                    }
-                    
-                    if (value.length > 0) {
-                        let formattedValue = '';
-                        
-                        if (value.length <= 2) {
-                            formattedValue = value;
-                        } else if (value.length <= 5) {
-                            formattedValue = value.slice(0, 2) + ' ' + value.slice(2);
-                        } else if (value.length <= 7) {
-                            formattedValue = value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5);
-                        } else {
-                            formattedValue = value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5, 7) + ' ' + value.slice(7);
-                        }
-                        
-                        e.target.value = formattedValue;
-                    }
-                });
-            });
-            
-            const pendingPhone = localStorage.getItem('pendingPhone');
-            if (pendingPhone) {
-                pendingRegistration = true;
-            }
-            
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-            
-            window.addEventListener('online', function() {
-                document.getElementById('connectionAlert').style.display = 'none';
-                showNotification('✅ Connexion rétablie !');
-            });
-
-            window.addEventListener('offline', function() {
-                document.getElementById('connectionAlert').style.display = 'block';
-            });
-
-            window.addEventListener('beforeunload', function() {
-                sessionStorage.removeItem(DEV_AUTO_LOGIN_DISABLED_KEY);
-            });
-        }
-
-        function getDevRoleFromUrl() {
-            if (!isLocalDevelopmentHost()) {
-                return null;
-            }
-
-            const params = new URLSearchParams(window.location.search);
-            const devRole = params.get('dev');
-            return DEV_ALLOWED_ROLES.includes(devRole) ? devRole : null;
-        }
-
-        function getActiveDevRole() {
-            const urlRole = getDevRoleFromUrl();
-            if (urlRole) {
-                return urlRole;
-            }
-
-            if (!DEV_CONFIG.enabled || !DEV_CONFIG.autoLogin) {
-                return 'normal';
-            }
-
-            return DEV_ALLOWED_ROLES.includes(DEV_CONFIG.role) ? DEV_CONFIG.role : 'normal';
-        }
-
-        function initializeDevMode() {
-            if (!isLocalDevelopmentHost()) {
-                hideDevModeBadge();
-                return false;
-            }
-
-            const urlRole = getDevRoleFromUrl();
-            const activeRole = getActiveDevRole();
-            const autoLoginDisabled = sessionStorage.getItem(DEV_AUTO_LOGIN_DISABLED_KEY) === 'true';
-
-            if (activeRole === 'normal') {
-                hideDevModeBadge();
-                return false;
-            }
-
-            if (!urlRole && autoLoginDisabled) {
-                hideDevModeBadge();
-                return false;
-            }
-
-            sessionStorage.removeItem(DEV_AUTO_LOGIN_DISABLED_KEY);
-
-            if (DEV_CONFIG.skipWelcome) {
-                skipWelcome();
-            }
-
-            console.log('[DEV] Mode développement activé');
-            showDevModeBadge(activeRole);
-
-            if (activeRole === 'student') {
-                console.log('[DEV] Connexion automatique élève');
-                accederEspaceEleve({ ...DEV_STUDENT, dateInscription: new Date().toISOString() }, false);
-                setupLessonDashboard();
-                showSection('accueil');
-                checkConnection();
-                return true;
-            }
-
-            if (activeRole === 'admin') {
-                console.log('[DEV] Connexion automatique admin');
-                window.location.href = 'admin.html?dev=admin';
-                return true;
-            }
-
-            return false;
-        }
-
-        function isLocalDevelopmentHost() {
-            const hostname = window.location.hostname;
-            return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '';
-        }
-
-        function initializeDemoMode() {
-            if (isLocalDevelopmentHost() || !DEMO_CONFIG.enabled || !DEMO_CONFIG.autoLoginStudent) {
-                hideDemoModeBadge();
-                return false;
-            }
-
-            skipWelcome();
-            console.log('[DEMO] Connexion automatique élève');
-            showDemoModeBadge();
-            accederEspaceEleve({ ...DEMO_STUDENT, dateInscription: new Date().toISOString() }, false);
-            setupLessonDashboard();
-            showSection('accueil');
-            checkConnection();
-            return true;
-        }
-
-        function showDevModeBadge(role) {
-            let badge = document.getElementById('devModeBadge');
-
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.id = 'devModeBadge';
-                badge.style.cssText = `
-                    position: fixed;
-                    bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 10px);
-                    left: 10px;
-                    z-index: 2000;
-                    padding: 6px 10px;
-                    border-radius: 6px;
-                    background: rgba(20, 20, 20, 0.82);
-                    color: #fff;
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 0;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-                    pointer-events: none;
-                `;
-                document.body.appendChild(badge);
-            }
-
-            badge.textContent = 'DEV';
-            badge.title = `DEV MODE - ${role.toUpperCase()}`;
-            badge.style.display = 'block';
-        }
-
-        function hideDevModeBadge() {
-            const badge = document.getElementById('devModeBadge');
-            if (badge) {
-                badge.style.display = 'none';
-            }
-        }
-
-        function showDemoModeBadge() {
-            let badge = document.getElementById('demoModeBadge');
-
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.id = 'demoModeBadge';
-                badge.style.cssText = `
-                    position: fixed;
-                    bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 10px);
-                    left: 10px;
-                    z-index: 2000;
-                    padding: 6px 10px;
-                    border-radius: 6px;
-                    background: rgba(0, 82, 255, 0.86);
-                    color: #fff;
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 0;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-                    pointer-events: none;
-                `;
-                document.body.appendChild(badge);
-            }
-
-            badge.textContent = 'DEMO';
-            badge.title = 'MODE DEMO';
-            badge.style.display = 'block';
-        }
-
-        function hideDemoModeBadge() {
-            const badge = document.getElementById('demoModeBadge');
-            if (badge) {
-                badge.style.display = 'none';
-            }
-        }
-
-        function isTemporaryAuthUser(user) {
-            return !!(user && (user.isDevUser || user.isDemoUser));
-        }
-
-        function hasSupabaseHelpers() {
-            return typeof sbGetSession === 'function'
-                && typeof sbGetProfile === 'function'
-                && typeof sbLogout === 'function'
-                && typeof sbIsAdmin === 'function';
-        }
-
-        // ===== GESTION DES TARIFS =====
-        
-        function selectTarif(tarif, prix) {
-            document.querySelectorAll('.tarif-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            const card = document.querySelector(`.tarif-card[data-tarif="${tarif}"]`);
-            card.classList.add('selected');
-            
-            selectedTarif = tarif;
-            selectedPrix = prix;
-            
-            document.getElementById('paymentSection').style.display = 'block';
-            document.getElementById('paymentAmount').textContent = prix + ' FCFA';
-            
-            localStorage.setItem('selectedPrix', prix);
-            localStorage.setItem('selectedFormule', selectedFormule);
-        }
-        
-        function effectuerPaiement() {
-            if (!selectedTarif) {
-                showNotification('⚠️ Veuillez sélectionner une formule d\'étude');
-                return;
-            }
-            
-            const prix = selectedPrix;
-            
-            const waveLink = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${prix}&description=${encodeURIComponent('eAutoecole - ' + selectedFormule)}`;
-            window.open(waveLink, '_blank');
-            
-            showNotification('✅ Redirection vers Wave en cours... Paiement de ' + prix + ' FCFA');
-            
-            setTimeout(() => {
-                showNotification('✅ Paiement effectué avec succès ! Vous pouvez maintenant valider votre inscription.');
-            }, 3000);
-        }
-
-        function validerSurWave() {
-            const prix = selectedPrix || localStorage.getItem('selectedPrix') || 2000;
-            
-            if (prix <= 0) {
-                showNotification('⚠️ Veuillez d\'abord sélectionner une formule');
-                return;
-            }
-            
-            const waveLink = `https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/?amount=${prix}&description=${encodeURIComponent('eAutoecole - ' + selectedFormule)}`;
-            const waveWindow = window.open(waveLink, '_blank');
-            
-            showNotification('✅ Redirection vers Wave en cours...');
-            
-            const phone = document.getElementById('confirmation-login-phone').textContent;
-            const password = document.getElementById('confirmation-login-password').textContent;
-            
-            // STOCKER POUR LE PRÉ-REMPLISSAGE
-            localStorage.setItem('pendingLoginPhone', phone);
-            localStorage.setItem('pendingLoginPassword', password);
-            
-            const checkReturn = setInterval(() => {
-                if (waveWindow && waveWindow.closed) {
-                    clearInterval(checkReturn);
-                    
-                    setTimeout(() => {
-                        showNotification('✅ Paiement effectué avec succès ! Votre compte est en attente de validation.');
-                        
-                        setTimeout(() => {
-                            showConnexion();
-                        }, 1000);
-                    }, 500);
-                }
-            }, 1000);
-        }
-
-        // ===== GESTION DE LA PHOTO DE PROFIL =====
-        function triggerPhotoUpload() {
-            document.getElementById('photoUpload').click();
-        }
-
-        function handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const photoData = e.target.result;
-                    
-                    const photoElement = document.getElementById('profilePhoto');
-                    const avatarElement = document.getElementById('userAvatar');
-                    
-                    if (photoElement) {
-                        photoElement.src = photoData;
-                        photoElement.style.display = 'block';
-                    }
-                    if (avatarElement) {
-                        avatarElement.style.display = 'none';
-                    }
-                    
-                    if (currentUser) {
-                        currentUser.photo = photoData;
-
-                        if (!isTemporaryAuthUser(currentUser) && typeof sbUploadPhoto === 'function') {
-                            try {
-                                const url = await sbUploadPhoto(file);
-                                currentUser.photo = url;
-                                if (photoElement) {
-                                    photoElement.src = url;
-                                }
-                                showNotification('Photo mise à jour');
-                            } catch (err) {
-                                showNotification('Erreur upload photo : ' + err.message);
-                                return;
-                            }
-                        } else if (!isTemporaryAuthUser(currentUser)) {
-                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        }
-                        
-                        const users = JSON.parse(localStorage.getItem('users')) || [];
-                        const userIndex = users.findIndex(u => u.telephone === currentUser.telephone);
-                        if (userIndex !== -1) {
-                            users[userIndex].photo = photoData;
-                            localStorage.setItem('users', JSON.stringify(users));
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // ===== GESTION DU NOM D'UTILISATEUR =====
-        function toggleEditName() {
-            const editInput = document.getElementById('editNameInput');
-            editInput.classList.toggle('active');
-            if (editInput.classList.contains('active')) {
-                document.getElementById('editNameField').value = currentUser ? (currentUser.prenom || 'Élève') : '';
-            }
-        }
-
-        async function updateUserName() {
-            const newName = document.getElementById('editNameField').value.trim();
-            if (newName && currentUser) {
-                currentUser.prenom = newName;
-                
-                setTextIfExists('userNameDisplay', newName);
-                setTextIfExists('welcomeNameSpan', newName);
-                setTextIfExists('userAvatar', newName.charAt(0));
-                setTextIfExists('profileAvatarLarge', newName.charAt(0));
-                setTextIfExists('profil-nom-complet', newName);
-                
-                if (!isTemporaryAuthUser(currentUser) && typeof sbUpdateProfile === 'function') {
-                    try {
-                        await sbUpdateProfile({ prenom: newName });
-                        showNotification('Prénom mis à jour');
-                    } catch (err) {
-                        showNotification('Erreur mise à jour prénom : ' + err.message);
-                        toggleEditName();
-                        return;
-                    }
-                } else if (!isTemporaryAuthUser(currentUser)) {
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-                
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const userIndex = users.findIndex(u => u.telephone === currentUser.telephone);
-                if (userIndex !== -1) {
-                    users[userIndex].prenom = newName;
-                    localStorage.setItem('users', JSON.stringify(users));
-                }
-                
-                if (isTemporaryAuthUser(currentUser) || typeof sbUpdateProfile !== 'function') {
-                    showNotification('Prénom mis à jour');
-                }
-            }
-            toggleEditName();
-        }
-
-        // ===== PAGE DE BIENVENUE =====
-        
-        function startCountdown() {
-            if (sessionStorage.getItem('welcomeSeen') === 'true') {
-                skipWelcome();
-                return;
-            }
-
-            countdownTimer = setTimeout(() => {
-                sessionStorage.setItem('welcomeSeen', 'true');
-                skipWelcome();
-            }, 900);
-        }
-
-        function skipWelcome() {
-            clearTimeout(countdownTimer);
-            const welcomePage = document.getElementById('welcomePage');
-            if (welcomePage) {
-                welcomePage.style.display = 'none';
-            }
-        }
-        
-        // ===== FONCTIONS NAVIGATION =====
-        
-        function showConnexion() {
-            window.location.href = 'auth.html';
-            return;
-            document.getElementById('inscriptionSection').classList.remove('active');
-            document.getElementById('connexionSection').classList.add('active');
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
-            document.getElementById('aboutPage').classList.remove('active');
-            
-            const warningMsg = document.getElementById('warningMessage');
-            if (warningMsg) {
-                warningMsg.remove();
-            }
-            
-            resetForms();
-            
-            // PRÉ-REMPLIR LES CHAMPS DE CONNEXION
-            const pendingPhone = localStorage.getItem('pendingLoginPhone');
-            const pendingPassword = localStorage.getItem('pendingLoginPassword');
-            
-            if (pendingPhone && pendingPassword) {
-                setTimeout(function() {
-                    const phoneInput = document.getElementById('login-telephone');
-                    const passwordInput = document.getElementById('login-password');
-                    
-                    if (phoneInput && passwordInput) {
-                        phoneInput.value = pendingPhone;
-                        passwordInput.value = pendingPassword;
-                        
-                        document.querySelector('.connexion-btn').focus();
-                    }
-                }, 200);
-            }
-        }
-        
-        function showInscription() {
-            window.location.href = 'auth.html';
-            return;
-            const phone = localStorage.getItem('pendingPhone');
-            if (phone) {
-                showWarningMessage("Vous ne pouvez pas créer un compte. Votre compte est en attente de validation par l'administrateur.");
-                
-                document.getElementById('login-telephone').value = formatPhoneNumber(phone);
-                document.getElementById('login-password').focus();
-                return;
-            }
-            
-            document.getElementById('connexionSection').classList.remove('active');
-            document.getElementById('inscriptionSection').classList.add('active');
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
-            document.getElementById('aboutPage').classList.remove('active');
-            resetForms();
-        }
-        
-        function showEspaceEleve() {
-            document.getElementById('connexionSection')?.classList.remove('active');
-            document.getElementById('inscriptionSection')?.classList.remove('active');
-            document.getElementById('espaceEleveSection')?.classList.add('active');
-            document.getElementById('espaceAdminSection')?.classList.remove('active');
-            document.getElementById('aboutPage')?.classList.remove('active');
-        }
-
-        function showEspaceAdmin() {
-            if (!currentUser || !currentUser.isDevUser) {
-                window.location.href = 'admin.html';
-                return;
-            }
-            document.getElementById('connexionSection')?.classList.remove('active');
-            document.getElementById('inscriptionSection')?.classList.remove('active');
-            document.getElementById('espaceEleveSection')?.classList.remove('active');
-            document.getElementById('espaceAdminSection')?.classList.add('active');
-            document.getElementById('aboutPage')?.classList.remove('active');
-            
-            refreshAdminLists();
-        }
-        
-        function closeAboutPage() {
-            document.getElementById('aboutPage').classList.remove('active');
-        }
-        
-        function showWarningMessage(message) {
-            const existingWarning = document.getElementById('warningMessage');
-            if (existingWarning) {
-                existingWarning.remove();
-            }
-            
-            const warningDiv = document.createElement('div');
-            warningDiv.id = 'warningMessage';
-            warningDiv.className = 'warning-message';
-            warningDiv.innerHTML = `
-                <div class="warning-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>${message}</div>
-            `;
-            
-            const formTitle = document.querySelector('#form0 .form-title');
-            formTitle.parentNode.insertBefore(warningDiv, formTitle.nextSibling);
-        }
-        
-        function formatPhoneNumber(phone) {
-            const cleanPhone = phone.replace(/\D/g, '');
-            if (cleanPhone.length === 9) {
-                return cleanPhone.substring(0, 2) + ' ' + cleanPhone.substring(2, 5) + ' ' + cleanPhone.substring(5, 7) + ' ' + cleanPhone.substring(7);
-            }
-            return phone;
-        }
-        
-        function resetForms() {
-            document.getElementById('form2').classList.remove('form-active');
-            document.getElementById('form1').classList.add('form-active');
-            
-            const inscriptionInputs = document.querySelectorAll('#form1 input');
-            inscriptionInputs.forEach(input => {
-                input.value = '';
-                input.parentElement.classList.remove('valid');
-            });
-            
-            const inscriptionErrors = document.querySelectorAll('#form1 .error-message');
-            inscriptionErrors.forEach(error => {
-                error.style.display = 'none';
-                error.textContent = '';
-            });
-            
-            document.getElementById('login-telephone').value = '';
-            document.getElementById('login-password').value = '';
-            document.getElementById('login-password-error').style.display = 'none';
-            
-            document.querySelectorAll('.tarif-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            document.getElementById('paymentSection').style.display = 'none';
-            selectedTarif = null;
-            selectedPrix = 0;
-        }
-        
-        function validatePhoneNumber(phone) {
-            const cleanPhone = phone.replace(/\s/g, '');
-            
-            if (cleanPhone.length !== 9) {
-                return false;
-            }
-            
-            const prefix = cleanPhone.substring(0, 2);
-            const allowedPrefixes = ['71', '70', '76', '77', '78', '75'];
-            
-            return allowedPrefixes.includes(prefix);
-        }
-        
-        function validatePassword(password) {
-            return password.length >= 4;
-        }
-        
-        function validateInscription() {
-            let isValid = true;
-            
-            const telephone = document.getElementById('telephone').value.trim();
-            const password = document.getElementById('password').value;
-            
-            if (telephone === '') {
-                showError('telephone-error', 'Veuillez entrer votre numéro de téléphone');
-                isValid = false;
-            } else if (!validatePhoneNumber(telephone.replace('+221', ''))) {
-                showError('telephone-error', 'Numéro invalide. Utilisez 71, 70, 76, 77, 78 ou 75');
-                isValid = false;
-            } else {
-                hideError('telephone-error');
-            }
-            
-            if (password === '') {
-                showError('password-error', 'Veuillez entrer un mot de passe');
-                isValid = false;
-            } else if (!validatePassword(password)) {
-                showError('password-error', 'Le mot de passe doit contenir au moins 4 caractères');
-                isValid = false;
-            } else {
-                hideError('password-error');
-            }
-            
-            if (!selectedTarif) {
-                showNotification('⚠️ Veuillez sélectionner une formule d\'étude');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-        
-        function showError(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-        
-        function hideError(elementId) {
-            const errorElement = document.getElementById(elementId);
-            errorElement.style.display = 'none';
-        }
-        
-        function submitInscription() {
-            if (!validateInscription()) {
-                return;
-            }
-            
-            const telephone = document.getElementById('telephone').value;
-            const password = document.getElementById('password').value;
-            
-            const formattedPhone = telephone.replace(/\s/g, '');
-            
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const existingUser = users.find(user => user.telephone === formattedPhone);
-            
-            if (existingUser) {
-                if (existingUser.status === 'pending') {
-                    showWarningMessage("Vous avez déjà une inscription en attente de validation.");
-                    showConnexion();
-                    document.getElementById('login-telephone').value = telephone;
-                    document.getElementById('login-password').focus();
-                    return;
-                } else if (existingUser.status === 'active') {
-                    showWarningMessage("Un compte existe déjà avec ce numéro de téléphone.");
-                    showConnexion();
-                    document.getElementById('login-telephone').value = telephone;
-                    document.getElementById('login-password').focus();
-                    return;
-                }
-            }
-            
-            const user = {
-                prenom: 'Élève',
-                telephone: formattedPhone,
-                password: password,
-                dateInscription: new Date().toISOString(),
-                formule: selectedFormule,
-                prix: selectedPrix,
-                status: 'pending'
-            };
-            
-            users.push(user);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            localStorage.setItem('pendingPhone', formattedPhone);
-            pendingRegistration = true;
-            currentUser = user;
-            
-            document.getElementById('form1').classList.remove('form-active');
-            document.getElementById('form2').classList.add('form-active');
-            
-            document.getElementById('confirmation-telephone').textContent = telephone;
-            document.getElementById('confirmation-formule').textContent = selectedFormule;
-            document.getElementById('confirmation-montant').textContent = selectedPrix + ' FCFA';
-            document.getElementById('confirmation-login-phone').textContent = telephone;
-            document.getElementById('confirmation-login-password').textContent = password;
-            document.getElementById('confirmation-date').textContent = new Date().toLocaleDateString('fr-FR');
-            
-            // STOCKER LES IDENTIFIANTS POUR PRÉ-REMPLIR PLUS TARD
-            localStorage.setItem('pendingLoginPhone', telephone);
-            localStorage.setItem('pendingLoginPassword', password);
-            
-            showNotification('✅ Votre inscription a été soumise avec succès !');
-        }
-        
-        function accederEspaceEleve(user, saveToStorage = true) {
-            currentUser = user;
-            
-            if (saveToStorage) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-            }
-            
-            const prenom = user.prenom || 'Élève';
-            
-            setTextIfExists('welcomeNameSpan', prenom);
-            const welcomeName = document.getElementById('welcomeName');
-            if (welcomeName) {
-                welcomeName.innerHTML = `Bonjour, <span id="welcomeNameSpan">${prenom}</span>`;
-            }
-            
-            const avatarElement = document.getElementById('userAvatar');
-            const photoElement = document.getElementById('profilePhoto');
-            const largeAvatarElement = document.getElementById('profileAvatarLarge');
-            
-            if (avatarElement) {
-                avatarElement.textContent = prenom.charAt(0);
-            }
-            if (largeAvatarElement) {
-                largeAvatarElement.textContent = prenom.charAt(0);
-            }
-            
-            if (user.photo && photoElement && avatarElement) {
-                photoElement.src = user.photo;
-                photoElement.style.display = 'block';
-                avatarElement.style.display = 'none';
-            } else if (photoElement && avatarElement) {
-                photoElement.style.display = 'none';
-                avatarElement.style.display = 'grid';
-            }
-            
-            setTextIfExists('userNameDisplay', prenom);
-            const headerUserName = document.getElementById('headerUserName');
-            if (headerUserName) {
-                headerUserName.innerHTML = `<span id="userNameDisplay">${prenom}</span> <i class="fas fa-pen edit-name-icon" onclick="toggleEditName()"></i>`;
-            }
-
-            setTextIfExists('profil-nom-complet', prenom);
-            setTextIfExists('profil-telephone-value', user.telephone || '');
-            setTextIfExists('profil-date-value', user.dateInscription ? new Date(user.dateInscription).toLocaleDateString('fr-FR') : '');
-            setTextIfExists('profil-statut-value', user.status === 'active' ? 'Actif' : 'En attente');
-            setTextIfExists('profil-formule-value', user.formule || 'Formule Illimitée');
-            
-            const statusBadge = document.getElementById('statusBadge');
-            if (statusBadge && user.status === 'active') {
-                document.getElementById('statusBadge').innerHTML = '✅ Inscription validée';
-                document.getElementById('statusBadge').className = 'status-badge';
-            } else if (statusBadge && user.status === 'blocked') {
-                document.getElementById('statusBadge').innerHTML = '⛔ Compte bloqué';
-                document.getElementById('statusBadge').style.background = 'var(--danger-color)';
-            } else if (statusBadge) {
-                document.getElementById('statusBadge').innerHTML = '⏳ En attente';
-                document.getElementById('statusBadge').style.background = 'var(--warning-color)';
-            }
-            
-            showEspaceEleve();
-            setupEspaceEleveNavigation();
-            updateLessonDashboard();
-            
-            if (!user.isDemoUser) {
-                showNotification('Connecté');
-            }
-        }
-
-        function accederEspaceAdmin(user, saveToStorage = true) {
-            currentUser = user;
-            
-            if (saveToStorage) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-            }
-            
-            showEspaceAdmin();
-            refreshAdminLists();
-        }
-        
-        function login() {
-            const phoneInput = document.getElementById('login-telephone');
-            const passwordInput = document.getElementById('login-password');
-            
-            const phone = phoneInput.value.replace(/\s/g, '');
-            const password = passwordInput.value;
-            
-            if (!phone || !password) {
-                showError('login-password-error', 'Veuillez remplir tous les champs');
-                return;
-            }
-            
-            if (phone === ADMIN_PHONE && password === ADMIN_PASSWORD) {
-                const adminUser = {
-                    prenom: 'Administrateur',
-                    telephone: phone,
-                    password: password,
-                    dateInscription: new Date().toISOString(),
-                    status: 'active',
-                    isAdmin: true
-                };
-                
-                accederEspaceAdmin(adminUser);
-                
-                phoneInput.value = '';
-                passwordInput.value = '';
-                hideError('login-password-error');
-                
-                // NETTOYER LES IDENTIFIANTS TEMPORAIRES
-                localStorage.removeItem('pendingLoginPhone');
-                localStorage.removeItem('pendingLoginPassword');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.telephone === phone && u.password === password);
-            
-            if (!user) {
-                showError('login-password-error', 'Numéro de téléphone ou mot de passe incorrect');
-                return;
-            }
-            
-            if (user.status === 'pending') {
-                showWarningMessage("Votre compte est encore en attente de validation par l'administrateur.");
-                return;
-            }
-            
-            if (user.status === 'blocked') {
-                showWarningMessage("Votre compte a été bloqué. Veuillez contacter l'administrateur.");
-                return;
-            }
-            
-            accederEspaceEleve(user);
-            
-            phoneInput.value = '';
-            passwordInput.value = '';
-            hideError('login-password-error');
-            
-            // NETTOYER LES IDENTIFIANTS TEMPORAIRES
-            localStorage.removeItem('pendingLoginPhone');
-            localStorage.removeItem('pendingLoginPassword');
-        }
-
-        // ===== FONCTIONS ADMIN =====
-        
-        function showAdminTab(tab) {
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
-            
-            document.querySelector(`.admin-tab[onclick="showAdminTab('${tab}')"]`).classList.add('active');
-            document.getElementById(`admin-${tab}`).classList.add('active');
-            
-            refreshAdminLists();
-        }
-
-        function togglePasswordVisibilityAdmin(elementId, button) {
-            const element = document.getElementById(elementId);
-            const icon = button.querySelector('i');
-            
-            if (element.style.filter === 'blur(4px)') {
-                element.style.filter = 'none';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            } else {
-                element.style.filter = 'blur(4px)';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            }
-        }
-
-        function refreshAdminLists() {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            
-            // Liste des inscriptions en attente
-            const pendingUsers = users.filter(u => u.status === 'pending');
-            const pendingList = document.getElementById('pendingList');
-            pendingList.innerHTML = '';
-            
-            pendingUsers.forEach((user, index) => {
-                const passwordId = `pass-pending-${index}`;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.telephone}</td>
-                    <td>
-                        <div class="password-container">
-                            <span class="password-text" id="${passwordId}">${user.password}</span>
-                            <button class="toggle-password-admin" onclick="togglePasswordVisibilityAdmin('${passwordId}', this)">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </td>
-                    <td>${new Date(user.dateInscription).toLocaleDateString('fr-FR')}</td>
-                    <td>${user.formule || 'Formule Illimitée'}</td>
-                    <td>${user.prix || 2000} FCFA</td>
-                    <td>
-                        <button class="action-btn accept" onclick="acceptUser('${user.telephone}')">Accepter</button>
-                        <button class="action-btn block" onclick="blockUser('${user.telephone}')">Bloquer</button>
-                        <button class="action-btn delete" onclick="deleteUser('${user.telephone}')">Supprimer</button>
-                    </td>
-                `;
-                pendingList.appendChild(row);
-            });
-            
-            if (pendingUsers.length === 0) {
-                pendingList.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucune inscription en attente</td></tr>';
-            }
-            
-            // Liste des utilisateurs actifs
-            const activeUsers = users.filter(u => u.status === 'active');
-            const activeList = document.getElementById('activeList');
-            activeList.innerHTML = '';
-            
-            activeUsers.forEach((user, index) => {
-                const passwordId = `pass-active-${index}`;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.telephone}</td>
-                    <td>
-                        <div class="password-container">
-                            <span class="password-text" id="${passwordId}">${user.password}</span>
-                            <button class="toggle-password-admin" onclick="togglePasswordVisibilityAdmin('${passwordId}', this)">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </td>
-                    <td>${new Date(user.dateInscription).toLocaleDateString('fr-FR')}</td>
-                    <td>${user.formule || 'Formule Illimitée'}</td>
-                    <td>
-                        <button class="action-btn block" onclick="blockUser('${user.telephone}')">Bloquer</button>
-                        <button class="action-btn delete" onclick="deleteUser('${user.telephone}')">Supprimer</button>
-                    </td>
-                `;
-                activeList.appendChild(row);
-            });
-            
-            if (activeUsers.length === 0) {
-                activeList.innerHTML = '<tr><td colspan="5" style="text-align: center;">Aucun utilisateur actif</td></tr>';
-            }
-            
-            // Liste des utilisateurs bloqués
-            const blockedUsers = users.filter(u => u.status === 'blocked');
-            const blockedList = document.getElementById('blockedList');
-            blockedList.innerHTML = '';
-            
-            blockedUsers.forEach((user, index) => {
-                const passwordId = `pass-blocked-${index}`;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.telephone}</td>
-                    <td>
-                        <div class="password-container">
-                            <span class="password-text" id="${passwordId}">${user.password}</span>
-                            <button class="toggle-password-admin" onclick="togglePasswordVisibilityAdmin('${passwordId}', this)">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </td>
-                    <td>${new Date(user.dateInscription).toLocaleDateString('fr-FR')}</td>
-                    <td>
-                        <button class="action-btn accept" onclick="acceptUser('${user.telephone}')">Débloquer</button>
-                        <button class="action-btn delete" onclick="deleteUser('${user.telephone}')">Supprimer</button>
-                    </td>
-                `;
-                blockedList.appendChild(row);
-            });
-            
-            if (blockedUsers.length === 0) {
-                blockedList.innerHTML = '<tr><td colspan="4" style="text-align: center;">Aucun utilisateur bloqué</td></tr>';
-            }
-        }
-
-        function acceptUser(phone) {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = users.findIndex(u => u.telephone === phone);
-            
-            if (userIndex !== -1) {
-                users[userIndex].status = 'active';
-                localStorage.setItem('users', JSON.stringify(users));
-                
-                if (localStorage.getItem('pendingPhone') === phone) {
-                    localStorage.removeItem('pendingPhone');
-                }
-                
-                if (currentUser && currentUser.telephone === phone) {
-                    currentUser.status = 'active';
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-                
-                refreshAdminLists();
-                showNotification(`✅ Utilisateur ${phone} accepté avec succès !`);
-            }
-        }
-
-        function blockUser(phone) {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = users.findIndex(u => u.telephone === phone);
-            
-            if (userIndex !== -1) {
-                users[userIndex].status = 'blocked';
-                localStorage.setItem('users', JSON.stringify(users));
-                
-                if (currentUser && currentUser.telephone === phone) {
-                    currentUser.status = 'blocked';
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    if (confirm('Vous venez de bloquer votre propre compte. Vous allez être déconnecté.')) {
-                        deconnexion();
-                        return;
-                    }
-                }
-                
-                refreshAdminLists();
-                showNotification(`⛔ Utilisateur ${phone} bloqué !`);
-            }
-        }
-
-        function deleteUser(phone) {
-            if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${phone} ?`)) {
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const filteredUsers = users.filter(u => u.telephone !== phone);
-            localStorage.setItem('users', JSON.stringify(filteredUsers));
-            
-            if (localStorage.getItem('pendingPhone') === phone) {
-                localStorage.removeItem('pendingPhone');
-            }
-            
-            if (currentUser && currentUser.telephone === phone) {
-                localStorage.removeItem('currentUser');
-                currentUser = null;
-                showConnexion();
-                return;
-            }
-            
-            refreshAdminLists();
-            showNotification(`🗑️ Utilisateur ${phone} supprimé !`);
-        }
-        
-        // ===== OMBREMENT PANNAUX =====
-        
-        function changerOnglet(ongletId) {
-            document.querySelectorAll('.onglet').forEach(onglet => {
-                onglet.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.contenu-onglet').forEach(contenu => {
-                contenu.classList.remove('active');
-            });
-            
-            document.querySelector(`.onglet[onclick="changerOnglet('${ongletId}')"]`).classList.add('active');
-            
-            if (ongletId === 'test') {
-                document.getElementById('test-panneaux').classList.add('active');
-            } else {
-                document.getElementById(ongletId).classList.add('active');
-            }
-        }
-        
-        // ===== FONCTIONS ESPACE ELEVE =====
-
-        function isExamSectionUnavailable(sectionId) {
-            const examConfigKey = EXAM_SECTION_CONFIG[sectionId];
-            return Boolean(examConfigKey) && EXAMS_CONFIG[examConfigKey] === false;
-        }
-
-        function showUnavailableExamModal() {
-            const modal = document.getElementById('examUnavailableModal');
-            if (modal) {
-                modal.classList.add('active');
-            }
-        }
-
-        function closeUnavailableExamModal() {
-            const modal = document.getElementById('examUnavailableModal');
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        }
-
-        function applyExamAvailabilityState() {
-            document.querySelectorAll('.nav-card[data-exam-key]').forEach(card => {
-                const enabled = EXAMS_CONFIG[card.dataset.examKey] === true;
-                card.classList.toggle('exam-unavailable', !enabled);
-                card.setAttribute('aria-disabled', enabled ? 'false' : 'true');
-
-                const badge = card.querySelector('.exam-status-badge');
-                if (badge) {
-                    badge.style.display = enabled ? 'none' : 'inline-flex';
-                }
-            });
-        }
-        
-        function setupEspaceEleveNavigation() {
-            applyExamAvailabilityState();
-
-            document.querySelectorAll('.nav-card').forEach(card => {
-                if (card.dataset.navigationReady === 'true') {
-                    return;
-                }
-
-                card.dataset.navigationReady = 'true';
-                card.addEventListener('click', function() {
-                    const sectionId = this.dataset.section;
-
-                    if (isExamSectionUnavailable(sectionId)) {
-                        showUnavailableExamModal();
-                        return;
-                    }
-
-                    showSection(sectionId);
-                });
-            });
-
-            const unavailableModal = document.getElementById('examUnavailableModal');
-            if (unavailableModal && unavailableModal.dataset.modalReady !== 'true') {
-                unavailableModal.dataset.modalReady = 'true';
-                unavailableModal.addEventListener('click', function(e) {
-                    if (e.target === unavailableModal) {
-                        closeUnavailableExamModal();
-                    }
-                });
-
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        closeUnavailableExamModal();
-                    }
-                });
-            }
-            
-            document.querySelectorAll('.nav-item').forEach(item => {
-                if (item.dataset.navigationReady === 'true') {
-                    return;
-                }
-
-                item.dataset.navigationReady = 'true';
-                item.addEventListener('click', function() {
-                    const sectionId = this.dataset.section;
-                    showSection(sectionId);
-                });
-            });
-
-            document.querySelectorAll('[data-lesson-entry]').forEach(button => {
-                if (button.dataset.lessonEntryReady === 'true') {
-                    return;
-                }
-
-                button.dataset.lessonEntryReady = 'true';
-                button.addEventListener('click', function() {
-                    openLastLesson();
-                });
-            });
-
-            const suggestionForm = document.getElementById('suggestionForm');
-            if (suggestionForm && suggestionForm.dataset.formReady !== 'true') {
-                suggestionForm.dataset.formReady = 'true';
-                suggestionForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const textarea = this.querySelector('textarea');
-                if (textarea.value.trim()) {
-                    showNotification('Suggestion envoyée');
-                    textarea.value = '';
-                }
-            });
-            }
-        }
-        
-        function showSection(sectionId) {
-            if (isExamSectionUnavailable(sectionId)) {
-                showUnavailableExamModal();
-                return;
-            }
-
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.style.display = '';
-                section.classList.remove('active');
-            });
-            
-            const mainNavSections = ['accueil', 'lecons', 'panneaux', 'test', 'videos', 'progres', 'profil', 'suggestions', 'contact', 'parametres'];
-            const bottomNav = document.querySelector('.bottom-nav');
-            if (bottomNav) {
-                bottomNav.style.display = mainNavSections.includes(sectionId) ? 'flex' : 'none';
-            }
-            
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.style.display = '';
-                section.classList.add('active');
-                
-                if (sectionId === 'panneaux') {
-                    setTimeout(() => {
-                        changerOnglet('apprentissage');
-                    }, 100);
-                }
-
-                if (bottomNav && sectionId === 'lecons' && section.classList.contains('reader-mode')) {
-                    bottomNav.style.display = 'none';
-                }
-            }
-
-            if (sectionId === 'progres' || sectionId === 'accueil') {
-                updateLessonDashboard();
-            }
-            
-            updateBottomNav(sectionId);
-            requestAnimationFrame(resizeActiveIframe);
-        }
-        
-        function updateBottomNav(sectionId) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
-            if (navItem) {
-                navItem.classList.add('active');
-            }
-        }
-        
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-                showNotification('Mode sombre activé');
-            } else {
-                localStorage.setItem('theme', 'light');
-                document.documentElement.setAttribute('data-theme', 'light');
-                showNotification('Mode clair activé');
-            }
-
-            syncIframeThemes();
-        }
-        
-        async function deconnexion() {
-            // déconnexion immédiate sans demande de confirmation
-            if (currentUser && currentUser.isDevUser) {
-                sessionStorage.setItem(DEV_AUTO_LOGIN_DISABLED_KEY, 'true');
-                hideDevModeBadge();
-                currentUser = null;
-                window.location.reload();
-                return;
-            }
-
-            if (currentUser && currentUser.isDemoUser) {
-                hideDemoModeBadge();
-                showNotification('ℹ️ Vous consultez une version de démonstration.');
-                currentUser = null;
-                localStorage.removeItem('currentUser');
-                window.location.href = 'auth.html';
-                return;
-            }
-
-            if (!isTemporaryAuthUser(currentUser) && typeof sbLogout === 'function') {
-                try {
-                    await sbLogout();
-                } catch (e) {
-                    console.warn('Logout error:', e);
-                }
-            }
-
-            localStorage.removeItem('currentUser');
-            currentUser = null;
-            window.location.href = 'auth.html';
-        }
-        
-        // ===== FONCTIONS UTILITAIRES =====
-        
-        function togglePasswordVisibility(inputId, button) {
-            const input = document.getElementById(inputId);
-            const icon = button.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-        
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.setAttribute('role', 'status');
-            notification.setAttribute('aria-live', 'polite');
-            notification.style.cssText = `
-                position: fixed;
-                top: calc(env(safe-area-inset-top) + 14px);
-                left: 50%;
-                transform: translateX(-50%);
-                max-width: min(320px, calc(100vw - 32px));
-                background: var(--navy-950);
-                color: #fff;
-                padding: 10px 14px;
-                border: 1px solid rgba(255,255,255,0.12);
-                border-radius: 12px;
-                box-shadow: var(--shadow-md);
-                z-index: var(--z-toast);
-                font-weight: 700;
-                font-size: 0.9rem;
-                animation: v2-splash 180ms ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 2200);
-        }
-
-        function setTextIfExists(id, value) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.textContent = value;
-            }
-        }
-
-        function getLessonProgress() {
-            const storageKey = (window.EAUTO_CONFIG && window.EAUTO_CONFIG.lessons && window.EAUTO_CONFIG.lessons.storageKey) || 'eautoecole.lessonProgress';
-            try {
-                const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
-                return {
-                    completed: Array.isArray(saved.completed) ? saved.completed.filter(Number.isFinite) : [],
-                    lastLesson: Number.isFinite(saved.lastLesson) ? saved.lastLesson : null
-                };
-            } catch (e) {
-                return { completed: [], lastLesson: null };
-            }
-        }
-
-        function saveLessonProgress(progress) {
-            const storageKey = (window.EAUTO_CONFIG && window.EAUTO_CONFIG.lessons && window.EAUTO_CONFIG.lessons.storageKey) || 'eautoecole.lessonProgress';
-            localStorage.setItem(storageKey, JSON.stringify(progress));
-            updateLessonDashboard();
-        }
-
-        function markLessonCompleted(lessonNumber) {
-            const progress = getLessonProgress();
-            const normalizedLesson = Number(lessonNumber);
-            if (!Number.isFinite(normalizedLesson)) {
-                return;
-            }
-
-            if (!progress.completed.includes(normalizedLesson)) {
-                progress.completed.push(normalizedLesson);
-            }
-            progress.lastLesson = normalizedLesson;
-            saveLessonProgress(progress);
-        }
-
-        function getLastLesson() {
-            return getLessonProgress().lastLesson;
-        }
-
-        function setLastLesson(lessonNumber) {
-            const progress = getLessonProgress();
-            const normalizedLesson = Number(lessonNumber);
-            if (!Number.isFinite(normalizedLesson)) {
-                return;
-            }
-
-            progress.lastLesson = normalizedLesson;
-            saveLessonProgress(progress);
-        }
-
-        function openLastLesson() {
-            const lastLesson = getLastLesson() || 1;
-            setLastLesson(lastLesson);
-            const iframe = document.querySelector('#lecons iframe');
-            if (iframe) {
-                iframe.src = `./Lecons.html#lesson-${lastLesson}`;
-            }
-            showSection('lecons');
-        }
-
-        function setupLessonDashboard() {
-            window.addEventListener('storage', function(event) {
-                if (event.key === ((window.EAUTO_CONFIG && window.EAUTO_CONFIG.lessons && window.EAUTO_CONFIG.lessons.storageKey) || 'eautoecole.lessonProgress')) {
-                    updateLessonDashboard();
-                }
-            });
-
-            window.addEventListener('message', function(event) {
-                if (event.data && (event.data.type === 'hideBottomNav' || event.data.type === 'showBottomNav')) {
-                    const bottomNav = document.querySelector('.bottom-nav');
-                    const activeSection = document.querySelector('.content-section.active');
-                    if (bottomNav && activeSection && activeSection.id === 'test') {
-                        bottomNav.style.display = event.data.type === 'hideBottomNav' ? 'none' : 'flex';
-                    }
-                    requestAnimationFrame(resizeActiveIframe);
-                    return;
-                }
-
-                if (!event.data || event.data.source !== 'eautoecole-lessons') {
-                    return;
-                }
-
-                if (event.data.type === 'lesson-reader-opened' || event.data.type === 'lesson-reader-closed') {
-                    const leconsSection = document.getElementById('lecons');
-                    const bottomNav = document.querySelector('.bottom-nav');
-                    const isReaderOpen = event.data.type === 'lesson-reader-opened';
-
-                    if (leconsSection) {
-                        leconsSection.classList.toggle('reader-mode', isReaderOpen);
-                    }
-
-                    if (bottomNav && leconsSection && leconsSection.classList.contains('active')) {
-                        bottomNav.style.display = isReaderOpen ? 'none' : 'flex';
-                    }
-
-                    requestAnimationFrame(resizeActiveIframe);
-                }
-
-                if (event.data.type === 'lesson-viewed') {
-                    setLastLesson(event.data.lesson);
-                }
-
-                if (event.data.type === 'lesson-completed') {
-                    markLessonCompleted(event.data.lesson);
-                }
-            });
-
-            updateLessonDashboard();
-            setupResponsiveIframes();
-        }
-
-        function getIframeContentHeight(iframe) {
-            try {
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                if (!doc) {
-                    return 0;
-                }
-
-                const body = doc.body;
-                const html = doc.documentElement;
-                if (!body || !html) {
-                    return 0;
-                }
-
-                return Math.max(
-                    body.scrollHeight,
-                    body.offsetHeight,
-                    html.clientHeight,
-                    html.scrollHeight,
-                    html.offsetHeight
-                );
-            } catch (e) {
-                return 0;
-            }
-        }
-
-        function resizeIframe(iframe) {
-            const height = getIframeContentHeight(iframe);
-            if (height > 0) {
-                iframe.style.height = `${height}px`;
-            }
-        }
-
-        function resizeActiveIframe() {
-            const iframe = document.querySelector('.external-section.active .external-page');
-            if (iframe) {
-                resizeIframe(iframe);
-            }
-        }
-
-        function setupResponsiveIframes() {
-            document.querySelectorAll('.external-page').forEach((iframe) => {
-                if (iframe.dataset.resizeReady === 'true') {
-                    return;
-                }
-
-                iframe.dataset.resizeReady = 'true';
-                iframe.addEventListener('load', function() {
-                    resizeIframe(iframe);
-
-                    try {
-                        const doc = iframe.contentDocument || iframe.contentWindow.document;
-                        if (doc && doc.documentElement) {
-                            syncIframeTheme(iframe);
-                            doc.documentElement.style.overflow = 'hidden';
-                            doc.body.style.overflow = 'hidden';
-                            const observer = new ResizeObserver(() => resizeIframe(iframe));
-                            observer.observe(doc.documentElement);
-                            observer.observe(doc.body);
-                        }
-                    } catch (e) {
-                        resizeIframe(iframe);
-                    }
-                });
-            });
-
-            window.addEventListener('resize', resizeActiveIframe);
-        }
-
-        function syncIframeTheme(iframe) {
-            try {
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                const isDark = document.body.classList.contains('dark-mode');
-                if (doc && doc.documentElement && doc.body) {
-                    doc.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-                    doc.body.classList.toggle('dark-mode', isDark);
-                }
-            } catch (e) {
-                return;
-            }
-        }
-
-        function syncIframeThemes() {
-            document.querySelectorAll('.external-page').forEach(syncIframeTheme);
-        }
-
-        function updateLessonDashboard() {
-            const lessonTitles = ['', 'La route', 'Le conducteur', 'Le véhicule', 'Signalisation', 'Règles de circulation', 'Vitesse & mouvement', 'Permis de conduire', 'Infractions & sanctions', 'Sécurité routière'];
-            const total = (window.EAUTO_CONFIG && window.EAUTO_CONFIG.lessons && window.EAUTO_CONFIG.lessons.total) || 9;
-            const progress = getLessonProgress();
-            const completedCount = progress.completed.length;
-            const percent = Math.round((completedCount / total) * 100);
-            const lastTitle = progress.lastLesson ? lessonTitles[progress.lastLesson] : 'Aucune';
-
-            document.querySelectorAll('[data-lesson-completed]').forEach(element => {
-                element.textContent = completedCount;
-            });
-            document.querySelectorAll('[data-lesson-progress-bar]').forEach(element => {
-                element.style.width = `${percent}%`;
-            });
-            document.querySelectorAll('[data-lesson-percent]').forEach(element => {
-                element.textContent = `${percent} % terminé`;
-            });
-            document.querySelectorAll('[data-lesson-percent-short]').forEach(element => {
-                element.textContent = `${percent} %`;
-            });
-            document.querySelectorAll('[data-last-lesson-title]').forEach(element => {
-                element.textContent = lastTitle;
-            });
-
-            const prompt = document.getElementById('homeLessonPrompt');
-            const buttonText = document.getElementById('homeLessonButtonText');
-            if (prompt) {
-                prompt.textContent = completedCount > 0
-                    ? 'Prêt pour ta prochaine session ?'
-                    : 'Commence ta première leçon. 9 chapitres pour maîtriser les bases.';
-            }
-            if (buttonText) {
-                buttonText.textContent = completedCount > 0 ? 'Continuer ma formation' : 'Commencer';
-            }
-
-            const emptyState = document.querySelector('[data-progress-empty]');
-            const filledState = document.querySelector('[data-progress-filled]');
-            if (emptyState && filledState) {
-                emptyState.classList.toggle('is-hidden', completedCount > 0 || Boolean(progress.lastLesson));
-                filledState.classList.toggle('is-hidden', !(completedCount > 0 || Boolean(progress.lastLesson)));
-            }
-        }
-        
-        function checkConnection() {
-            const alert = document.getElementById('connectionAlert');
-            
-            if (navigator.onLine) {
-                alert.style.display = 'none';
-            } else {
-                alert.style.display = 'block';
-            }
-        }
-    
+import { registerRoute, setFallbackRoute, startRouter, navigateTo, getCurrentPath } from './router.js';
+import { LESSONS_DATA } from './data/lessons-data.js';
+import { renderLessonsView, renderLessonView } from './modules/lessons.js';
+import { renderPanelsView } from './modules/panels.js';
+import { renderTestsView } from './modules/tests.js';
+import { renderVideosView } from './modules/videos.js';
+import {
+  getLearningProgress,
+  getLessonState,
+  getResumeTarget,
+  getStateLabel
+} from './progress.js';
+
+const appConfig = window.APP_CONFIG;
+const devConfig = window.DEV_CONFIG;
+const demoConfig = window.DEMO_CONFIG;
+const examsConfig = window.EXAMS_CONFIG;
+const contactConfig = window.CONTACT_CONFIG;
+
+const DEV_AUTO_LOGIN_DISABLED_KEY = 'devAutoLoginDisabled';
+const DEV_STUDENT = {
+  prenom: 'Test',
+  telephone: '770000000',
+  dateInscription: new Date().toISOString(),
+  formule: 'Formule Illimitée',
+  prix: 2000,
+  status: 'active',
+  isDevUser: true
+};
+const DEV_ADMIN = {
+  prenom: 'Administrateur DEV',
+  telephone: '760000000',
+  dateInscription: new Date().toISOString(),
+  status: 'active',
+  isAdmin: true,
+  isDevUser: true
+};
+const DEMO_STUDENT = {
+  prenom: 'Visiteur',
+  telephone: '770000000',
+  dateInscription: new Date().toISOString(),
+  formule: 'Formule Illimitée',
+  prix: 2000,
+  status: 'active',
+  isDemoUser: true
+};
+
+let currentUser = null;
+let appView;
+let bottomNav;
+
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+async function initializeApp() {
+  appView = document.getElementById('app-view');
+  bottomNav = document.getElementById('bottom-nav');
+  applySavedTheme();
+  installUiGlobals();
+
+  const sessionUser = await resolveSessionUser();
+  if (!sessionUser) {
+    return;
+  }
+
+  currentUser = sessionUser;
+  renderHeader();
+  renderBottomNav();
+  registerRoutes();
+  startRouter();
+  updateBottomNav();
+  window.addEventListener('hashchange', updateBottomNav);
+  window.addEventListener('learning-progress-updated', () => {
+    if (getCurrentPath() === '/home' || getCurrentPath() === '/progress') {
+      renderCurrentRoute();
+    }
+  });
+}
+
+async function resolveSessionUser() {
+  if (initializeDemoMode()) {
+    return { ...DEMO_STUDENT, dateInscription: new Date().toISOString() };
+  }
+
+  if (hasSupabaseHelpers()) {
+    const session = await window.sbGetSession();
+    if (!session) {
+      const devUser = initializeDevMode();
+      if (devUser) {
+        return devUser;
+      }
+      window.location.href = 'auth.html';
+      return null;
+    }
+
+    if (window.sbIsAdmin(session.user)) {
+      window.location.href = 'admin.html';
+      return null;
+    }
+
+    try {
+      const profile = await window.sbGetProfile();
+      if (!profile || profile.status === 'pending' || profile.status === 'blocked') {
+        await window.sbLogout();
+        window.location.href = 'auth.html';
+        return null;
+      }
+
+      return {
+        prenom: profile.prenom || 'Élève',
+        telephone: profile.telephone,
+        dateInscription: profile.created_at,
+        status: profile.status,
+        formule: profile.formule || 'Formule Illimitée',
+        prix: profile.prix || 2000,
+        photo: profile.photo_url || profile.photo || null,
+        isSupabaseUser: true
+      };
+    } catch (error) {
+      console.error('Erreur chargement profil:', error);
+      await window.sbLogout();
+      window.location.href = 'auth.html';
+      return null;
+    }
+  }
+
+  const devUser = initializeDevMode();
+  if (devUser) {
+    return devUser;
+  }
+
+  window.location.href = 'auth.html';
+  return null;
+}
+
+function initializeDevMode() {
+  if (!isLocalDevelopmentHost()) {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const urlRole = params.get('dev');
+  const allowed = devConfig.allowedRoles || ['student', 'admin', 'normal'];
+  const role = allowed.includes(urlRole) ? urlRole : devConfig.role;
+  const autoLoginDisabled = sessionStorage.getItem(DEV_AUTO_LOGIN_DISABLED_KEY) === 'true';
+
+  if (role === 'normal' || !devConfig.enabled || autoLoginDisabled) {
+    return null;
+  }
+  if (role === 'admin') {
+    window.location.href = 'admin.html?dev=admin';
+    return null;
+  }
+  return { ...DEV_STUDENT, dateInscription: new Date().toISOString() };
+}
+
+function initializeDemoMode() {
+  return !isLocalDevelopmentHost() && demoConfig.enabled && demoConfig.autoLoginStudent;
+}
+
+function isLocalDevelopmentHost() {
+  return ['localhost', '127.0.0.1', '::1', ''].includes(window.location.hostname);
+}
+
+function hasSupabaseHelpers() {
+  return typeof window.sbGetSession === 'function'
+    && typeof window.sbGetProfile === 'function'
+    && typeof window.sbLogout === 'function'
+    && typeof window.sbIsAdmin === 'function';
+}
+
+function registerRoutes() {
+  registerRoute('/home', renderHomeView);
+  registerRoute('/lessons', (params) => renderLessonsView(appView, params));
+  registerRoute('/lesson/:id', (params) => renderLessonView(appView, params));
+  registerRoute('/panels', (params) => renderPanelsView(appView, params));
+  registerRoute('/panels/:category', (params) => renderPanelsView(appView, params));
+  registerRoute('/tests', () => renderTestsView(appView));
+  registerRoute('/videos', (params) => renderVideosView(appView, params));
+  registerRoute('/videos/:videoId', (params) => renderVideosView(appView, params));
+  registerRoute('/progress', renderProgressView);
+  registerRoute('/profile', renderProfileView);
+  registerRoute('/contact', renderContactView);
+  registerRoute('/about', renderAboutView);
+  setFallbackRoute(() => navigateTo('/home'));
+}
+
+function renderCurrentRoute() {
+  const event = new HashChangeEvent('hashchange');
+  window.dispatchEvent(event);
+}
+
+function renderHeader() {
+  const header = document.getElementById('app-header');
+  const initial = (currentUser.prenom || 'É').trim().charAt(0).toUpperCase();
+  header.innerHTML = `
+    <div class="app-header-inner">
+      <button class="brand-lockup" type="button" data-route="/home" aria-label="Accueil">
+        <span class="brand-mark"><i class="fas fa-car-side"></i></span>
+        <span>
+          <strong>${appConfig.name}</strong>
+          <small>${appConfig.schoolName}</small>
+        </span>
+      </button>
+      <div class="app-header-actions">
+        <a href="https://wa.me/${contactConfig.whatsapp}" target="_blank" rel="noopener" class="icon-button" aria-label="Aide WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+        <button class="profile-trigger" type="button" data-route="/profile" aria-label="Ouvrir le profil">
+          ${currentUser.photo ? `<img src="${currentUser.photo}" alt="Photo de profil" class="profile-photo">` : `<span class="user-avatar">${initial}</span>`}
+        </button>
+      </div>
+    </div>
+  `;
+  bindRouteLinks(header);
+}
+
+function renderBottomNav() {
+  bottomNav.innerHTML = `
+    <button class="nav-item" type="button" data-route="/home"><i class="fas fa-home"></i><span>Accueil</span></button>
+    <button class="nav-item" type="button" data-route="/lessons"><i class="fas fa-book-open"></i><span>Leçons</span></button>
+    <button class="nav-item" type="button" data-route="/tests"><i class="fas fa-clipboard-check"></i><span>Tests</span></button>
+    <button class="nav-item" type="button" data-route="/progress"><i class="fas fa-chart-line"></i><span>Progrès</span></button>
+    <button class="nav-item" type="button" data-route="/profile"><i class="fas fa-user"></i><span>Profil</span></button>
+  `;
+  bindRouteLinks(bottomNav);
+}
+
+function renderHomeView() {
+  const progress = getLearningProgress();
+  const resume = getResumeTarget();
+  const masteredCount = progress.masteredLessons.length;
+  const percent = Math.round((masteredCount / LESSONS_DATA.length) * 100);
+  appView.innerHTML = `
+    <section class="home-view view-stack">
+      <div class="dashboard-hero">
+        <div>
+          <p class="eyebrow">Formation Code de la route</p>
+          <h1>Bonjour, ${currentUser.prenom || 'Élève'}</h1>
+          <p>Ta progression : ${masteredCount} / ${LESSONS_DATA.length} leçons maîtrisées.</p>
+        </div>
+        <div class="lesson-progress-card">
+          <div class="progress-meta"><span>Maîtrise globale</span><strong>${percent} %</strong></div>
+          <div class="progress-track"><span style="width:${percent}%"></span></div>
+        </div>
+      </div>
+
+      <section class="continue-card">
+        <div>
+          <p class="eyebrow">Continuer</p>
+          <h2>Leçon ${resume.lesson.id} · ${resume.lesson.title}</h2>
+          <p>Étape ${resume.step + 1}</p>
+        </div>
+        <button class="primary-action" type="button" data-route="/lesson/${resume.lesson.id}">Reprendre</button>
+      </section>
+
+      <section class="dashboard-section">
+        <div class="section-heading"><h2>Apprendre</h2></div>
+        <div class="action-grid">
+          <button class="nav-card action-card" type="button" data-route="/lessons"><i class="fas fa-book-open"></i><span>Leçons</span><small>Parcours guidé</small></button>
+          <button class="nav-card action-card" type="button" data-route="/panels"><i class="fas fa-traffic-light"></i><span>Panneaux</span><small>Apprendre et réviser</small></button>
+        </div>
+      </section>
+
+      <section class="dashboard-section">
+        <div class="section-heading"><h2>S'entraîner</h2></div>
+        <div class="action-grid single">
+          <button class="nav-card action-card" type="button" data-route="/tests"><i class="fas fa-clipboard-check"></i><span>Tests</span><small>Séries d'examen</small></button>
+        </div>
+      </section>
+
+      <section class="dashboard-section">
+        <div class="section-heading"><h2>Ressources</h2></div>
+        <div class="action-grid single">
+          <button class="nav-card action-card" type="button" data-route="/videos"><i class="fas fa-circle-play"></i><span>Vidéos</span><small>Tutoriels</small></button>
+        </div>
+      </section>
+
+      <section class="dashboard-section">
+        <div class="section-heading"><h2>Préparation examens</h2></div>
+        <div class="exam-grid">
+          ${renderExamCard('Permis B', 'Poids léger', examsConfig.poidsLegerEnabled)}
+          ${renderExamCard('Permis C', 'Poids lourd', examsConfig.poidsLourdEnabled)}
+        </div>
+      </section>
+    </section>
+  `;
+  bindRouteLinks(appView);
+  bindExamCards(appView);
+}
+
+function renderProgressView() {
+  const progress = getLearningProgress();
+  const masteredCount = progress.masteredLessons.length;
+  const percent = Math.round((masteredCount / LESSONS_DATA.length) * 100);
+  const resume = getResumeTarget();
+  const mistakes = Object.values(progress.mistakes).flat();
+  appView.innerHTML = `
+    <section class="view-stack">
+      <div class="view-heading">
+        <p class="eyebrow">Suivi réel</p>
+        <h1>Progrès</h1>
+      </div>
+      <div class="progress-summary">
+        <div class="metric-card"><span>Leçons maîtrisées</span><strong>${masteredCount} / ${LESSONS_DATA.length}</strong></div>
+        <div class="metric-card"><span>Maîtrise globale</span><strong>${percent} %</strong></div>
+        <div class="metric-card wide"><span>Dernière leçon</span><strong>${resume.lesson.title}</strong></div>
+      </div>
+      <section class="score-list">
+        <h2>Scores</h2>
+        ${LESSONS_DATA.map((lesson) => {
+          const score = progress.lessonScores[lesson.id];
+          const state = getLessonState(lesson.id);
+          return `<div><span>${lesson.title}</span><strong>${score ? `${score} %` : getStateLabel(state)}</strong></div>`;
+        }).join('')}
+      </section>
+      <section class="review-list progress-review">
+        <strong>À revoir</strong>
+        <span>${mistakes.length ? `${new Set(mistakes).size} notions à revoir` : 'Aucune erreur enregistrée pour le moment'}</span>
+      </section>
+    </section>
+  `;
+}
+
+function renderProfileView() {
+  const initial = (currentUser.prenom || 'É').trim().charAt(0).toUpperCase();
+  appView.innerHTML = `
+    <section class="profile-layout">
+      <div class="profile-card-main">
+        <div class="profile-identity">
+          <button class="profile-photo-button" type="button" data-upload-photo aria-label="Changer la photo de profil">
+            ${currentUser.photo ? `<img src="${currentUser.photo}" alt="Photo de profil" class="profile-photo large">` : `<span class="user-avatar large">${initial}</span>`}
+            <i class="fas fa-camera"></i>
+          </button>
+          <div>
+            <p class="eyebrow">Mon compte</p>
+            <h1>${currentUser.prenom || 'Élève'}</h1>
+            <button class="text-button" type="button" data-edit-name><i class="fas fa-pen"></i> Modifier le prénom</button>
+          </div>
+        </div>
+        <dl class="profile-details">
+          <div><dt>Formule</dt><dd>${currentUser.formule || 'Formule Illimitée'}</dd></div>
+          <div><dt>Statut</dt><dd>${currentUser.status || 'Actif'}</dd></div>
+          <div><dt>Téléphone</dt><dd>${currentUser.telephone || ''}</dd></div>
+          <div><dt>Date d'inscription</dt><dd>${formatDate(currentUser.dateInscription)}</dd></div>
+        </dl>
+        <input type="file" id="photoUpload" class="profile-photo-input" accept="image/*">
+      </div>
+      <div class="profile-group">
+        <h2>Préférences</h2>
+        <button class="profile-row" type="button" data-toggle-theme><i class="fas fa-moon"></i><span>Apparence</span><strong>Clair / sombre</strong></button>
+      </div>
+      <div class="profile-group">
+        <h2>Support</h2>
+        <button class="profile-row" type="button" data-route="/contact"><i class="fas fa-phone"></i><span>Contacter l'auto-école</span><strong>Coordonnées</strong></button>
+        <a class="profile-row" href="https://wa.me/${contactConfig.whatsapp}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i><span>WhatsApp</span><strong>${contactConfig.phone}</strong></a>
+      </div>
+      <div class="profile-group">
+        <h2>Application</h2>
+        <button class="profile-row" type="button" data-route="/about"><i class="fas fa-circle-info"></i><span>À propos</span><strong>eAutoecole</strong></button>
+        <button class="profile-row danger" type="button" data-logout><i class="fas fa-sign-out-alt"></i><span>Se déconnecter</span></button>
+      </div>
+    </section>
+  `;
+  bindRouteLinks(appView);
+  bindProfileActions();
+}
+
+function renderContactView() {
+  appView.innerHTML = `
+    <section class="view-stack">
+      <button class="text-back" type="button" data-route="/profile">← Profil</button>
+      <div class="view-heading">
+        <p class="eyebrow">Contact</p>
+        <h1>Auto-école Dieynaba</h1>
+      </div>
+      <div class="contact-panel">
+        <h2>Notre numéro</h2>
+        <p>${contactConfig.phone}</p>
+        <div class="reader-actions">
+          <a class="primary-action" href="tel:${contactConfig.phoneHref}">Appeler</a>
+          <a class="secondary-action" href="https://wa.me/${contactConfig.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+      <div class="contact-grid compact">
+        <div class="contact-card"><i class="fas fa-envelope"></i><h2>Email</h2><p><a href="mailto:${contactConfig.email}">${contactConfig.email}</a></p></div>
+        <div class="contact-card"><i class="fas fa-location-dot"></i><h2>Adresse</h2><p>${contactConfig.address}</p></div>
+      </div>
+    </section>
+  `;
+  bindRouteLinks(appView);
+}
+
+function renderAboutView() {
+  appView.innerHTML = `
+    <section class="view-stack">
+      <button class="text-back" type="button" data-route="/profile">← Profil</button>
+      <div class="view-heading">
+        <p class="eyebrow">Application</p>
+        <h1>eAutoecole</h1>
+        <p>Plateforme d'apprentissage du Code de la route de l'Auto-école Dieynaba.</p>
+      </div>
+    </section>
+  `;
+  bindRouteLinks(appView);
+}
+
+function renderExamCard(license, title, enabled) {
+  return `
+    <button class="nav-card exam-card ${enabled ? '' : 'exam-unavailable'}" type="button" data-exam-card aria-disabled="${enabled ? 'false' : 'true'}">
+      <span class="exam-license">${license}</span>
+      <strong>${title}</strong>
+      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En correction</span>
+    </button>
+  `;
+}
+
+function bindExamCards(root) {
+  root.querySelectorAll('[data-exam-card]').forEach((button) => {
+    button.addEventListener('click', () => {
+      window.eautoModal(`
+        <div class="modal-card">
+          <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
+          <div class="exam-unavailable-icon"><i class="fas fa-screwdriver-wrench"></i></div>
+          <h2>Examen en cours de correction</h2>
+          <p>Nous vérifions actuellement certaines questions avant de remettre cet examen en ligne.</p>
+        </div>
+      `);
+    });
+  });
+}
+
+function bindRouteLinks(root) {
+  root.querySelectorAll('[data-route]').forEach((button) => {
+    button.addEventListener('click', () => navigateTo(button.dataset.route));
+  });
+}
+
+function bindProfileActions() {
+  appView.querySelector('[data-toggle-theme]').addEventListener('click', toggleTheme);
+  appView.querySelector('[data-logout]').addEventListener('click', deconnexion);
+  appView.querySelector('[data-upload-photo]').addEventListener('click', () => appView.querySelector('#photoUpload').click());
+  appView.querySelector('#photoUpload').addEventListener('change', handlePhotoUpload);
+  appView.querySelector('[data-edit-name]').addEventListener('click', editName);
+}
+
+function editName() {
+  window.eautoModal(`
+    <form class="modal-card" data-name-form>
+      <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
+      <h2>Modifier le prénom</h2>
+      <label for="modalName">Prénom</label>
+      <input id="modalName" name="prenom" value="${currentUser.prenom || ''}" required>
+      <button class="primary-action" type="submit">Enregistrer</button>
+    </form>
+  `);
+  document.querySelector('[data-name-form]').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const prenom = event.target.prenom.value.trim();
+    if (!prenom) {
+      return;
+    }
+    currentUser.prenom = prenom;
+    if (currentUser.isSupabaseUser && typeof window.sbUpdateProfile === 'function') {
+      await window.sbUpdateProfile({ prenom });
+    }
+    closeModal();
+    renderHeader();
+    renderProfileView();
+    window.eautoToast('Prénom mis à jour');
+  });
+}
+
+async function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async () => {
+    currentUser.photo = reader.result;
+    if (currentUser.isSupabaseUser && typeof window.sbUploadPhoto === 'function') {
+      try {
+        currentUser.photo = await window.sbUploadPhoto(file);
+      } catch (error) {
+        window.eautoToast(`Erreur upload photo : ${error.message}`);
+        return;
+      }
+    }
+    renderHeader();
+    renderProfileView();
+    window.eautoToast('Photo mise à jour');
+  };
+  reader.readAsDataURL(file);
+}
+
+function applySavedTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.body.classList.add('dark-mode');
+  }
+}
+
+function toggleTheme() {
+  const isDark = !document.body.classList.contains('dark-mode');
+  document.body.classList.toggle('dark-mode', isDark);
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+async function deconnexion() {
+  if (currentUser && currentUser.isDevUser) {
+    sessionStorage.setItem(DEV_AUTO_LOGIN_DISABLED_KEY, 'true');
+    window.location.href = 'auth.html';
+    return;
+  }
+  if (currentUser && currentUser.isDemoUser) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  if (typeof window.sbLogout === 'function') {
+    await window.sbLogout();
+  }
+  window.location.href = 'auth.html';
+}
+
+function updateBottomNav() {
+  const path = getCurrentPath();
+  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+/.test(path);
+  bottomNav.style.display = immersive ? 'none' : 'flex';
+  bottomNav.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'));
+  const activeRoute = path.startsWith('/lesson') ? '/lessons'
+    : path.startsWith('/tests') ? '/tests'
+    : path.startsWith('/progress') ? '/progress'
+    : path.startsWith('/profile') || path.startsWith('/contact') || path.startsWith('/about') ? '/profile'
+    : path.startsWith('/panels') || path.startsWith('/videos') ? ''
+    : '/home';
+  const active = activeRoute ? bottomNav.querySelector(`[data-route="${activeRoute}"]`) : null;
+  if (active) {
+    active.classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function installUiGlobals() {
+  window.eautoToast = function eautoToast(message) {
+    const root = document.getElementById('toast-root');
+    root.innerHTML = `<div class="toast" role="status">${message}</div>`;
+    window.clearTimeout(root.toastTimer);
+    root.toastTimer = window.setTimeout(() => root.innerHTML = '', 2200);
+  };
+  window.eautoModal = function eautoModal(html) {
+    const root = document.getElementById('modal-root');
+    root.innerHTML = `<div class="modal-backdrop" role="dialog" aria-modal="true">${html}</div>`;
+    root.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', closeModal));
+    root.querySelector('.modal-backdrop').addEventListener('click', (event) => {
+      if (event.target.classList.contains('modal-backdrop')) {
+        closeModal();
+      }
+    });
+  };
+  window.eautoConfirm = function eautoConfirm({ title, message, confirmLabel, cancelLabel, onConfirm }) {
+    window.eautoModal(`
+      <div class="modal-card">
+        <h2>${title}</h2>
+        <p>${message}</p>
+        <div class="reader-actions">
+          <button class="secondary-action" type="button" data-close-modal>${cancelLabel}</button>
+          <button class="primary-action" type="button" data-confirm-action>${confirmLabel}</button>
+        </div>
+      </div>
+    `);
+    document.querySelector('[data-confirm-action]').addEventListener('click', () => {
+      closeModal();
+      onConfirm();
+    });
+  };
+}
+
+function closeModal() {
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function formatDate(value) {
+  if (!value) {
+    return '';
+  }
+  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(value));
+}
