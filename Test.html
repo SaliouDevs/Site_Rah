@@ -6,7 +6,7 @@
     <title>TEST - Évaluation des Connaissances</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-        body{background:#ffffff;color:#333;line-height:1.6;padding:10px;min-height:100vh}
+        body{background:#ffffff;color:#333;line-height:1.6;padding:10px;min-height:100vh;overflow-x:hidden;max-width:100vw}
         
         html, body { margin: 0; padding: 0; }
         img { max-width: 100%; height: auto; }
@@ -924,6 +924,7 @@ function playSnMp3(filePath, button) {
     }
 
     function startExam(series) {
+        window.parent.postMessage({ type: 'hideBottomNav' }, '*');
         currentSeries = series;
         currentQuestion = 1;
         selectedAnswers = {};
@@ -1346,14 +1347,15 @@ function playSnMp3(filePath, button) {
     }
 
     function returnToMain() {
+        window.parent.postMessage({ type: 'showBottomNav' }, '*');
         stopAllAudio();
-        
+
         document.getElementById('header').style.display = 'block';
         document.querySelector('.main-container').style.display = 'flex';
         document.getElementById('exam-container').style.display = 'none';
         document.getElementById('result-container').style.display = 'none';
         clearInterval(timerInterval);
-        
+
         loadRecentTests();
         updatePerformanceChart();
     }
@@ -1619,6 +1621,7 @@ function clearExamState() {
 
 // Modifier la fonction startExam pour sauvegarder l'état
 function startExam(series) {
+    window.parent.postMessage({ type: 'hideBottomNav' }, '*');
     currentSeries = series;
     currentQuestion = 1;
     selectedAnswers = {};
@@ -1748,8 +1751,9 @@ function finishExam() {
 
 // Modifier la fonction returnToMain pour effacer l'état
 function returnToMain() {
+    window.parent.postMessage({ type: 'showBottomNav' }, '*');
     stopAllAudio();
-    
+
     // Effacer l'état de l'examen
     clearExamState();
     

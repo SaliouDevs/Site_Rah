@@ -6,7 +6,7 @@
     <title>POIDS LÉGER - Test Tes Connaissances</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-        body{background:#ffffff;color:#333;line-height:1.6;padding:10px;min-height:100vh}
+        body{background:#ffffff;color:#333;line-height:1.6;padding:10px;min-height:100vh;overflow-x:hidden;max-width:100vw}
         
         html, body { margin: 0; padding: 0; }
         img { max-width: 100%; height: auto; }
@@ -4251,6 +4251,7 @@ const questionsB10 = [
         }
 
         function startExam(series) {
+            window.parent.postMessage({ type: 'hideBottomNav' }, '*');
             currentSeries = series;
             currentQuestion = 1;
             selectedAnswers = {};
@@ -4779,6 +4780,7 @@ const questionsB10 = [
         }
 
         function returnToMain() {
+            window.parent.postMessage({ type: 'showBottomNav' }, '*');
             // Arrêter tous les audios en cours
             stopAllAudio();
             
@@ -4800,6 +4802,7 @@ let examData = null;
 
 // Modifier la fonction startExam :
 function startExam(series) {
+    window.parent.postMessage({ type: 'hideBottomNav' }, '*');
     currentSeries = series;
     currentQuestion = 1;
     selectedAnswers = {};
@@ -5007,6 +5010,7 @@ function finishExam() {
 
 // Modifier la fonction returnToMain pour nettoyer :
 function returnToMain() {
+    window.parent.postMessage({ type: 'showBottomNav' }, '*');
     // Arrêter tous les audios en cours
     stopAllAudio();
     

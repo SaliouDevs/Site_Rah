@@ -19,7 +19,7 @@
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, #f5f7fa 0%, #e6f0ff 100%); color: #333; line-height: 1.6; min-height: 100vh; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #e6f0ff 100%); color: #333; line-height: 1.6; min-height: 100vh; overflow-x: hidden; max-width: 100vw; }
         
         html, body { margin: 0; padding: 0; }
         img { max-width: 100%; height: auto; }
@@ -1265,6 +1265,7 @@
             if (!category) return;
             
             // Masquer le header principal
+            window.parent.postMessage({ type: 'hideBottomNav' }, '*');
             document.getElementById('main-header').style.display = 'none';
             
             document.getElementById('study-title').textContent = `${category.name} - ${category.signs.length} Panneaux`;
@@ -1539,6 +1540,7 @@
         }
         
         function backToCategories() {
+            window.parent.postMessage({ type: 'showBottomNav' }, '*');
             // Réafficher le header principal
             document.getElementById('main-header').style.display = 'block';
             

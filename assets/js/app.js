@@ -77,18 +77,68 @@
             initializeApp();
         });
 
-        function initializeApp() {
+        async function initializeApp() {
             initializeCommonFeatures();
             
             if (!localStorage.getItem('users')) {
                 localStorage.setItem('users', JSON.stringify([]));
             }
 
-            if (initializeDevMode()) {
+            if (initializeDemoMode()) {
                 return;
             }
 
-            if (initializeDemoMode()) {
+            if (hasSupabaseHelpers()) {
+                const session = await sbGetSession();
+
+                if (!session) {
+                    if (initializeDevMode()) {
+                        return;
+                    }
+                    window.location.href = 'auth.html';
+                    return;
+                }
+
+                if (sbIsAdmin(session.user)) {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                let profile;
+                try {
+                    profile = await sbGetProfile();
+                } catch (err) {
+                    console.error('Erreur chargement profil:', err);
+                    await sbLogout();
+                    window.location.href = 'auth.html';
+                    return;
+                }
+
+                if (!profile || profile.status === 'pending' || profile.status === 'blocked') {
+                    await sbLogout();
+                    window.location.href = 'auth.html';
+                    return;
+                }
+
+                currentUser = {
+                    prenom: profile.prenom || 'Élève',
+                    telephone: profile.telephone,
+                    dateInscription: profile.created_at,
+                    status: profile.status,
+                    formule: profile.formule || 'Formule Illimitée',
+                    prix: profile.prix || 2000,
+                    photo: profile.photo_url || profile.photo || null,
+                    isSupabaseUser: true
+                };
+
+                accederEspaceEleve(currentUser, false);
+                setupLessonDashboard();
+                startCountdown();
+                checkConnection();
+                return;
+            }
+
+            if (initializeDevMode()) {
                 return;
             }
 
@@ -235,8 +285,7 @@
 
             if (activeRole === 'admin') {
                 console.log('[DEV] Connexion automatique admin');
-                accederEspaceAdmin({ ...DEV_ADMIN, dateInscription: new Date().toISOString() }, false);
-                checkConnection();
+                window.location.href = 'admin.html?dev=admin';
                 return true;
             }
 
@@ -337,6 +386,13 @@
             return !!(user && (user.isDevUser || user.isDemoUser));
         }
 
+        function hasSupabaseHelpers() {
+            return typeof sbGetSession === 'function'
+                && typeof sbGetProfile === 'function'
+                && typeof sbLogout === 'function'
+                && typeof sbIsAdmin === 'function';
+        }
+
         // ===== GESTION DES TARIFS =====
         
         function selectTarif(tarif, prix) {
@@ -419,19 +475,36 @@
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = async function(e) {
                     const photoData = e.target.result;
                     
                     const photoElement = document.getElementById('profilePhoto');
                     const avatarElement = document.getElementById('userAvatar');
                     
-                    photoElement.src = photoData;
-                    photoElement.style.display = 'block';
-                    avatarElement.style.display = 'none';
+                    if (photoElement) {
+                        photoElement.src = photoData;
+                        photoElement.style.display = 'block';
+                    }
+                    if (avatarElement) {
+                        avatarElement.style.display = 'none';
+                    }
                     
                     if (currentUser) {
                         currentUser.photo = photoData;
-                        if (!isTemporaryAuthUser(currentUser)) {
+
+                        if (!isTemporaryAuthUser(currentUser) && typeof sbUploadPhoto === 'function') {
+                            try {
+                                const url = await sbUploadPhoto(file);
+                                currentUser.photo = url;
+                                if (photoElement) {
+                                    photoElement.src = url;
+                                }
+                                showNotification('Photo mise à jour');
+                            } catch (err) {
+                                showNotification('Erreur upload photo : ' + err.message);
+                                return;
+                            }
+                        } else if (!isTemporaryAuthUser(currentUser)) {
                             localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         }
                         
@@ -456,7 +529,7 @@
             }
         }
 
-        function updateUserName() {
+        async function updateUserName() {
             const newName = document.getElementById('editNameField').value.trim();
             if (newName && currentUser) {
                 currentUser.prenom = newName;
@@ -467,7 +540,16 @@
                 setTextIfExists('profileAvatarLarge', newName.charAt(0));
                 setTextIfExists('profil-nom-complet', newName);
                 
-                if (!isTemporaryAuthUser(currentUser)) {
+                if (!isTemporaryAuthUser(currentUser) && typeof sbUpdateProfile === 'function') {
+                    try {
+                        await sbUpdateProfile({ prenom: newName });
+                        showNotification('Prénom mis à jour');
+                    } catch (err) {
+                        showNotification('Erreur mise à jour prénom : ' + err.message);
+                        toggleEditName();
+                        return;
+                    }
+                } else if (!isTemporaryAuthUser(currentUser)) {
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
                 
@@ -478,7 +560,9 @@
                     localStorage.setItem('users', JSON.stringify(users));
                 }
                 
-                showNotification('✅ Prénom mis à jour avec succès !');
+                if (isTemporaryAuthUser(currentUser) || typeof sbUpdateProfile !== 'function') {
+                    showNotification('Prénom mis à jour');
+                }
             }
             toggleEditName();
         }
@@ -508,6 +592,8 @@
         // ===== FONCTIONS NAVIGATION =====
         
         function showConnexion() {
+            window.location.href = 'auth.html';
+            return;
             document.getElementById('inscriptionSection').classList.remove('active');
             document.getElementById('connexionSection').classList.add('active');
             document.getElementById('espaceEleveSection').classList.remove('active');
@@ -541,6 +627,8 @@
         }
         
         function showInscription() {
+            window.location.href = 'auth.html';
+            return;
             const phone = localStorage.getItem('pendingPhone');
             if (phone) {
                 showWarningMessage("Vous ne pouvez pas créer un compte. Votre compte est en attente de validation par l'administrateur.");
@@ -559,19 +647,23 @@
         }
         
         function showEspaceEleve() {
-            document.getElementById('connexionSection').classList.remove('active');
-            document.getElementById('inscriptionSection').classList.remove('active');
-            document.getElementById('espaceEleveSection').classList.add('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
-            document.getElementById('aboutPage').classList.remove('active');
+            document.getElementById('connexionSection')?.classList.remove('active');
+            document.getElementById('inscriptionSection')?.classList.remove('active');
+            document.getElementById('espaceEleveSection')?.classList.add('active');
+            document.getElementById('espaceAdminSection')?.classList.remove('active');
+            document.getElementById('aboutPage')?.classList.remove('active');
         }
 
         function showEspaceAdmin() {
-            document.getElementById('connexionSection').classList.remove('active');
-            document.getElementById('inscriptionSection').classList.remove('active');
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.add('active');
-            document.getElementById('aboutPage').classList.remove('active');
+            if (!currentUser || !currentUser.isDevUser) {
+                window.location.href = 'admin.html';
+                return;
+            }
+            document.getElementById('connexionSection')?.classList.remove('active');
+            document.getElementById('inscriptionSection')?.classList.remove('active');
+            document.getElementById('espaceEleveSection')?.classList.remove('active');
+            document.getElementById('espaceAdminSection')?.classList.add('active');
+            document.getElementById('aboutPage')?.classList.remove('active');
             
             refreshAdminLists();
         }
@@ -1288,27 +1380,36 @@
             }
         }
         
-        function deconnexion() {
+        async function deconnexion() {
             // déconnexion immédiate sans demande de confirmation
             if (currentUser && currentUser.isDevUser) {
                 sessionStorage.setItem(DEV_AUTO_LOGIN_DISABLED_KEY, 'true');
                 hideDevModeBadge();
+                currentUser = null;
+                window.location.reload();
+                return;
             }
 
             if (currentUser && currentUser.isDemoUser) {
                 hideDemoModeBadge();
                 showNotification('ℹ️ Vous consultez une version de démonstration.');
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            if (!isTemporaryAuthUser(currentUser) && typeof sbLogout === 'function') {
+                try {
+                    await sbLogout();
+                } catch (e) {
+                    console.warn('Logout error:', e);
+                }
             }
 
             localStorage.removeItem('currentUser');
             currentUser = null;
-            
-            document.getElementById('espaceEleveSection').classList.remove('active');
-            document.getElementById('espaceAdminSection').classList.remove('active');
-            document.getElementById('connexionSection').classList.add('active');
-            document.getElementById('aboutPage').classList.remove('active');
-            
-            showNotification('✅ Déconnexion réussie !');
+            window.location.href = 'auth.html';
         }
         
         // ===== FONCTIONS UTILITAIRES =====
