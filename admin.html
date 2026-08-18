@@ -411,9 +411,23 @@
 <script>
     let allProfiles = [];
 
+    function isLocalDevAdmin() {
+        const params = new URLSearchParams(window.location.search);
+        const host = window.location.hostname;
+        return params.get('dev') === 'admin'
+            && (host === 'localhost' || host === '127.0.0.1' || host === '::1');
+    }
+
     // ── Init ──────────────────────────────────────────────────────
     (async () => {
-        // Vérifier que l'utilisateur est admin
+        // Vérifier que l'utilisateur est admin, sauf bypass DEV strictement local.
+        if (isLocalDevAdmin()) {
+            allProfiles = [];
+            renderAll();
+            toast('Mode DEV admin local');
+            return;
+        }
+
         const session = await requireAdmin();
         if (!session) return; // requireAdmin redirige si besoin
 
