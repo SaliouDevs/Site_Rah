@@ -3,7 +3,7 @@ const fallbackSettings = {
   maintenance_title: 'Maintenance en cours',
   maintenance_message: 'Nous effectuons actuellement des améliorations sur eAutoecole.',
   maintenance_until: null,
-  school_name: window.APP_CONFIG?.schoolName || 'Auto-école Dieynaba',
+  school_name: window.APP_CONFIG?.schoolName || 'Auto-école',
   support_phone: window.CONTACT_CONFIG?.phone || '77 583 20 37',
   whatsapp_phone: window.CONTACT_CONFIG?.whatsapp || '221775832037',
   support_email: window.CONTACT_CONFIG?.email || 'eautoecole1@gmail.com',

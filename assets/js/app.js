@@ -255,7 +255,7 @@ function renderContactView() {
       <button class="text-back" type="button" data-route="/profile">← Profil</button>
       <div class="view-heading">
         <p class="eyebrow">Contact</p>
-        <h1>${escapeHTML(currentSettings?.school_name || 'Auto-école Dieynaba')}</h1>
+        <h1>${escapeHTML(currentSettings?.school_name || 'Auto-école')}</h1>
       </div>
       <div class="contact-panel">
         <h2>Notre numéro</h2>
@@ -281,7 +281,7 @@ function renderAboutView() {
       <div class="view-heading">
         <p class="eyebrow">Application</p>
         <h1>eAutoecole</h1>
-        <p>Plateforme d'apprentissage du Code de la route de l'Auto-école Dieynaba.</p>
+        <p>Plateforme d'apprentissage du Code de la route de l'Auto-école.</p>
       </div>
     </section>
   `;

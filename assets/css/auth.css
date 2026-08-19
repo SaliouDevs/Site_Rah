@@ -157,7 +157,13 @@ body.auth-page {
   border: 0;
   background: transparent;
   color: var(--text-secondary);
+  font-size: 1rem;
   cursor: pointer;
+}
+
+.input-row button:focus-visible {
+  outline: 2px solid var(--yellow-500);
+  outline-offset: -3px;
 }
 
 .field-error {

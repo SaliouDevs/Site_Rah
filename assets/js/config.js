@@ -1,7 +1,7 @@
 (function () {
   const APP_CONFIG = {
     name: 'eAutoecole',
-    schoolName: 'Auto-école Dieynaba',
+    schoolName: 'Auto-école',
     storagePrefix: 'eautoecole'
   };
 
@@ -20,7 +20,7 @@
   };
 
   const ADMIN_CONFIG = {
-    alias: 'admin',
+    alias: 'rah@admin',
     aliasEmail: '762572877@siterah.sn'
   };
 

@@ -41,22 +41,33 @@ function bindPasswordToggles() {
   document.querySelectorAll('[data-toggle-password]').forEach((button) => {
     button.addEventListener('click', () => {
       const input = document.getElementById(button.dataset.togglePassword);
-      input.type = input.type === 'password' ? 'text' : 'password';
-      button.textContent = input.type === 'password' ? 'Afficher' : 'Masquer';
+      const isVisible = input.type === 'password';
+      input.type = isVisible ? 'text' : 'password';
+      button.setAttribute('aria-label', isVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+      button.setAttribute('title', isVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+      button.querySelector('i').className = `fas ${isVisible ? 'fa-eye-slash' : 'fa-eye'}`;
     });
   });
 }
 
 function bindPhoneFormatters() {
   document.querySelectorAll('input[data-phone]').forEach((input) => {
-    input.addEventListener('input', () => {
-      let value = input.value.replace(/\D/g, '').slice(0, 9);
-      if (value.length > 7) value = `${value.slice(0, 2)} ${value.slice(2, 5)} ${value.slice(5, 7)} ${value.slice(7)}`;
-      else if (value.length > 5) value = `${value.slice(0, 2)} ${value.slice(2, 5)} ${value.slice(5)}`;
-      else if (value.length > 2) value = `${value.slice(0, 2)} ${value.slice(2)}`;
-      input.value = value;
-    });
+    input.addEventListener('input', () => formatPhoneInput(input));
   });
+
+  const loginIdentifier = document.getElementById('loginIdentifier');
+  loginIdentifier.addEventListener('input', () => {
+    if (/[a-z@]/i.test(loginIdentifier.value)) return;
+    formatPhoneInput(loginIdentifier);
+  });
+}
+
+function formatPhoneInput(input) {
+  let value = input.value.replace(/\D/g, '').slice(0, 9);
+  if (value.length > 7) value = `${value.slice(0, 2)} ${value.slice(2, 5)} ${value.slice(5, 7)} ${value.slice(7)}`;
+  else if (value.length > 5) value = `${value.slice(0, 2)} ${value.slice(2, 5)} ${value.slice(5)}`;
+  else if (value.length > 2) value = `${value.slice(0, 2)} ${value.slice(2)}`;
+  input.value = value;
 }
 
 async function handleLogin(event) {
@@ -65,6 +76,11 @@ async function handleLogin(event) {
   const identifier = document.getElementById('loginIdentifier').value.trim();
   const password = document.getElementById('loginPassword').value;
   if (!identifier) return setFieldError('loginIdentifierError', 'Identifiant requis.');
+  const isAdminAlias = identifier.toLowerCase() === window.ADMIN_CONFIG.alias;
+  const phone = identifier.replace(/\s/g, '');
+  if (!isAdminAlias && !/^\d{9}$/.test(phone)) {
+    return setFieldError('loginIdentifierError', 'Numéro au format 77 554 58 42 requis.');
+  }
   if (!password) return setFieldError('loginPasswordError', 'Mot de passe requis.');
 
   setBusy('[data-login-submit]', true, 'Connexion...');
@@ -95,18 +111,16 @@ async function handleLogin(event) {
 async function handleRegister(event) {
   event.preventDefault();
   clearFeedback();
-  const prenom = document.getElementById('registerName').value.trim();
   const telephone = document.getElementById('registerPhone').value.trim();
   const password = document.getElementById('registerPassword').value;
   const confirm = document.getElementById('registerConfirm').value;
-  if (!prenom) return setFieldError('registerNameError', 'Prénom requis.');
   if (telephone.replace(/\s/g, '').length !== 9) return setFieldError('registerPhoneError', 'Numéro à 9 chiffres requis.');
   if (password.length < 6) return setFieldError('registerPasswordError', 'Minimum 6 caractères.');
   if (password !== confirm) return setFieldError('registerConfirmError', 'Les mots de passe ne correspondent pas.');
 
   setBusy('[data-register-submit]', true, 'Création...');
   try {
-    await registerStudent({ prenom, telephone, password, formule: 'Formule Illimitée', prix: 2000 });
+    await registerStudent({ telephone, password, formule: 'Formule Illimitée', prix: 2000 });
     sessionStorage.setItem('pending_phone', telephone);
     sessionStorage.setItem('pending_formule', 'Formule Illimitée');
     sessionStorage.setItem('pending_prix', '2000');

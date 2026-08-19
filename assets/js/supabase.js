@@ -1,5 +1,5 @@
 // ================================================================
-// supabase.js — Client et helpers pour eAutoecole Dieynaba
+// supabase.js — Client et helpers pour eAutoecole
 // Inclure ce fichier APRÈS le CDN Supabase dans chaque page HTML
 // ================================================================
 
@@ -16,10 +16,10 @@ function phoneToEmail(telephone) {
 
 function identifierToEmail(identifier) {
     const value = String(identifier || '').trim();
-    if (value.includes('@')) return value;
     if (value.toLowerCase() === window.ADMIN_CONFIG?.alias) {
         return window.ADMIN_CONFIG.aliasEmail;
     }
+    if (value.includes('@')) return value;
     return phoneToEmail(value);
 }
 

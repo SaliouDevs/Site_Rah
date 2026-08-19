@@ -31,7 +31,7 @@ export async function requireAuthenticatedUser({ allowAdmin = false, onMaintenan
   try {
     profile = await window.sbGetProfile();
   } catch (error) {
-    if (!isAdmin) throw error;
+    if (isAdmin || error?.code !== 'PGRST116') throw error;
   }
 
   if (!profile && !isAdmin) {
