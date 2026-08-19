@@ -36,7 +36,7 @@ export async function requireAuthenticatedUser({ allowAdmin = false, onMaintenan
 
   if (!profile && !isAdmin) {
     await window.sbLogout();
-    window.location.replace('auth.html?status=deleted');
+    window.location.replace('auth.html?reason=profile');
     return null;
   }
 
@@ -89,7 +89,6 @@ export function resolveAuthMessage() {
   const reason = params.get('reason');
   if (status === 'pending') return { type: 'warning', text: 'Votre inscription est en attente de validation par l’auto-école.' };
   if (status === 'blocked') return { type: 'error', text: 'Votre compte est actuellement bloqué. Veuillez contacter l’auto-école.' };
-  if (status === 'deleted') return { type: 'error', text: 'Votre compte a été supprimé.' };
   if (reason === 'session-expired') return { type: 'warning', text: 'Votre session a expiré. Reconnectez-vous pour continuer.' };
   if (reason === 'profile') return { type: 'error', text: 'Profil utilisateur introuvable. Contactez l’auto-école.' };
   if (params.get('admin') === 'denied') return { type: 'error', text: 'Accès administrateur refusé.' };

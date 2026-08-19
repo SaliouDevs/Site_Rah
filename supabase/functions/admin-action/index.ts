@@ -100,15 +100,6 @@ async function handleAction(sb: any, actorId: string, action: string, payload: R
     return { userId };
   }
 
-  if (action === 'delete-user') {
-    const userId = requiredString(payload.userId, 'userId');
-    if (userId === actorId) throw new Error('Impossible de supprimer le compte administrateur connecté');
-    await audit(sb, actorId, 'user_deleted', userId, {});
-    const { error } = await sb.auth.admin.deleteUser(userId);
-    throwIf(error);
-    return { userId };
-  }
-
   if (action === 'force-user-logout') {
     const userId = requiredString(payload.userId, 'userId');
     const invalidBefore = new Date().toISOString();
