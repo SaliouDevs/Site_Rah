@@ -11,8 +11,6 @@ import {
   getStateLabel
 } from './progress.js';
 import { requireAuthenticatedUser, logoutCurrentUser } from './services/auth-service.js';
-import { loadAppSettings, subscribeToAppSettings } from './services/settings-service.js';
-import { acknowledgeNotification, loadUnreadNotifications, subscribeToNotifications } from './services/notification-service.js';
 
 const appConfig = window.APP_CONFIG;
 const examsConfig = window.EXAMS_CONFIG;
@@ -37,15 +35,14 @@ async function initializeApp() {
     return;
   }
 
-  currentSettings = authContext.settings || await loadAppSettings();
+  currentSettings = authContext.settings || {};
   currentUser = normalizeProfile(authContext.profile);
   renderHeader();
   renderBottomNav();
   registerRoutes();
   startRouter();
   updateBottomNav();
-  installRealtimeGuards(authContext.user?.id);
-  renderPendingNotifications(authContext.user?.id);
+  installProfileGuard(authContext.user?.id);
   window.addEventListener('hashchange', updateBottomNav);
   window.addEventListener('learning-progress-updated', () => {
     if (getCurrentPath() === '/home' || getCurrentPath() === '/progress') {
@@ -431,15 +428,8 @@ function normalizeProfile(profile) {
   };
 }
 
-function installRealtimeGuards(userId) {
-  subscribeToAppSettings((settings) => {
-    currentSettings = settings;
-    if (settings.maintenance_enabled) {
-      renderMaintenanceView(settings);
-    }
-  });
+function installProfileGuard(userId) {
   if (userId) {
-    subscribeToNotifications(userId, () => renderPendingNotifications(userId));
     if (window.sbSubscribe) {
       window.sbSubscribe(
         `profile-guard-${userId}`,
@@ -448,38 +438,10 @@ function installRealtimeGuards(userId) {
           if (profile.status === 'blocked' || profile.status === 'pending') {
             await window.sbLogout();
             window.location.href = `auth.html?status=${profile.status}`;
-            return;
-          }
-          if (profile.session_invalid_before) {
-            await window.sbLogout();
-            window.location.href = 'auth.html?reason=session-expired';
           }
         }
       );
     }
-  }
-}
-
-async function renderPendingNotifications(userId) {
-  const notifications = await loadUnreadNotifications(userId);
-  if (!notifications.length) return;
-  const important = notifications.find((item) => item.requires_ack || ['important', 'maintenance'].includes(item.type));
-  const item = important || notifications[0];
-  if (item.requires_ack || important) {
-    window.eautoModal(`
-      <div class="modal-card">
-        <p class="eyebrow">${escapeHTML(item.type || 'Information')}</p>
-        <h2>${escapeHTML(item.title)}</h2>
-        <p>${escapeHTML(item.message)}</p>
-        <button class="primary-action" type="button" data-ack-notification>J’ai compris</button>
-      </div>
-    `);
-    document.querySelector('[data-ack-notification]').addEventListener('click', async () => {
-      await acknowledgeNotification(item.id);
-      closeModal();
-    });
-  } else {
-    window.eautoToast(`${item.title} : ${item.message}`);
   }
 }
 

@@ -7,7 +7,7 @@ const SUPABASE_URL      = 'https://mhoxpqskssbxuuyzjsqx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ob3hwcXNrc3NieHV1eXpqc3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDc3NzksImV4cCI6MjEwMjI4Mzc3OX0.psB1yyyAjzPNPsymyxUGiki3mS6CiZd8NKHlnGC0b78';
 
 const { createClient } = window.supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── Utilitaire téléphone ─────────────────────────────────────────
 function phoneToEmail(telephone) {
@@ -26,14 +26,15 @@ function identifierToEmail(identifier) {
 // ── Auth ─────────────────────────────────────────────────────────
 
 async function sbRegister({ prenom = 'Élève', telephone, password, formule = 'Formule Illimitée', prix = 2000 }) {
-    const email = phoneToEmail(telephone);
-    const { data, error } = await sb.auth.signUp({
+    const cleanPhone = telephone.replace(/\s/g, '');
+    const email = phoneToEmail(cleanPhone);
+    const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
             data: {
                 prenom:    prenom || 'Élève',
-                telephone: telephone.replace(/\s/g, ''),
+                telephone: cleanPhone,
                 formule,
                 prix
             }
@@ -45,23 +46,23 @@ async function sbRegister({ prenom = 'Élève', telephone, password, formule = '
 
 async function sbLogin({ telephone, password }) {
     const email = identifierToEmail(telephone);
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
 }
 
 async function sbLogout() {
-    const { error } = await sb.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
     if (error) throw error;
 }
 
 async function sbGetSession() {
-    const { data: { session } } = await sb.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     return session;
 }
 
 async function sbGetUser() {
-    const { data: { user } } = await sb.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser();
     return user;
 }
 
@@ -75,7 +76,7 @@ function sbIsAdmin(user) {
 async function sbGetProfile() {
     const user = await sbGetUser();
     if (!user) return null;
-    const { data, error } = await sb
+    const { data, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -87,7 +88,7 @@ async function sbGetProfile() {
 async function sbUpdateProfile(updates) {
     const user = await sbGetUser();
     if (!user) throw new Error('Non connecté');
-    const { data, error } = await sb
+    const { data, error } = await supabaseClient
         .from('profiles')
         .update(updates)
         .eq('id', user.id)
@@ -100,7 +101,7 @@ async function sbUpdateProfile(updates) {
 // ── Admin ─────────────────────────────────────────────────────────
 
 async function sbGetAllProfiles() {
-    const { data, error } = await sb
+    const { data, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
@@ -111,7 +112,7 @@ async function sbGetAllProfiles() {
 // Changer le statut d'un utilisateur (pending / active / blocked)
 // Utilise une fonction RPC SECURITY DEFINER côté base de données
 async function sbAdminUpdateStatus(userId, newStatus) {
-    const { data, error } = await sb.rpc('admin_update_status', {
+    const { data, error } = await supabaseClient.rpc('admin_update_status', {
         target_user_id: userId,
         new_status:     newStatus
     });
@@ -121,17 +122,28 @@ async function sbAdminUpdateStatus(userId, newStatus) {
 
 // Auto-activer le compte après confirmation du paiement Wave
 async function sbConfirmPayment() {
-    const { error } = await sb.rpc('confirm_payment');
+    const { error } = await supabaseClient.rpc('confirm_payment');
     if (error) throw error;
 }
 
 // Admin : réinitialiser le mot de passe d'un utilisateur
 async function sbAdminResetPassword(userId, newPassword) {
-    const { error } = await sb.rpc('admin_reset_password', {
+    const { error } = await supabaseClient.rpc('admin_reset_password', {
         target_user_id: userId,
         new_password:   newPassword
     });
     if (error) throw error;
+}
+
+async function sbAdminRenameUser(userId, prenom) {
+    const { data, error } = await supabaseClient
+        .from('profiles')
+        .update({ prenom })
+        .eq('id', userId)
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
 }
 
 // ── Storage (photos de profil) ────────────────────────────────────
@@ -143,13 +155,13 @@ async function sbUploadPhoto(file) {
     const ext  = file.name.split('.').pop();
     const path = `${user.id}/avatar.${ext}`;
 
-    const { error: uploadError } = await sb.storage
+    const { error: uploadError } = await supabaseClient.storage
         .from('avatars')
         .upload(path, file, { upsert: true });
 
     if (uploadError) throw uploadError;
 
-    const { data } = sb.storage.from('avatars').getPublicUrl(path);
+    const { data } = supabaseClient.storage.from('avatars').getPublicUrl(path);
 
     // Mettre à jour le profil avec l'URL publique
     await sbUpdateProfile({ photo_url: data.publicUrl });
@@ -158,7 +170,8 @@ async function sbUploadPhoto(file) {
 }
 
 async function sbInvokeAdminAction(action, payload = {}) {
-    const { data, error } = await sb.functions.invoke('admin-action', {
+    // V3.2 / future admin features: kept for the inactive Control Center only.
+    const { data, error } = await supabaseClient.functions.invoke('admin-action', {
         body: { action, payload }
     });
     if (error) throw error;
@@ -167,15 +180,15 @@ async function sbInvokeAdminAction(action, payload = {}) {
 }
 
 function sbOnAuthStateChange(callback) {
-    return sb.auth.onAuthStateChange(callback);
+    return supabaseClient.auth.onAuthStateChange(callback);
 }
 
 function sbSubscribe(channelName, config, callback) {
-    return sb.channel(channelName).on('postgres_changes', config, callback).subscribe();
+    return supabaseClient.channel(channelName).on('postgres_changes', config, callback).subscribe();
 }
 
 function sbRemoveChannel(channel) {
-    return sb.removeChannel(channel);
+    return supabaseClient.removeChannel(channel);
 }
 
 // ── Guards de navigation ──────────────────────────────────────────
@@ -204,7 +217,7 @@ async function requireAdmin() {
     return session;
 }
 
-window.sb = sb;
+window.sb = supabaseClient;
 window.phoneToEmail = phoneToEmail;
 window.identifierToEmail = identifierToEmail;
 window.sbRegister = sbRegister;
@@ -219,6 +232,7 @@ window.sbGetAllProfiles = sbGetAllProfiles;
 window.sbAdminUpdateStatus = sbAdminUpdateStatus;
 window.sbConfirmPayment = sbConfirmPayment;
 window.sbAdminResetPassword = sbAdminResetPassword;
+window.sbAdminRenameUser = sbAdminRenameUser;
 window.sbUploadPhoto = sbUploadPhoto;
 window.sbInvokeAdminAction = sbInvokeAdminAction;
 window.sbOnAuthStateChange = sbOnAuthStateChange;
