@@ -1,14 +1,15 @@
 # Design — Backend Supabase pour eAutoecole
 
-**Date :** 2026-08-14
-**Statut :** Approuvé
-**Stack :** Vanilla HTML/CSS/JS + Supabase (Auth, Database, Storage) + Vercel
+**Date :** 2026-08-14 **Statut :** Approuvé **Stack :** Vanilla HTML/CSS/JS +
+Supabase (Auth, Database, Storage) + Vercel
 
 ---
 
 ## Contexte
 
-Le site eAutoecole (Auto-École Dieynaba) est actuellement un site statique déployé sur Vercel avec une authentification localStorage non sécurisée. L'objectif est d'ajouter un vrai backend Supabase avec :
+Le site eAutoecole (Auto-École) est actuellement un site statique déployé sur
+Vercel avec une authentification localStorage non sécurisée. L'objectif est
+d'ajouter un vrai backend Supabase avec :
 
 - Authentification téléphone + mot de passe
 - Système d'abonnement à 2 000 FCFA (accès à vie)
@@ -32,10 +33,13 @@ Le site eAutoecole (Auto-École Dieynaba) est actuellement un site statique dép
 
 ### Stratégie Auth téléphone (sans SMS)
 
-Supabase Auth nécessite un provider SMS payant pour l'OTP téléphone. On évite ce coût en utilisant l'email Supabase en interne :
+Supabase Auth nécessite un provider SMS payant pour l'OTP téléphone. On évite ce
+coût en utilisant l'email Supabase en interne :
 
-- À l'inscription : `telephone` saisi → email interne = `{telephone}@eautoecole.sn`
-- L'utilisateur ne voit jamais l'email — il entre uniquement son numéro + mot de passe
+- À l'inscription : `telephone` saisi → email interne =
+  `{telephone}@eautoecole.sn`
+- L'utilisateur ne voit jamais l'email — il entre uniquement son numéro + mot de
+  passe
 - Le numéro de téléphone est stocké dans `profiles.telephone` pour l'affichage
 
 ---
@@ -43,6 +47,7 @@ Supabase Auth nécessite un provider SMS payant pour l'OTP téléphone. On évit
 ## Base de données
 
 ### Table `profiles`
+
 ```sql
 id            uuid PRIMARY KEY REFERENCES auth.users(id)
 telephone     text UNIQUE NOT NULL
@@ -53,6 +58,7 @@ created_at    timestamptz DEFAULT now()
 ```
 
 ### Table `subscriptions`
+
 ```sql
 id            uuid PRIMARY KEY DEFAULT gen_random_uuid()
 user_id       uuid NOT NULL REFERENCES profiles(id)
@@ -63,6 +69,7 @@ activated_at  timestamptz
 ```
 
 ### Table `payment_requests`
+
 ```sql
 id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
 user_id         uuid NOT NULL REFERENCES profiles(id)
@@ -84,14 +91,16 @@ reviewed_by     uuid REFERENCES profiles(id)
 
 ## Sécurité (RLS)
 
-| Table | Utilisateur connecté | Admin |
-|---|---|---|
-| `profiles` | SELECT/UPDATE sur son propre profil | SELECT tous |
-| `subscriptions` | SELECT sur la sienne | SELECT + UPDATE toutes |
-| `payment_requests` | INSERT + SELECT sur les siennes | SELECT + UPDATE toutes |
-| Storage `payment-screenshots` | INSERT (upload) | SELECT (lecture) |
+| Table                         | Utilisateur connecté                | Admin                  |
+| ----------------------------- | ----------------------------------- | ---------------------- |
+| `profiles`                    | SELECT/UPDATE sur son propre profil | SELECT tous            |
+| `subscriptions`               | SELECT sur la sienne                | SELECT + UPDATE toutes |
+| `payment_requests`            | INSERT + SELECT sur les siennes     | SELECT + UPDATE toutes |
+| Storage `payment-screenshots` | INSERT (upload)                     | SELECT (lecture)       |
 
-**Rôle admin :** stocké dans `auth.users.app_metadata.role = 'admin'` — non modifiable par l'utilisateur. La fonction SQL `is_admin()` lit `app_metadata` et est utilisée dans les politiques RLS.
+**Rôle admin :** stocké dans `auth.users.app_metadata.role = 'admin'` — non
+modifiable par l'utilisateur. La fonction SQL `is_admin()` lit `app_metadata` et
+est utilisée dans les politiques RLS.
 
 ---
 
@@ -133,11 +142,13 @@ reviewed_by     uuid REFERENCES profiles(id)
 ## Pages à créer/modifier
 
 ### `supabase.js` (nouveau)
+
 - Config Supabase client (URL + anon key)
 - Fonctions partagées : `getSession()`, `getProfile()`, `isAdmin()`
 - Exporté en module ES6
 
 ### `auth.html` (nouveau)
+
 - Onglets : Connexion / Inscription
 - Connexion : téléphone + mot de passe
 - Inscription : téléphone + mot de passe + nom complet
@@ -145,6 +156,7 @@ reviewed_by     uuid REFERENCES profiles(id)
 - Redirect vers index.html après succès
 
 ### `payment.html` (nouveau)
+
 - Message d'explication : abonnement à vie 2 000 FCFA
 - Numéro Wave du gérant + QR code (image statique)
 - Zone upload capture d'écran (drag & drop ou bouton)
@@ -152,13 +164,17 @@ reviewed_by     uuid REFERENCES profiles(id)
 - État de la demande si déjà soumise (en attente / rejeté + raison)
 
 ### `admin.html` (nouveau)
+
 - Protégé : accessible uniquement si `role = 'admin'`
 - Onglets :
-  - **Demandes en attente** : liste avec téléphone, date, bouton voir capture, Approuver / Rejeter
-  - **Utilisateurs** : liste avec statut, possibilité d'activer/désactiver manuellement
+  - **Demandes en attente** : liste avec téléphone, date, bouton voir capture,
+    Approuver / Rejeter
+  - **Utilisateurs** : liste avec statut, possibilité d'activer/désactiver
+    manuellement
   - **Historique** : demandes approuvées/rejetées
 
 ### `index.html` (modifier)
+
 - Supprimer toute la logique auth localStorage
 - Au chargement : vérifier session Supabase → rediriger si nécessaire
 - Afficher nom de l'utilisateur depuis `profiles`
@@ -175,7 +191,9 @@ SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_ANON_KEY=eyJ...
 ```
 
-Comme le site est en HTML vanilla (pas de build), ces valeurs seront écrites directement dans `supabase.js`. Le `anon key` est public par design — la sécurité repose sur RLS.
+Comme le site est en HTML vanilla (pas de build), ces valeurs seront écrites
+directement dans `supabase.js`. Le `anon key` est public par design — la
+sécurité repose sur RLS.
 
 ---
 

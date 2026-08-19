@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.app_settings (
   maintenance_title text NOT NULL DEFAULT 'Maintenance en cours',
   maintenance_message text NOT NULL DEFAULT 'Nous effectuons actuellement des améliorations sur eAutoecole.',
   maintenance_until timestamptz,
-  school_name text NOT NULL DEFAULT 'Auto-école Dieynaba',
+  school_name text NOT NULL DEFAULT 'Auto-école',
   support_phone text NOT NULL DEFAULT '77 583 20 37',
   whatsapp_phone text NOT NULL DEFAULT '221775832037',
   support_email text NOT NULL DEFAULT 'eautoecole1@gmail.com',

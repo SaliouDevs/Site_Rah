@@ -19,7 +19,7 @@
                     <span><i class="fas fa-car-side"></i></span>
                     <div>
                         <strong>eAutoecole</strong>
-                        <small>Auto-école Dieynaba</small>
+                        <small>Auto-école</small>
                     </div>
                 </div>
                 <div class="auth-copy">
@@ -42,7 +42,7 @@
                         <label for="loginIdentifier">Numéro de téléphone</label>
                         <div class="input-row">
                             <span>+221</span>
-                            <input id="loginIdentifier" autocomplete="username" placeholder="77 123 45 67">
+                            <input id="loginIdentifier" autocomplete="username" inputmode="numeric" maxlength="12" placeholder="77 123 45 67">
                         </div>
                         <div class="field-error" id="loginIdentifierError"></div>
                     </div>
@@ -50,7 +50,7 @@
                         <label for="loginPassword">Mot de passe</label>
                         <div class="input-row">
                             <input id="loginPassword" type="password" autocomplete="current-password">
-                            <button type="button" data-toggle-password="loginPassword">Afficher</button>
+                            <button type="button" data-toggle-password="loginPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button>
                         </div>
                         <div class="field-error" id="loginPasswordError"></div>
                     </div>
@@ -64,15 +64,10 @@
                 <form class="auth-form" data-auth-form="register" data-register-form>
                     <h2>Créer votre compte</h2>
                     <div class="form-field">
-                        <label for="registerName">Prénom</label>
-                        <div class="input-row"><input id="registerName" autocomplete="given-name"></div>
-                        <div class="field-error" id="registerNameError"></div>
-                    </div>
-                    <div class="form-field">
                         <label for="registerPhone">Téléphone</label>
                         <div class="input-row">
                             <span>+221</span>
-                            <input id="registerPhone" data-phone autocomplete="tel" placeholder="77 123 45 67">
+                            <input id="registerPhone" data-phone autocomplete="tel" inputmode="numeric" maxlength="12" placeholder="77 123 45 67">
                         </div>
                         <div class="field-error" id="registerPhoneError"></div>
                     </div>
@@ -80,7 +75,7 @@
                         <label for="registerPassword">Mot de passe</label>
                         <div class="input-row">
                             <input id="registerPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 caractères">
-                            <button type="button" data-toggle-password="registerPassword">Afficher</button>
+                            <button type="button" data-toggle-password="registerPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button>
                         </div>
                         <div class="field-error" id="registerPasswordError"></div>
                     </div>
@@ -88,7 +83,7 @@
                         <label for="registerConfirm">Confirmation</label>
                         <div class="input-row">
                             <input id="registerConfirm" type="password" autocomplete="new-password">
-                            <button type="button" data-toggle-password="registerConfirm">Afficher</button>
+                            <button type="button" data-toggle-password="registerConfirm" aria-label="Afficher la confirmation" title="Afficher la confirmation"><i class="fas fa-eye" aria-hidden="true"></i></button>
                         </div>
                         <div class="field-error" id="registerConfirmError"></div>
                     </div>

@@ -1,5 +1,5 @@
 -- ================================================================
--- SUPABASE SETUP — eAutoecole Dieynaba
+-- SUPABASE SETUP — eAutoecole
 -- Coller dans : Dashboard > SQL Editor > New query
 -- ================================================================
 

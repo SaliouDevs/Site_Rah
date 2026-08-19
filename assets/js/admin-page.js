@@ -1,5 +1,5 @@
 import { requireAuthenticatedUser, logoutCurrentUser, resolveLocalDevUser } from './services/auth-service.js';
-import { loadAdminOverview, renameUser, resetUserPassword, updateUserStatus } from './services/admin-service.js';
+import { deleteUser, loadAdminOverview, renameUser, resetUserPassword, updateUserStatus } from './services/admin-service.js';
 
 const state = {
   currentView: 'dashboard',
@@ -183,6 +183,7 @@ function actionButtons(profile) {
       ${profile.status === 'blocked' ? `<button class="admin-button" data-status="${profile.id}:active">Débloquer</button>` : ''}
       <button class="admin-secondary" data-rename="${profile.id}" data-current-name="${escapeAttribute(profile.prenom || '')}">Modifier prénom</button>
       <button class="admin-secondary" data-reset-password="${profile.id}">Réinitialiser mot de passe</button>
+      <button class="admin-danger" data-delete-user="${profile.id}" data-user-name="${escapeAttribute(profile.prenom || 'cet utilisateur')}">Supprimer</button>
     </div>
   `;
 }
@@ -216,6 +217,13 @@ function bindUserActions() {
         await runAction(() => resetUserPassword(button.dataset.resetPassword, value), 'Mot de passe réinitialisé');
       }
     }));
+  });
+  document.querySelectorAll('[data-delete-user]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const name = button.dataset.userName || 'cet utilisateur';
+      if (!window.confirm(`Supprimer ${name} définitivement ? Cette personne perdra immédiatement son accès à la plateforme.`)) return;
+      await runAction(() => deleteUser(button.dataset.deleteUser), 'Utilisateur supprimé');
+    });
   });
 }
 

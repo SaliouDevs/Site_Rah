@@ -100,6 +100,15 @@ async function handleAction(sb: any, actorId: string, action: string, payload: R
     return { userId };
   }
 
+  if (action === 'delete-user') {
+    const userId = requiredString(payload.userId, 'userId');
+    if (userId === actorId) throw new Error('Impossible de supprimer le compte administrateur connecté');
+    await audit(sb, actorId, 'user_deleted', userId, {});
+    const { error } = await sb.auth.admin.deleteUser(userId);
+    throwIf(error);
+    return { userId };
+  }
+
   if (action === 'force-user-logout') {
     const userId = requiredString(payload.userId, 'userId');
     const invalidBefore = new Date().toISOString();
@@ -144,7 +153,7 @@ function sanitizeSettings(input: Record<string, unknown>) {
     maintenance_title: string(input.maintenance_title, 'Maintenance en cours').slice(0, 120),
     maintenance_message: string(input.maintenance_message, '').slice(0, 1200),
     maintenance_until: nullableDate(input.maintenance_until),
-    school_name: string(input.school_name, 'Auto-école Dieynaba').slice(0, 120),
+    school_name: string(input.school_name, 'Auto-école').slice(0, 120),
     support_phone: string(input.support_phone, '77 583 20 37').slice(0, 40),
     whatsapp_phone: string(input.whatsapp_phone, '221775832037').slice(0, 40),
     support_email: string(input.support_email, 'eautoecole1@gmail.com').slice(0, 120),
