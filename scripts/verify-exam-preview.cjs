@@ -61,6 +61,13 @@ async function expectHidden(page, selector) {
   }
 }
 
+async function expectNoText(page, selector, text) {
+  const value = await page.locator(selector).first().textContent({ timeout: 8000 });
+  if (value && value.includes(text)) {
+    throw new Error(`${selector} unexpectedly contains ${text}`);
+  }
+}
+
 async function clickFirstAnswer(page) {
   const groups = page.locator('.exam-option-group');
   const groupCount = await groups.count();
@@ -111,11 +118,17 @@ async function verifyStudentSpa(browser) {
   await page.goto(`${indexUrl}#/exam/light`, { waitUntil: 'domcontentloaded' });
   await expectText(page, 'body', 'est en vérification');
   await expectText(page, '#modal-root', 'Examen en vérification');
+  await expectCount(page, '[data-route="/exam-image-review/light"]', 0);
   await submitPin(page, await getTemporaryPin(page));
   await page.waitForSelector('[data-start-exam-series="B1"]');
+  await expectText(page, 'body', '300');
+  await expectText(page, 'body', '12');
+  await expectNoText(page, 'body', 'Images 280');
+  await expectVisible(page, '[data-route="/exam-image-review/light"]');
   await page.reload();
   await page.waitForSelector('[data-start-exam-series="B1"]');
-  await page.goto(`${indexUrl}#/exam-review/light`, { waitUntil: 'domcontentloaded' });
+  await expectVisible(page, '[data-route="/exam-image-review/light"]');
+  await page.goto(`${indexUrl}#/exam-image-review/light`, { waitUntil: 'domcontentloaded' });
   await expectText(page, 'body', 'Outil temporaire image review');
   await page.evaluate(() => {
     sessionStorage.setItem(window.EXAM_PREVIEW_CONFIG.storageKey, JSON.stringify({
@@ -173,24 +186,46 @@ async function verifyReview(browser) {
   await page.addInitScript((key, session) => {
     sessionStorage.setItem(key, JSON.stringify(session));
   }, 'eauto_exam_preview', { grantedAt: Date.now(), expiresAt: Date.now() + 7200000 });
-  await page.goto(`${indexUrl}?dev=admin#/exam-review/light`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${indexUrl}?dev=admin#/exam-image-review/light`, { waitUntil: 'domcontentloaded' });
   await expectText(page, 'body', 'Outil temporaire image review');
+  await expectText(page, 'body', '0 / 300 contrôlées');
+  await expectText(page, 'body', 'Toutes 300');
+  await expectText(page, 'body', 'À vérifier 300');
+  await expectText(page, 'body', 'Images à remplacer 0');
+  await expectText(page, 'body', 'Vérifiées 0');
   await expectText(page, 'body', 'Question 1 / 300');
   await expectVisible(page, '.exam-question-image');
   await page.locator('[data-image-review-status="correct"]').click();
+  await expectText(page, 'body', '1 / 300 contrôlées');
+  await expectText(page, 'body', 'À vérifier 299');
+  await expectText(page, 'body', 'Vérifiées 1');
   await expectText(page, 'body', 'Question 2 / 300');
   await page.locator('[data-image-review-status="wrong_image"]').click();
+  await expectText(page, 'body', '2 / 300 contrôlées');
+  await expectText(page, 'body', 'À vérifier 298');
+  await expectText(page, 'body', 'Images à remplacer 1');
   await expectText(page, 'body', 'Question 3 / 300');
+  await page.locator('[data-image-review-filter="wrong_image"]').click();
+  await page.waitForFunction(() => location.hash.includes('filter=wrong_image'));
+  await page.locator('.wrong-image-list button').first().click();
+  await page.locator('[data-image-review-status="correct"]').click();
+  await expectText(page, 'body', 'Images à remplacer 0');
+  await expectText(page, 'body', 'Vérifiées 2');
+  await page.locator('[data-image-review-filter="all"]').click();
+  await page.waitForFunction(() => !location.hash.includes('filter='));
+  await page.locator('[data-image-review-go]').last().click();
+  await page.locator('[data-image-review-status="wrong_image"]').click();
+  await expectText(page, 'body', 'Images à remplacer 1');
   await page.reload();
   await expectText(page, 'body', 'Images à remplacer');
-  await page.locator('[data-image-review-filter="wrong"]').click();
-  await page.waitForFunction(() => location.hash.includes('filter=wrong'));
+  await page.locator('[data-image-review-filter="wrong_image"]').click();
+  await page.waitForFunction(() => location.hash.includes('filter=wrong_image'));
   await expectText(page, 'body', 'Images à remplacer : 1');
   await page.locator('[data-export-wrong-images]').click();
   const exportJson = await page.locator('[data-export-buffer]').inputValue();
   const parsed = JSON.parse(exportJson);
-  if (parsed.length !== 1 || parsed[0].questionId !== 'PL-002') throw new Error(`Unexpected export JSON: ${exportJson}`);
-  await page.goto(`${indexUrl}?dev=admin#/exam-review/heavy`, { waitUntil: 'domcontentloaded' });
+  if (parsed.length !== 1 || parsed[0].questionId !== 'PL-003') throw new Error(`Unexpected export JSON: ${exportJson}`);
+  await page.goto(`${indexUrl}?dev=admin#/exam-image-review/heavy`, { waitUntil: 'domcontentloaded' });
   await expectText(page, 'body', 'Poids lourd');
   await expectText(page, 'body', 'Question 1 / 50');
   await page.close();
@@ -205,8 +240,8 @@ async function verifyResponsiveScroll(browser) {
   ];
   const routes = [
     '#/exam/light',
-    '#/exam-review/light',
-    '#/exam-review/light/PL-001',
+    '#/exam-image-review/light',
+    '#/exam-image-review/light/PL-001',
     '#/exam/light/series/B1'
   ];
 

@@ -64,6 +64,8 @@ function registerRoutes() {
   registerRoute('/exams', () => renderExamsView(appView, currentUser));
   registerRoute('/exam/:type', (params) => renderExamHome(appView, params, currentUser));
   registerRoute('/exam/:type/series/:seriesId', (params) => renderExamSeries(appView, params, currentUser));
+  registerRoute('/exam-image-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
+  registerRoute('/exam-image-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
   registerRoute('/exam-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
   registerRoute('/exam-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
   registerRoute('/videos', (params) => renderVideosView(appView, params));
@@ -405,7 +407,7 @@ async function deconnexion() {
 
 function updateBottomNav() {
   const path = getCurrentPath();
-  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\//.test(path);
+  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\/|^\/exam-image-review\//.test(path);
   bottomNav.style.display = immersive ? 'none' : 'flex';
   bottomNav.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'));
   const activeRoute = path.startsWith('/lesson') ? '/lessons'

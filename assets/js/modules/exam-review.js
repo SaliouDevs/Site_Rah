@@ -2,6 +2,12 @@ import { getAllQuestions, getExam } from './exam-engine.js';
 import { navigateTo } from '../router.js';
 
 const STORAGE_KEY = 'examImageReview';
+const FILTERS = [
+  { id: 'all', label: 'Toutes' },
+  { id: 'unreviewed', label: 'À vérifier' },
+  { id: 'wrong_image', label: 'Images à remplacer' },
+  { id: 'correct', label: 'Vérifiées' }
+];
 
 export function renderExamReviewDashboard(container, params, currentUser) {
   const exam = getExam(params.type);
@@ -13,35 +19,39 @@ export function renderExamReviewDashboard(container, params, currentUser) {
   const state = readImageReviewState();
   const counts = countStatuses(exam, questions, state);
   const filter = getFilter();
-  const wrongImages = questions.filter((question) => getImageStatus(exam, question.id, state) === 'wrong_image');
-  const currentQuestion = findCurrentQuestion(exam, questions, state);
+  const filteredQuestions = getFilteredQuestions(exam, questions, state, filter);
+  const showReplacementList = filter === 'wrong_image' && !params.forceQuestion;
+  const questionPool = params.forceQuestion ? questions : filteredQuestions;
+  const currentQuestion = findCurrentQuestion(exam, questions, questionPool);
 
   container.innerHTML = `
     <section class="view-stack exam-image-review">
       <button class="text-back" type="button" data-route="/exam/${exam.id}">← ${escapeHTML(exam.title)}</button>
       <div class="view-heading compact">
         <p class="eyebrow">Outil temporaire image review</p>
-        <h1>${escapeHTML(exam.title)}</h1>
-        <p>Question ${currentQuestion.index + 1} / ${questions.length}</p>
+        <h1>Vérification ${escapeHTML(exam.title)}</h1>
+        <p>${counts.reviewed} / ${questions.length} contrôlées · ${counts.progress}%</p>
       </div>
-      <div class="exam-summary-grid">
-        <section class="metric-card"><span>Vérifiées</span><strong>${counts.reviewed}</strong></section>
-        <section class="metric-card"><span>Images à remplacer</span><strong>${counts.wrong}</strong></section>
-        <section class="metric-card"><span>Progression</span><strong>${counts.progress}%</strong></section>
-        <section class="metric-card"><span>Total</span><strong>${questions.length}</strong></section>
+      <div class="image-review-progress">
+        <span>À vérifier : <strong>${counts.unreviewed}</strong></span>
+        <span>Images à remplacer : <strong>${counts.wrong}</strong></span>
+        <span>Vérifiées : <strong>${counts.correct}</strong></span>
       </div>
       <div class="review-filters">
-        <button type="button" data-image-review-filter="all" class="${filter === 'all' ? 'active' : ''}">Toutes</button>
-        <button type="button" data-image-review-filter="wrong" class="${filter === 'wrong' ? 'active' : ''}">Images à remplacer</button>
+        ${FILTERS.map((item) => `
+          <button type="button" data-image-review-filter="${item.id}" class="${filter === item.id ? 'active' : ''}">
+            ${escapeHTML(item.label)} ${getFilterCount(item.id, counts, questions.length)}
+          </button>
+        `).join('')}
       </div>
-      ${filter === 'wrong' ? renderWrongImages(exam, wrongImages) : renderImageQuestion(exam, questions, currentQuestion)}
+      ${showReplacementList ? renderWrongImages(exam, filteredQuestions) : renderQuestionPane(exam, questions, questionPool, currentQuestion, filter)}
     </section>
   `;
 
   bindRouteLinks(container);
   bindFilters(container, exam);
-  if (filter === 'wrong') bindExportActions(container, exam, wrongImages);
-  if (filter === 'all') bindImageQuestionActions(container, exam, questions, currentQuestion.index, currentUser);
+  if (showReplacementList) bindExportActions(container, exam, filteredQuestions);
+  if (!showReplacementList && currentQuestion) bindImageQuestionActions(container, exam, questions, questionPool, currentQuestion, filter, currentUser);
 }
 
 export function renderExamReviewQuestion(container, params, currentUser) {
@@ -52,13 +62,27 @@ export function renderExamReviewQuestion(container, params, currentUser) {
   const index = questions.findIndex((question) => question.id.toLowerCase() === String(params.questionId || '').toLowerCase());
   if (index < 0) return renderUnknown(container);
   sessionStorage.setItem(currentIndexKey(exam), String(index));
-  renderExamReviewDashboard(container, params, currentUser);
+  renderExamReviewDashboard(container, { ...params, forceQuestion: true }, currentUser);
 }
 
-function renderImageQuestion(exam, questions, current) {
+function renderQuestionPane(exam, questions, filteredQuestions, current, filter) {
+  if (!filteredQuestions.length || !current) {
+    return `
+      <section class="exam-panel">
+        <h2>${filter === 'unreviewed' ? 'Aucune question à vérifier' : 'Aucune question dans ce filtre'}</h2>
+        <p>Change de filtre pour continuer la vérification des images.</p>
+      </section>
+    `;
+  }
+  return renderImageQuestion(exam, questions, filteredQuestions, current);
+}
+
+function renderImageQuestion(exam, questions, filteredQuestions, current) {
   const question = current.question;
-  const previous = questions[current.index - 1];
-  const next = questions[current.index + 1];
+  const filteredIndex = filteredQuestions.findIndex((item) => item.id === question.id);
+  const previous = filteredQuestions[filteredIndex - 1];
+  const next = filteredQuestions[filteredIndex + 1];
+  const status = getImageStatus(exam, question.id);
   return `
     <article class="exam-panel review-detail-panel image-review-card">
       <div class="review-detail-heading">
@@ -72,7 +96,7 @@ function renderImageQuestion(exam, questions, current) {
         ${question.image ? `<img class="exam-question-image" src="${escapeAttribute(question.image)}" alt="" loading="lazy">` : '<p>Aucune image</p>'}
       </section>
       <section class="review-detail-section">
-        <h2>Fichier</h2>
+        <h2>Chemin</h2>
         <code>${escapeHTML(question.image || 'Aucun fichier')}</code>
       </section>
       <section class="review-detail-section">
@@ -84,13 +108,13 @@ function renderImageQuestion(exam, questions, current) {
         ${renderAnswers(question)}
       </section>
       <div class="review-status-actions image-review-actions">
-        <button type="button" data-image-review-status="correct">Image correcte</button>
-        <button type="button" data-image-review-status="wrong_image">Image à remplacer</button>
+        <button type="button" data-image-review-status="correct" class="${status === 'correct' ? 'active' : ''}">Image correcte</button>
+        <button type="button" data-image-review-status="wrong_image" class="${status === 'wrong_image' ? 'active' : ''}">Image à remplacer</button>
       </div>
       <nav class="review-question-nav" aria-label="Navigation image review">
-        ${previous ? `<button type="button" data-image-review-nav="-1">← ${escapeHTML(previous.id)}</button>` : '<span></span>'}
-        <strong>${escapeHTML(question.id)} / ${questions.length}</strong>
-        ${next ? `<button type="button" data-image-review-nav="1">${escapeHTML(next.id)} →</button>` : '<span></span>'}
+        ${previous ? `<button type="button" data-image-review-go="${escapeHTML(previous.id)}">← Précédente</button>` : '<span></span>'}
+        <strong>Question ${current.index + 1} / ${questions.length}</strong>
+        ${next ? `<button type="button" data-image-review-go="${escapeHTML(next.id)}">Suivante →</button>` : '<span></span>'}
       </nav>
     </article>
   `;
@@ -104,8 +128,9 @@ function renderWrongImages(exam, questions) {
       </div>
       <div class="wrong-image-list">
         ${questions.length ? questions.map((question) => `
-          <button type="button" data-route="/exam-review/${exam.id}/${question.id}">
+          <button type="button" data-route="/exam-image-review/${exam.id}/${question.id}?filter=wrong_image">
             <strong>${escapeHTML(question.id)}</strong>
+            <span>${escapeHTML(question.seriesId)}</span>
             <code>${escapeHTML(question.image || 'Aucun fichier')}</code>
           </button>
         `).join('') : '<p>Aucune image marquée à remplacer.</p>'}
@@ -119,30 +144,33 @@ function renderWrongImages(exam, questions) {
   `;
 }
 
-function bindImageQuestionActions(container, exam, questions, index, currentUser) {
+function bindImageQuestionActions(container, exam, questions, filteredQuestions, current, filter, currentUser) {
   const rerender = () => renderExamReviewDashboard(container, { type: exam.id }, currentUser);
   container.querySelectorAll('[data-image-review-status]').forEach((button) => {
     button.addEventListener('click', () => {
-      const question = questions[index];
-      setImageStatus(exam, question.id, button.dataset.imageReviewStatus);
-      const nextIndex = Math.min(index + 1, questions.length - 1);
+      setImageStatus(exam, current.question.id, button.dataset.imageReviewStatus);
+      const nextQuestion = findNextAfterDecision(exam, questions, filteredQuestions, current.question, filter);
+      const nextIndex = nextQuestion ? questions.findIndex((question) => question.id === nextQuestion.id) : current.index;
       sessionStorage.setItem(currentIndexKey(exam), String(nextIndex));
       rerender();
     });
   });
-  container.querySelectorAll('[data-image-review-nav]').forEach((button) => {
+  container.querySelectorAll('[data-image-review-go]').forEach((button) => {
     button.addEventListener('click', () => {
-      const nextIndex = Math.max(0, Math.min(index + Number(button.dataset.imageReviewNav), questions.length - 1));
+      const nextIndex = questions.findIndex((question) => question.id === button.dataset.imageReviewGo);
       sessionStorage.setItem(currentIndexKey(exam), String(nextIndex));
       rerender();
     });
   });
   document.onkeydown = (event) => {
-    if (!location.hash.includes(`/exam-review/${exam.id}`)) return;
+    if (!location.hash.includes(`/exam-image-review/${exam.id}`) && !location.hash.includes(`/exam-review/${exam.id}`)) return;
     if (event.key.toLowerCase() === 'c') container.querySelector('[data-image-review-status="correct"]')?.click();
     if (event.key.toLowerCase() === 'x') container.querySelector('[data-image-review-status="wrong_image"]')?.click();
-    if (event.key === 'ArrowLeft') container.querySelector('[data-image-review-nav="-1"]')?.click();
-    if (event.key === 'ArrowRight') container.querySelector('[data-image-review-nav="1"]')?.click();
+    if (event.key === 'ArrowLeft') container.querySelectorAll('[data-image-review-go]')[0]?.click();
+    if (event.key === 'ArrowRight') {
+      const targets = container.querySelectorAll('[data-image-review-go]');
+      targets[targets.length - 1]?.click();
+    }
   };
 }
 
@@ -156,7 +184,7 @@ function bindExportActions(container, exam, wrongImages) {
   const buffer = container.querySelector('[data-export-buffer]');
   if (buffer) buffer.value = json;
   container.querySelector('[data-copy-wrong-images]')?.addEventListener('click', async () => {
-    const text = data.map((item) => `${item.questionId} | ${item.image}`).join('\n');
+    const text = data.map((item) => `${item.questionId} | ${item.series} | ${item.image}`).join('\n');
     try {
       await navigator.clipboard.writeText(text);
       window.eautoToast?.('Liste copiée');
@@ -180,21 +208,30 @@ function bindFilters(container, exam) {
   container.querySelectorAll('[data-image-review-filter]').forEach((button) => {
     button.addEventListener('click', () => {
       const filter = button.dataset.imageReviewFilter;
-      navigateTo(filter === 'wrong' ? `/exam-review/${exam.id}?filter=wrong` : `/exam-review/${exam.id}`);
+      navigateTo(filter === 'all' ? `/exam-image-review/${exam.id}` : `/exam-image-review/${exam.id}?filter=${filter}`);
     });
   });
 }
 
-function findCurrentQuestion(exam, questions) {
-  const index = Math.max(0, Math.min(Number(sessionStorage.getItem(currentIndexKey(exam)) || 0), questions.length - 1));
-  return { index, question: questions[index] };
+function findCurrentQuestion(exam, questions, filteredQuestions) {
+  if (!filteredQuestions.length) return null;
+  const savedIndex = Math.max(0, Math.min(Number(sessionStorage.getItem(currentIndexKey(exam)) || 0), questions.length - 1));
+  const savedQuestion = questions[savedIndex];
+  const question = filteredQuestions.some((item) => item.id === savedQuestion?.id) ? savedQuestion : filteredQuestions[0];
+  const index = questions.findIndex((item) => item.id === question.id);
+  sessionStorage.setItem(currentIndexKey(exam), String(index));
+  return { index, question };
 }
 
 function countStatuses(exam, questions, state) {
-  const reviewed = questions.filter((question) => ['correct', 'wrong_image'].includes(getImageStatus(exam, question.id, state))).length;
+  const correct = questions.filter((question) => getImageStatus(exam, question.id, state) === 'correct').length;
   const wrong = questions.filter((question) => getImageStatus(exam, question.id, state) === 'wrong_image').length;
+  const reviewed = correct + wrong;
   return {
+    total: questions.length,
     reviewed,
+    unreviewed: questions.length - reviewed,
+    correct,
     wrong,
     progress: questions.length ? Math.round((reviewed / questions.length) * 100) : 0
   };
@@ -209,10 +246,11 @@ function readImageReviewState() {
 }
 
 function getImageStatus(exam, questionId, state = readImageReviewState()) {
-  return state[exam.id]?.[questionId] || '';
+  return state[exam.id]?.[questionId] || 'unreviewed';
 }
 
 function setImageStatus(exam, questionId, status) {
+  if (!['correct', 'wrong_image'].includes(status)) return;
   const state = readImageReviewState();
   state[exam.id] = { ...(state[exam.id] || {}), [questionId]: status };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -223,7 +261,33 @@ function currentIndexKey(exam) {
 }
 
 function getFilter() {
-  return new URLSearchParams(window.location.hash.split('?')[1] || '').get('filter') === 'wrong' ? 'wrong' : 'all';
+  const filter = new URLSearchParams(window.location.hash.split('?')[1] || '').get('filter') || 'all';
+  return FILTERS.some((item) => item.id === filter) ? filter : 'all';
+}
+
+function getFilteredQuestions(exam, questions, state, filter) {
+  if (filter === 'all') return questions;
+  return questions.filter((question) => getImageStatus(exam, question.id, state) === filter);
+}
+
+function getFilterCount(filter, counts, total) {
+  if (filter === 'all') return total;
+  if (filter === 'unreviewed') return counts.unreviewed;
+  if (filter === 'wrong_image') return counts.wrong;
+  if (filter === 'correct') return counts.correct;
+  return 0;
+}
+
+function findNextAfterDecision(exam, questions, filteredQuestions, currentQuestion, filter) {
+  if (filter === 'all') {
+    const index = questions.findIndex((question) => question.id === currentQuestion.id);
+    return questions[Math.min(index + 1, questions.length - 1)];
+  }
+  const state = readImageReviewState();
+  const refreshed = getFilteredQuestions(exam, questions, state, filter);
+  if (!refreshed.length) return currentQuestion;
+  const currentAllIndex = questions.findIndex((question) => question.id === currentQuestion.id);
+  return refreshed.find((question) => questions.findIndex((item) => item.id === question.id) > currentAllIndex) || refreshed[0] || filteredQuestions[0];
 }
 
 function canReview(exam, currentUser) {

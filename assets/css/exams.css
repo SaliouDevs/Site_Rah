@@ -263,6 +263,17 @@
   gap: 8px;
 }
 
+.image-review-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  color: var(--text-secondary);
+}
+
+.image-review-progress strong {
+  color: var(--text-primary);
+}
+
 .review-filters button,
 .review-status-actions button,
 .review-question-nav button {
@@ -343,6 +354,11 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   text-align: left;
+}
+
+.wrong-image-list span {
+  color: var(--text-secondary);
+  font-weight: 700;
 }
 
 .wrong-image-list code {

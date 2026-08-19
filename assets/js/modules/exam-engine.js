@@ -38,7 +38,7 @@ export function renderExamHome(container, params, currentUser) {
   const history = readHistory(exam);
   const latest = history[0];
   const totalQuestions = getAllQuestions(exam).length;
-  const imageCount = new Set(getAllQuestions(exam).map((q) => q.image).filter(Boolean)).size;
+  const canOpenImageReview = typeof window.canPreviewExam === 'function' && window.canPreviewExam(exam.id, currentUser);
   container.innerHTML = `
     <section class="view-stack exam-home-view">
       <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
@@ -50,7 +50,6 @@ export function renderExamHome(container, params, currentUser) {
       <div class="exam-summary-grid">
         <section class="metric-card"><span>Questions</span><strong>${totalQuestions}</strong></section>
         <section class="metric-card"><span>Séries</span><strong>${exam.series.length}</strong></section>
-        <section class="metric-card"><span>Images</span><strong>${imageCount}</strong></section>
         <section class="metric-card"><span>Réussite</span><strong>${exam.passingScore}/${exam.series[0]?.questionCount || 0}</strong></section>
       </div>
       <section class="exam-panel">
@@ -74,6 +73,11 @@ export function renderExamHome(container, params, currentUser) {
           `).join('')}
         </div>
       </section>
+      ${canOpenImageReview ? `
+        <div class="reader-actions">
+          <button class="secondary-action compact" type="button" data-route="/exam-image-review/${exam.id}">Vérifier les images</button>
+        </div>
+      ` : ''}
     </section>
   `;
   bindRouteLinks(container);
