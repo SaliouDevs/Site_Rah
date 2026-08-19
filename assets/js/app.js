@@ -10,161 +10,48 @@ import {
   getResumeTarget,
   getStateLabel
 } from './progress.js';
+import { requireAuthenticatedUser, logoutCurrentUser } from './services/auth-service.js';
+import { loadAppSettings, subscribeToAppSettings } from './services/settings-service.js';
+import { acknowledgeNotification, loadUnreadNotifications, subscribeToNotifications } from './services/notification-service.js';
 
 const appConfig = window.APP_CONFIG;
-const devConfig = window.DEV_CONFIG;
-const demoConfig = window.DEMO_CONFIG;
 const examsConfig = window.EXAMS_CONFIG;
 const contactConfig = window.CONTACT_CONFIG;
-
-const DEV_AUTO_LOGIN_DISABLED_KEY = 'devAutoLoginDisabled';
-const DEV_STUDENT = {
-  prenom: 'Test',
-  telephone: '770000000',
-  dateInscription: new Date().toISOString(),
-  formule: 'Formule Illimitée',
-  prix: 2000,
-  status: 'active',
-  isDevUser: true
-};
-const DEV_ADMIN = {
-  prenom: 'Administrateur DEV',
-  telephone: '760000000',
-  dateInscription: new Date().toISOString(),
-  status: 'active',
-  isAdmin: true,
-  isDevUser: true
-};
-const DEMO_STUDENT = {
-  prenom: 'Visiteur',
-  telephone: '770000000',
-  dateInscription: new Date().toISOString(),
-  formule: 'Formule Illimitée',
-  prix: 2000,
-  status: 'active',
-  isDemoUser: true
-};
 
 let currentUser = null;
 let appView;
 let bottomNav;
+let currentSettings = null;
 
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 async function initializeApp() {
   appView = document.getElementById('app-view');
   bottomNav = document.getElementById('bottom-nav');
+  appView.innerHTML = '<section class="loading-screen"><span class="spinner"></span><p>Chargement...</p></section>';
   applySavedTheme();
   installUiGlobals();
 
-  const sessionUser = await resolveSessionUser();
-  if (!sessionUser) {
+  const authContext = await requireAuthenticatedUser({ onMaintenance: renderMaintenanceView });
+  if (!authContext) {
     return;
   }
 
-  currentUser = sessionUser;
+  currentSettings = authContext.settings || await loadAppSettings();
+  currentUser = normalizeProfile(authContext.profile);
   renderHeader();
   renderBottomNav();
   registerRoutes();
   startRouter();
   updateBottomNav();
+  installRealtimeGuards(authContext.user?.id);
+  renderPendingNotifications(authContext.user?.id);
   window.addEventListener('hashchange', updateBottomNav);
   window.addEventListener('learning-progress-updated', () => {
     if (getCurrentPath() === '/home' || getCurrentPath() === '/progress') {
       renderCurrentRoute();
     }
   });
-}
-
-async function resolveSessionUser() {
-  if (initializeDemoMode()) {
-    return { ...DEMO_STUDENT, dateInscription: new Date().toISOString() };
-  }
-
-  if (hasSupabaseHelpers()) {
-    const session = await window.sbGetSession();
-    if (!session) {
-      const devUser = initializeDevMode();
-      if (devUser) {
-        return devUser;
-      }
-      window.location.href = 'auth.html';
-      return null;
-    }
-
-    if (window.sbIsAdmin(session.user)) {
-      window.location.href = 'admin.html';
-      return null;
-    }
-
-    try {
-      const profile = await window.sbGetProfile();
-      if (!profile || profile.status === 'pending' || profile.status === 'blocked') {
-        await window.sbLogout();
-        window.location.href = 'auth.html';
-        return null;
-      }
-
-      return {
-        prenom: profile.prenom || 'Élève',
-        telephone: profile.telephone,
-        dateInscription: profile.created_at,
-        status: profile.status,
-        formule: profile.formule || 'Formule Illimitée',
-        prix: profile.prix || 2000,
-        photo: profile.photo_url || profile.photo || null,
-        isSupabaseUser: true
-      };
-    } catch (error) {
-      console.error('Erreur chargement profil:', error);
-      await window.sbLogout();
-      window.location.href = 'auth.html';
-      return null;
-    }
-  }
-
-  const devUser = initializeDevMode();
-  if (devUser) {
-    return devUser;
-  }
-
-  window.location.href = 'auth.html';
-  return null;
-}
-
-function initializeDevMode() {
-  if (!isLocalDevelopmentHost()) {
-    return null;
-  }
-  const params = new URLSearchParams(window.location.search);
-  const urlRole = params.get('dev');
-  const allowed = devConfig.allowedRoles || ['student', 'admin', 'normal'];
-  const role = allowed.includes(urlRole) ? urlRole : devConfig.role;
-  const autoLoginDisabled = sessionStorage.getItem(DEV_AUTO_LOGIN_DISABLED_KEY) === 'true';
-
-  if (role === 'normal' || !devConfig.enabled || autoLoginDisabled) {
-    return null;
-  }
-  if (role === 'admin') {
-    window.location.href = 'admin.html?dev=admin';
-    return null;
-  }
-  return { ...DEV_STUDENT, dateInscription: new Date().toISOString() };
-}
-
-function initializeDemoMode() {
-  return !isLocalDevelopmentHost() && demoConfig.enabled && demoConfig.autoLoginStudent;
-}
-
-function isLocalDevelopmentHost() {
-  return ['localhost', '127.0.0.1', '::1', ''].includes(window.location.hostname);
-}
-
-function hasSupabaseHelpers() {
-  return typeof window.sbGetSession === 'function'
-    && typeof window.sbGetProfile === 'function'
-    && typeof window.sbLogout === 'function'
-    && typeof window.sbIsAdmin === 'function';
 }
 
 function registerRoutes() {
@@ -190,22 +77,22 @@ function renderCurrentRoute() {
 
 function renderHeader() {
   const header = document.getElementById('app-header');
-  const initial = (currentUser.prenom || 'É').trim().charAt(0).toUpperCase();
+  const initial = escapeHTML((currentUser.prenom || 'É').trim().charAt(0).toUpperCase());
   header.innerHTML = `
     <div class="app-header-inner">
       <button class="brand-lockup" type="button" data-route="/home" aria-label="Accueil">
         <span class="brand-mark"><i class="fas fa-car-side"></i></span>
         <span>
-          <strong>${appConfig.name}</strong>
-          <small>${appConfig.schoolName}</small>
+          <strong>${escapeHTML(appConfig.name)}</strong>
+          <small>${escapeHTML(currentSettings?.school_name || appConfig.schoolName)}</small>
         </span>
       </button>
       <div class="app-header-actions">
-        <a href="https://wa.me/${contactConfig.whatsapp}" target="_blank" rel="noopener" class="icon-button" aria-label="Aide WhatsApp">
+        <a href="https://wa.me/${escapeAttribute(contactConfig.whatsapp)}" target="_blank" rel="noopener" class="icon-button" aria-label="Aide WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
         <button class="profile-trigger" type="button" data-route="/profile" aria-label="Ouvrir le profil">
-          ${currentUser.photo ? `<img src="${currentUser.photo}" alt="Photo de profil" class="profile-photo">` : `<span class="user-avatar">${initial}</span>`}
+          ${currentUser.photo ? `<img src="${escapeAttribute(currentUser.photo)}" alt="Photo de profil" class="profile-photo">` : `<span class="user-avatar">${initial}</span>`}
         </button>
       </div>
     </div>
@@ -234,7 +121,7 @@ function renderHomeView() {
       <div class="dashboard-hero">
         <div>
           <p class="eyebrow">Formation Code de la route</p>
-          <h1>Bonjour, ${currentUser.prenom || 'Élève'}</h1>
+          <h1>Bonjour, ${escapeHTML(currentUser.prenom || 'Élève')}</h1>
           <p>Ta progression : ${masteredCount} / ${LESSONS_DATA.length} leçons maîtrisées.</p>
         </div>
         <div class="lesson-progress-card">
@@ -259,6 +146,7 @@ function renderHomeView() {
           <button class="nav-card action-card" type="button" data-route="/panels"><i class="fas fa-traffic-light"></i><span>Panneaux</span><small>Apprendre et réviser</small></button>
         </div>
       </section>
+      ${renderAnnouncement()}
 
       <section class="dashboard-section">
         <div class="section-heading"><h2>S'entraîner</h2></div>
@@ -321,25 +209,25 @@ function renderProgressView() {
 }
 
 function renderProfileView() {
-  const initial = (currentUser.prenom || 'É').trim().charAt(0).toUpperCase();
+  const initial = escapeHTML((currentUser.prenom || 'É').trim().charAt(0).toUpperCase());
   appView.innerHTML = `
     <section class="profile-layout">
       <div class="profile-card-main">
         <div class="profile-identity">
           <button class="profile-photo-button" type="button" data-upload-photo aria-label="Changer la photo de profil">
-            ${currentUser.photo ? `<img src="${currentUser.photo}" alt="Photo de profil" class="profile-photo large">` : `<span class="user-avatar large">${initial}</span>`}
+            ${currentUser.photo ? `<img src="${escapeAttribute(currentUser.photo)}" alt="Photo de profil" class="profile-photo large">` : `<span class="user-avatar large">${initial}</span>`}
             <i class="fas fa-camera"></i>
           </button>
           <div>
             <p class="eyebrow">Mon compte</p>
-            <h1>${currentUser.prenom || 'Élève'}</h1>
+            <h1>${escapeHTML(currentUser.prenom || 'Élève')}</h1>
             <button class="text-button" type="button" data-edit-name><i class="fas fa-pen"></i> Modifier le prénom</button>
           </div>
         </div>
         <dl class="profile-details">
-          <div><dt>Formule</dt><dd>${currentUser.formule || 'Formule Illimitée'}</dd></div>
-          <div><dt>Statut</dt><dd>${currentUser.status || 'Actif'}</dd></div>
-          <div><dt>Téléphone</dt><dd>${currentUser.telephone || ''}</dd></div>
+          <div><dt>Formule</dt><dd>${escapeHTML(currentUser.formule || 'Formule Illimitée')}</dd></div>
+          <div><dt>Statut</dt><dd>${escapeHTML(currentUser.status || 'Actif')}</dd></div>
+          <div><dt>Téléphone</dt><dd>${escapeHTML(currentUser.telephone || '')}</dd></div>
           <div><dt>Date d'inscription</dt><dd>${formatDate(currentUser.dateInscription)}</dd></div>
         </dl>
         <input type="file" id="photoUpload" class="profile-photo-input" accept="image/*">
@@ -351,7 +239,7 @@ function renderProfileView() {
       <div class="profile-group">
         <h2>Support</h2>
         <button class="profile-row" type="button" data-route="/contact"><i class="fas fa-phone"></i><span>Contacter l'auto-école</span><strong>Coordonnées</strong></button>
-        <a class="profile-row" href="https://wa.me/${contactConfig.whatsapp}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i><span>WhatsApp</span><strong>${contactConfig.phone}</strong></a>
+        <a class="profile-row" href="https://wa.me/${escapeAttribute(contactConfig.whatsapp)}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i><span>WhatsApp</span><strong>${escapeHTML(contactConfig.phone)}</strong></a>
       </div>
       <div class="profile-group">
         <h2>Application</h2>
@@ -370,19 +258,19 @@ function renderContactView() {
       <button class="text-back" type="button" data-route="/profile">← Profil</button>
       <div class="view-heading">
         <p class="eyebrow">Contact</p>
-        <h1>Auto-école Dieynaba</h1>
+        <h1>${escapeHTML(currentSettings?.school_name || 'Auto-école Dieynaba')}</h1>
       </div>
       <div class="contact-panel">
         <h2>Notre numéro</h2>
-        <p>${contactConfig.phone}</p>
+        <p>${escapeHTML(contactConfig.phone)}</p>
         <div class="reader-actions">
-          <a class="primary-action" href="tel:${contactConfig.phoneHref}">Appeler</a>
-          <a class="secondary-action" href="https://wa.me/${contactConfig.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="primary-action" href="tel:${escapeAttribute(contactConfig.phoneHref)}">Appeler</a>
+          <a class="secondary-action" href="https://wa.me/${escapeAttribute(contactConfig.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>
         </div>
       </div>
       <div class="contact-grid compact">
-        <div class="contact-card"><i class="fas fa-envelope"></i><h2>Email</h2><p><a href="mailto:${contactConfig.email}">${contactConfig.email}</a></p></div>
-        <div class="contact-card"><i class="fas fa-location-dot"></i><h2>Adresse</h2><p>${contactConfig.address}</p></div>
+        <div class="contact-card"><i class="fas fa-envelope"></i><h2>Email</h2><p><a href="mailto:${escapeAttribute(contactConfig.email)}">${escapeHTML(contactConfig.email)}</a></p></div>
+        <div class="contact-card"><i class="fas fa-location-dot"></i><h2>Adresse</h2><p>${escapeHTML(contactConfig.address)}</p></div>
       </div>
     </section>
   `;
@@ -508,19 +396,7 @@ function toggleTheme() {
 }
 
 async function deconnexion() {
-  if (currentUser && currentUser.isDevUser) {
-    sessionStorage.setItem(DEV_AUTO_LOGIN_DISABLED_KEY, 'true');
-    window.location.href = 'auth.html';
-    return;
-  }
-  if (currentUser && currentUser.isDemoUser) {
-    window.location.href = 'auth.html';
-    return;
-  }
-  if (typeof window.sbLogout === 'function') {
-    await window.sbLogout();
-  }
-  window.location.href = 'auth.html';
+  await logoutCurrentUser(currentUser);
 }
 
 function updateBottomNav() {
@@ -541,10 +417,115 @@ function updateBottomNav() {
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
+function normalizeProfile(profile) {
+  return {
+    prenom: profile.prenom || 'Élève',
+    telephone: profile.telephone || '',
+    dateInscription: profile.created_at || new Date().toISOString(),
+    status: profile.status || 'active',
+    formule: profile.formule || 'Formule Illimitée',
+    prix: profile.prix || 2000,
+    photo: profile.photo_url || profile.photo || null,
+    isSupabaseUser: profile.isSupabaseUser,
+    isDevUser: profile.isDevUser
+  };
+}
+
+function installRealtimeGuards(userId) {
+  subscribeToAppSettings((settings) => {
+    currentSettings = settings;
+    if (settings.maintenance_enabled) {
+      renderMaintenanceView(settings);
+    }
+  });
+  if (userId) {
+    subscribeToNotifications(userId, () => renderPendingNotifications(userId));
+    if (window.sbSubscribe) {
+      window.sbSubscribe(
+        `profile-guard-${userId}`,
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` },
+        async ({ new: profile }) => {
+          if (profile.status === 'blocked' || profile.status === 'pending') {
+            await window.sbLogout();
+            window.location.href = `auth.html?status=${profile.status}`;
+            return;
+          }
+          if (profile.session_invalid_before) {
+            await window.sbLogout();
+            window.location.href = 'auth.html?reason=session-expired';
+          }
+        }
+      );
+    }
+  }
+}
+
+async function renderPendingNotifications(userId) {
+  const notifications = await loadUnreadNotifications(userId);
+  if (!notifications.length) return;
+  const important = notifications.find((item) => item.requires_ack || ['important', 'maintenance'].includes(item.type));
+  const item = important || notifications[0];
+  if (item.requires_ack || important) {
+    window.eautoModal(`
+      <div class="modal-card">
+        <p class="eyebrow">${escapeHTML(item.type || 'Information')}</p>
+        <h2>${escapeHTML(item.title)}</h2>
+        <p>${escapeHTML(item.message)}</p>
+        <button class="primary-action" type="button" data-ack-notification>J’ai compris</button>
+      </div>
+    `);
+    document.querySelector('[data-ack-notification]').addEventListener('click', async () => {
+      await acknowledgeNotification(item.id);
+      closeModal();
+    });
+  } else {
+    window.eautoToast(`${item.title} : ${item.message}`);
+  }
+}
+
+function renderAnnouncement() {
+  if (!currentSettings?.announcement_message) return '';
+  if (currentSettings.announcement_expires_at && new Date(currentSettings.announcement_expires_at) < new Date()) return '';
+  return `
+    <section class="announcement-card">
+      <strong>${escapeHTML(currentSettings.announcement_title || 'Annonce')}</strong>
+      <span>${escapeHTML(currentSettings.announcement_message)}</span>
+    </section>
+  `;
+}
+
+function renderMaintenanceView(settings) {
+  if (bottomNav) bottomNav.style.display = 'none';
+  document.getElementById('app-header').innerHTML = '';
+  appView.innerHTML = `
+    <section class="maintenance-screen">
+      <div class="brand-mark"><i class="fas fa-car-side"></i></div>
+      <p class="eyebrow">eAutoecole</p>
+      <h1>${escapeHTML(settings.maintenance_title || 'Maintenance en cours')}</h1>
+      <p>${escapeHTML(settings.maintenance_message || 'Nous effectuons actuellement des améliorations.')}</p>
+      <a class="primary-action" href="https://wa.me/${escapeAttribute(contactConfig.whatsapp)}">Contacter l’auto-école</a>
+    </section>
+  `;
+}
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function escapeAttribute(value) {
+  return escapeHTML(value);
+}
+
 function installUiGlobals() {
   window.eautoToast = function eautoToast(message) {
     const root = document.getElementById('toast-root');
-    root.innerHTML = `<div class="toast" role="status">${message}</div>`;
+    root.innerHTML = `<div class="toast" role="status">${escapeHTML(message)}</div>`;
     window.clearTimeout(root.toastTimer);
     root.toastTimer = window.setTimeout(() => root.innerHTML = '', 2200);
   };

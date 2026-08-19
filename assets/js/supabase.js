@@ -14,16 +14,25 @@ function phoneToEmail(telephone) {
     return telephone.replace(/\s/g, '') + '@siterah.sn';
 }
 
+function identifierToEmail(identifier) {
+    const value = String(identifier || '').trim();
+    if (value.includes('@')) return value;
+    if (value.toLowerCase() === window.ADMIN_CONFIG?.alias) {
+        return window.ADMIN_CONFIG.aliasEmail;
+    }
+    return phoneToEmail(value);
+}
+
 // ── Auth ─────────────────────────────────────────────────────────
 
-async function sbRegister({ telephone, password, formule = 'Formule Illimitée', prix = 2000 }) {
+async function sbRegister({ prenom = 'Élève', telephone, password, formule = 'Formule Illimitée', prix = 2000 }) {
     const email = phoneToEmail(telephone);
     const { data, error } = await sb.auth.signUp({
         email,
         password,
         options: {
             data: {
-                prenom:    'Élève',
+                prenom:    prenom || 'Élève',
                 telephone: telephone.replace(/\s/g, ''),
                 formule,
                 prix
@@ -35,7 +44,7 @@ async function sbRegister({ telephone, password, formule = 'Formule Illimitée',
 }
 
 async function sbLogin({ telephone, password }) {
-    const email = phoneToEmail(telephone);
+    const email = identifierToEmail(telephone);
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
@@ -148,6 +157,27 @@ async function sbUploadPhoto(file) {
     return data.publicUrl;
 }
 
+async function sbInvokeAdminAction(action, payload = {}) {
+    const { data, error } = await sb.functions.invoke('admin-action', {
+        body: { action, payload }
+    });
+    if (error) throw error;
+    if (data && data.success === false) throw new Error(data.message || data.error || 'Action refusée');
+    return data;
+}
+
+function sbOnAuthStateChange(callback) {
+    return sb.auth.onAuthStateChange(callback);
+}
+
+function sbSubscribe(channelName, config, callback) {
+    return sb.channel(channelName).on('postgres_changes', config, callback).subscribe();
+}
+
+function sbRemoveChannel(channel) {
+    return sb.removeChannel(channel);
+}
+
 // ── Guards de navigation ──────────────────────────────────────────
 
 // Redirige vers auth.html si pas de session, sinon retourne la session
@@ -173,3 +203,26 @@ async function requireAdmin() {
     }
     return session;
 }
+
+window.sb = sb;
+window.phoneToEmail = phoneToEmail;
+window.identifierToEmail = identifierToEmail;
+window.sbRegister = sbRegister;
+window.sbLogin = sbLogin;
+window.sbLogout = sbLogout;
+window.sbGetSession = sbGetSession;
+window.sbGetUser = sbGetUser;
+window.sbIsAdmin = sbIsAdmin;
+window.sbGetProfile = sbGetProfile;
+window.sbUpdateProfile = sbUpdateProfile;
+window.sbGetAllProfiles = sbGetAllProfiles;
+window.sbAdminUpdateStatus = sbAdminUpdateStatus;
+window.sbConfirmPayment = sbConfirmPayment;
+window.sbAdminResetPassword = sbAdminResetPassword;
+window.sbUploadPhoto = sbUploadPhoto;
+window.sbInvokeAdminAction = sbInvokeAdminAction;
+window.sbOnAuthStateChange = sbOnAuthStateChange;
+window.sbSubscribe = sbSubscribe;
+window.sbRemoveChannel = sbRemoveChannel;
+window.requireAuth = requireAuth;
+window.requireAdmin = requireAdmin;
