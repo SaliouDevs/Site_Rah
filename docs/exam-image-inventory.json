@@ -1,0 +1,5097 @@
+{
+  "inventory": [
+    {
+      "examId": "light",
+      "questionId": "PL-001",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:26",
+        "docs/exam-image-inventory.json:7",
+        "Poids_Leger.html:1195"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-002",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:44",
+        "docs/exam-image-inventory.json:21",
+        "Poids_Leger.html:1210"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-003",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:62",
+        "docs/exam-image-inventory.json:35",
+        "Poids_Leger.html:1225"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-004",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:72",
+        "docs/exam-image-inventory.json:49",
+        "Poids_Leger.html:1232"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-005",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:90",
+        "docs/exam-image-inventory.json:63",
+        "Poids_Leger.html:1247"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-006",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:104",
+        "docs/exam-image-inventory.json:77",
+        "Poids_Leger.html:1258"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-007",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:114",
+        "docs/exam-image-inventory.json:91",
+        "Poids_Leger.html:1265"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-008",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:124",
+        "docs/exam-image-inventory.json:105",
+        "Poids_Leger.html:1272"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-009",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:138",
+        "docs/exam-image-inventory.json:119",
+        "Poids_Leger.html:1283"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-010",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:156",
+        "docs/exam-image-inventory.json:133",
+        "Poids_Leger.html:1298"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-011",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:166",
+        "docs/exam-image-inventory.json:147",
+        "Poids_Leger.html:1305"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-012",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:180",
+        "docs/exam-image-inventory.json:161",
+        "Poids_Leger.html:1316"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-013",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:198",
+        "docs/exam-image-inventory.json:175",
+        "Poids_Leger.html:1331"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-014",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:216",
+        "docs/exam-image-inventory.json:189",
+        "Poids_Leger.html:1346"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-015",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:234",
+        "docs/exam-image-inventory.json:203",
+        "Poids_Leger.html:1361"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-016",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:244",
+        "docs/exam-image-inventory.json:217",
+        "Poids_Leger.html:1368"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-017",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:254",
+        "docs/exam-image-inventory.json:231",
+        "Poids_Leger.html:1375"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-018",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:264",
+        "docs/exam-image-inventory.json:245",
+        "Poids_Leger.html:1382"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-019",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:278",
+        "docs/exam-image-inventory.json:259",
+        "Poids_Leger.html:1393"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-020",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:292",
+        "docs/exam-image-inventory.json:273",
+        "Poids_Leger.html:1404"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-021",
+      "series": "B1",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-022",
+      "series": "B1",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-023",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_23.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:326",
+        "assets/js/data/exam-light-data.js:672",
+        "docs/exam-image-audit.md:17",
+        "docs/exam-image-inventory.json:307",
+        "docs/exam-image-inventory.json:663",
+        "Poids_Leger.html:1429",
+        "Poids_Leger.html:1692"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-024",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_24.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:336",
+        "assets/js/data/exam-light-data.js:690",
+        "docs/exam-image-audit.md:18",
+        "docs/exam-image-inventory.json:325",
+        "docs/exam-image-inventory.json:681",
+        "Poids_Leger.html:1436",
+        "Poids_Leger.html:1707"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-025",
+      "series": "B1",
+      "imagePath": "Images/Panneaux/B1_25.jpeg",
+      "fileExists": false,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:346",
+        "assets/js/data/exam-light-data.js:708",
+        "docs/exam-image-audit.md:13",
+        "docs/exam-image-audit.md:14",
+        "docs/exam-image-audit.md:19",
+        "docs/exam-image-inventory.json:343",
+        "docs/exam-image-inventory.json:699",
+        "Poids_Leger.html:1443",
+        "Poids_Leger.html:1722"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-026",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:368",
+        "docs/exam-image-inventory.json:363",
+        "Poids_Leger.html:1454"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-027",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:386",
+        "docs/exam-image-inventory.json:377",
+        "Poids_Leger.html:1469"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-028",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:404",
+        "docs/exam-image-inventory.json:391",
+        "Poids_Leger.html:1484"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-029",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:422",
+        "docs/exam-image-inventory.json:405",
+        "Poids_Leger.html:1499"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-030",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:436",
+        "docs/exam-image-inventory.json:419",
+        "Poids_Leger.html:1510"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-031",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:454",
+        "docs/exam-image-inventory.json:433",
+        "Poids_Leger.html:1525"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-032",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:468",
+        "docs/exam-image-inventory.json:447",
+        "Poids_Leger.html:1536"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-033",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:486",
+        "docs/exam-image-inventory.json:461",
+        "Poids_Leger.html:1551"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-034",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:500",
+        "docs/exam-image-inventory.json:475",
+        "Poids_Leger.html:1562"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-035",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:518",
+        "docs/exam-image-inventory.json:489",
+        "Poids_Leger.html:1577"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-036",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:528",
+        "docs/exam-image-inventory.json:503",
+        "Poids_Leger.html:1584"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-037",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:538",
+        "docs/exam-image-inventory.json:517",
+        "Poids_Leger.html:1591"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-038",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:556",
+        "docs/exam-image-inventory.json:531",
+        "Poids_Leger.html:1606"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-039",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:566",
+        "docs/exam-image-inventory.json:545",
+        "Poids_Leger.html:1613"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-040",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:576",
+        "docs/exam-image-inventory.json:559",
+        "Poids_Leger.html:1620"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-041",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:590",
+        "docs/exam-image-inventory.json:573",
+        "Poids_Leger.html:1631"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-042",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:600",
+        "docs/exam-image-inventory.json:587",
+        "Poids_Leger.html:1638"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-043",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:610",
+        "docs/exam-image-inventory.json:601",
+        "Poids_Leger.html:1645"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-044",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:628",
+        "docs/exam-image-inventory.json:615",
+        "Poids_Leger.html:1660"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-045",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B2_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:638",
+        "docs/exam-image-inventory.json:629",
+        "Poids_Leger.html:1667"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-046",
+      "series": "B2",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-047",
+      "series": "B2",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-048",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B1_23.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:326",
+        "assets/js/data/exam-light-data.js:672",
+        "docs/exam-image-audit.md:17",
+        "docs/exam-image-inventory.json:307",
+        "docs/exam-image-inventory.json:663",
+        "Poids_Leger.html:1429",
+        "Poids_Leger.html:1692"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-049",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B1_24.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:336",
+        "assets/js/data/exam-light-data.js:690",
+        "docs/exam-image-audit.md:18",
+        "docs/exam-image-inventory.json:325",
+        "docs/exam-image-inventory.json:681",
+        "Poids_Leger.html:1436",
+        "Poids_Leger.html:1707"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-050",
+      "series": "B2",
+      "imagePath": "Images/Panneaux/B1_25.jpeg",
+      "fileExists": false,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:346",
+        "assets/js/data/exam-light-data.js:708",
+        "docs/exam-image-audit.md:13",
+        "docs/exam-image-audit.md:14",
+        "docs/exam-image-audit.md:19",
+        "docs/exam-image-inventory.json:343",
+        "docs/exam-image-inventory.json:699",
+        "Poids_Leger.html:1443",
+        "Poids_Leger.html:1722"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-051",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:738",
+        "docs/exam-image-inventory.json:719",
+        "Poids_Leger.html:1741"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-052",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:756",
+        "docs/exam-image-inventory.json:733",
+        "Poids_Leger.html:1756"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-053",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:774",
+        "docs/exam-image-inventory.json:747",
+        "Poids_Leger.html:1771"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-054",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:784",
+        "docs/exam-image-inventory.json:761",
+        "Poids_Leger.html:1778"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-055",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:802",
+        "docs/exam-image-inventory.json:775",
+        "Poids_Leger.html:1793"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-056",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:812",
+        "docs/exam-image-inventory.json:789",
+        "Poids_Leger.html:1800"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-057",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:822",
+        "docs/exam-image-inventory.json:803",
+        "Poids_Leger.html:1807"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-058",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:840",
+        "docs/exam-image-inventory.json:817",
+        "Poids_Leger.html:1822"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-059",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:850",
+        "docs/exam-image-inventory.json:831",
+        "Poids_Leger.html:1829"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-060",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:860",
+        "docs/exam-image-inventory.json:845",
+        "Poids_Leger.html:1836"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-061",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:878",
+        "docs/exam-image-inventory.json:859",
+        "Poids_Leger.html:1851"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-062",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:892",
+        "docs/exam-image-inventory.json:873",
+        "Poids_Leger.html:1862"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-063",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:910",
+        "docs/exam-image-inventory.json:887",
+        "Poids_Leger.html:1877"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-064",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:920",
+        "docs/exam-image-inventory.json:901",
+        "Poids_Leger.html:1884"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-065",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:938",
+        "docs/exam-image-inventory.json:915",
+        "Poids_Leger.html:1899"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-066",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:948",
+        "docs/exam-image-inventory.json:929",
+        "Poids_Leger.html:1906"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-067",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:958",
+        "docs/exam-image-inventory.json:943",
+        "Poids_Leger.html:1913"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-068",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:976",
+        "docs/exam-image-inventory.json:957",
+        "Poids_Leger.html:1928"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-069",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:990",
+        "docs/exam-image-inventory.json:971",
+        "Poids_Leger.html:1939"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-070",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1000",
+        "docs/exam-image-inventory.json:985",
+        "Poids_Leger.html:1946"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-071",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1014",
+        "docs/exam-image-inventory.json:999",
+        "Poids_Leger.html:1957"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-072",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1024",
+        "docs/exam-image-inventory.json:1013",
+        "Poids_Leger.html:1964"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-073",
+      "series": "B3",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-074",
+      "series": "B3",
+      "imagePath": "Images/Panneaux/B3_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1056",
+        "docs/exam-image-inventory.json:1037",
+        "Poids_Leger.html:1990"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-075",
+      "series": "B3",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-076",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1100",
+        "docs/exam-image-inventory.json:1061",
+        "Poids_Leger.html:2020"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-077",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1118",
+        "docs/exam-image-inventory.json:1075",
+        "Poids_Leger.html:2035"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-078",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1136",
+        "docs/exam-image-inventory.json:1089",
+        "Poids_Leger.html:2050"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-079",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1150",
+        "docs/exam-image-inventory.json:1103",
+        "Poids_Leger.html:2061"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-080",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1168",
+        "docs/exam-image-inventory.json:1117",
+        "Poids_Leger.html:2076"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-081",
+      "series": "B4",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-082",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1196",
+        "docs/exam-image-inventory.json:1141",
+        "Poids_Leger.html:2098"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-083",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1206",
+        "docs/exam-image-inventory.json:1155",
+        "Poids_Leger.html:2105"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-084",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1216",
+        "docs/exam-image-inventory.json:1169",
+        "Poids_Leger.html:2112"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-085",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1230",
+        "docs/exam-image-inventory.json:1183",
+        "Poids_Leger.html:2123"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-086",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1248",
+        "docs/exam-image-inventory.json:1197",
+        "Poids_Leger.html:2138"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-087",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1258",
+        "docs/exam-image-inventory.json:1211",
+        "Poids_Leger.html:2145"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-088",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1268",
+        "docs/exam-image-inventory.json:1225",
+        "Poids_Leger.html:2152"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-089",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1278",
+        "docs/exam-image-inventory.json:1239",
+        "Poids_Leger.html:2159"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-090",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1288",
+        "docs/exam-image-inventory.json:1253",
+        "Poids_Leger.html:2166"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-091",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1298",
+        "docs/exam-image-inventory.json:1267",
+        "Poids_Leger.html:2173"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-092",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1308",
+        "docs/exam-image-inventory.json:1281",
+        "Poids_Leger.html:2180"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-093",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1322",
+        "docs/exam-image-inventory.json:1295",
+        "Poids_Leger.html:2191"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-094",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1332",
+        "docs/exam-image-inventory.json:1309",
+        "Poids_Leger.html:2198"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-095",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1350",
+        "docs/exam-image-inventory.json:1323",
+        "Poids_Leger.html:2213"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-096",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1368",
+        "docs/exam-image-inventory.json:1337",
+        "Poids_Leger.html:2228"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-097",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1382",
+        "docs/exam-image-inventory.json:1351",
+        "Poids_Leger.html:2239"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-098",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1392",
+        "docs/exam-image-inventory.json:1365",
+        "Poids_Leger.html:2246"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-099",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1410",
+        "docs/exam-image-inventory.json:1379",
+        "Poids_Leger.html:2261"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-100",
+      "series": "B4",
+      "imagePath": "Images/Panneaux/B4_25.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1428",
+        "docs/exam-image-inventory.json:1393",
+        "Poids_Leger.html:2276"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-101",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1458",
+        "docs/exam-image-inventory.json:1407",
+        "Poids_Leger.html:2295"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-102",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1476",
+        "docs/exam-image-inventory.json:1421",
+        "Poids_Leger.html:2310"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-103",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1494",
+        "docs/exam-image-inventory.json:1435",
+        "Poids_Leger.html:2325"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-104",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1512",
+        "docs/exam-image-inventory.json:1449",
+        "Poids_Leger.html:2340"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-105",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1530",
+        "docs/exam-image-inventory.json:1463",
+        "Poids_Leger.html:2355"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-106",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1548",
+        "docs/exam-image-inventory.json:1477",
+        "Poids_Leger.html:2370"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-107",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1558",
+        "docs/exam-image-inventory.json:1491",
+        "Poids_Leger.html:2377"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-108",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1568",
+        "docs/exam-image-inventory.json:1505",
+        "Poids_Leger.html:2384"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-109",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1578",
+        "docs/exam-image-inventory.json:1519",
+        "Poids_Leger.html:2391"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-110",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1592",
+        "docs/exam-image-inventory.json:1533",
+        "Poids_Leger.html:2402"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-111",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1602",
+        "docs/exam-image-inventory.json:1547",
+        "Poids_Leger.html:2409"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-112",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1612",
+        "docs/exam-image-inventory.json:1561",
+        "Poids_Leger.html:2416"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-113",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1622",
+        "docs/exam-image-inventory.json:1575",
+        "Poids_Leger.html:2423"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-114",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1632",
+        "docs/exam-image-inventory.json:1589",
+        "Poids_Leger.html:2430"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-115",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1642",
+        "docs/exam-image-inventory.json:1603",
+        "Poids_Leger.html:2437"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-116",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1652",
+        "docs/exam-image-inventory.json:1617",
+        "Poids_Leger.html:2444"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-117",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1662",
+        "docs/exam-image-inventory.json:1631",
+        "Poids_Leger.html:2451"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-118",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1672",
+        "docs/exam-image-inventory.json:1645",
+        "Poids_Leger.html:2458"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-119",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1682",
+        "docs/exam-image-inventory.json:1659",
+        "Poids_Leger.html:2465"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-120",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1700",
+        "docs/exam-image-inventory.json:1673",
+        "Poids_Leger.html:2480"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-121",
+      "series": "B5",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-122",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1720",
+        "docs/exam-image-inventory.json:1697",
+        "Poids_Leger.html:2494"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-123",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1730",
+        "docs/exam-image-inventory.json:1711",
+        "Poids_Leger.html:2501"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-124",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1748",
+        "docs/exam-image-inventory.json:1725",
+        "Poids_Leger.html:2516"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-125",
+      "series": "B5",
+      "imagePath": "Images/Panneaux/B5_25.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1766",
+        "docs/exam-image-inventory.json:1739",
+        "Poids_Leger.html:2531"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-126",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1796",
+        "docs/exam-image-inventory.json:1753",
+        "Poids_Leger.html:2550"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-127",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1814",
+        "docs/exam-image-inventory.json:1767",
+        "Poids_Leger.html:2565"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-128",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1832",
+        "docs/exam-image-inventory.json:1781",
+        "Poids_Leger.html:2580"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-129",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1846",
+        "docs/exam-image-inventory.json:1795",
+        "Poids_Leger.html:2591"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-130",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1860",
+        "docs/exam-image-inventory.json:1809",
+        "Poids_Leger.html:2602"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-131",
+      "series": "B6",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-132",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1880",
+        "docs/exam-image-inventory.json:1833",
+        "Poids_Leger.html:2616"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-133",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1890",
+        "docs/exam-image-inventory.json:1847",
+        "Poids_Leger.html:2623"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-134",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1900",
+        "docs/exam-image-inventory.json:1861",
+        "Poids_Leger.html:2630"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-135",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1918",
+        "docs/exam-image-inventory.json:1875",
+        "Poids_Leger.html:2645"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-136",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1928",
+        "docs/exam-image-inventory.json:1889",
+        "Poids_Leger.html:2652"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-137",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1942",
+        "docs/exam-image-inventory.json:1903",
+        "Poids_Leger.html:2663"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-138",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1952",
+        "docs/exam-image-inventory.json:1917",
+        "Poids_Leger.html:2670"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-139",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1962",
+        "docs/exam-image-inventory.json:1931",
+        "Poids_Leger.html:2677"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-140",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1976",
+        "docs/exam-image-inventory.json:1945",
+        "Poids_Leger.html:2688"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-141",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1986",
+        "docs/exam-image-inventory.json:1959",
+        "Poids_Leger.html:2695"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-142",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:1996",
+        "docs/exam-image-inventory.json:1973",
+        "Poids_Leger.html:2702"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-143",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2014",
+        "docs/exam-image-inventory.json:1987",
+        "Poids_Leger.html:2717"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-144",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2032",
+        "docs/exam-image-inventory.json:2001",
+        "Poids_Leger.html:2732"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-145",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2050",
+        "docs/exam-image-inventory.json:2015",
+        "Poids_Leger.html:2747"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-146",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2068",
+        "docs/exam-image-inventory.json:2029",
+        "Poids_Leger.html:2762"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-147",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2086",
+        "docs/exam-image-inventory.json:2043",
+        "Poids_Leger.html:2777"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-148",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2096",
+        "docs/exam-image-inventory.json:2057",
+        "Poids_Leger.html:2784"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-149",
+      "series": "B6",
+      "imagePath": "Images/Panneaux/B6_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2106",
+        "docs/exam-image-inventory.json:2071",
+        "Poids_Leger.html:2791"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-150",
+      "series": "B6",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-151",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2146",
+        "docs/exam-image-inventory.json:2095",
+        "Poids_Leger.html:2817"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-152",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2164",
+        "docs/exam-image-inventory.json:2109",
+        "Poids_Leger.html:2832"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-153",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2182",
+        "docs/exam-image-inventory.json:2123",
+        "Poids_Leger.html:2847"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-154",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2200",
+        "docs/exam-image-inventory.json:2137",
+        "Poids_Leger.html:2862"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-155",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2210",
+        "docs/exam-image-inventory.json:2151",
+        "Poids_Leger.html:2869"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-156",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2220",
+        "docs/exam-image-inventory.json:2165",
+        "Poids_Leger.html:2876"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-157",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2230",
+        "docs/exam-image-inventory.json:2179",
+        "Poids_Leger.html:2883"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-158",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2248",
+        "docs/exam-image-inventory.json:2193",
+        "Poids_Leger.html:2898"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-159",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2258",
+        "docs/exam-image-inventory.json:2207",
+        "Poids_Leger.html:2905"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-160",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2268",
+        "docs/exam-image-inventory.json:2221",
+        "Poids_Leger.html:2912"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-161",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2282",
+        "docs/exam-image-inventory.json:2235",
+        "Poids_Leger.html:2923"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-162",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2292",
+        "docs/exam-image-inventory.json:2249",
+        "Poids_Leger.html:2930"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-163",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2302",
+        "docs/exam-image-inventory.json:2263",
+        "Poids_Leger.html:2937"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-164",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2316",
+        "docs/exam-image-inventory.json:2277",
+        "Poids_Leger.html:2948"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-165",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2334",
+        "docs/exam-image-inventory.json:2291",
+        "Poids_Leger.html:2963"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-166",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2344",
+        "docs/exam-image-inventory.json:2305",
+        "Poids_Leger.html:2970"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-167",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2354",
+        "docs/exam-image-inventory.json:2319",
+        "Poids_Leger.html:2977"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-168",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2372",
+        "docs/exam-image-inventory.json:2333",
+        "Poids_Leger.html:2992"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-169",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2382",
+        "docs/exam-image-inventory.json:2347",
+        "Poids_Leger.html:2999"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-170",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2392",
+        "docs/exam-image-inventory.json:2361",
+        "Poids_Leger.html:3006"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-171",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2402",
+        "docs/exam-image-inventory.json:2375",
+        "Poids_Leger.html:3013"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-172",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2416",
+        "docs/exam-image-inventory.json:2389",
+        "Poids_Leger.html:3024"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-173",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_24.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:2430",
+        "assets/js/data/exam-light-data.js:2440",
+        "docs/exam-image-audit.md:20",
+        "docs/exam-image-inventory.json:2403",
+        "docs/exam-image-inventory.json:2421",
+        "Poids_Leger.html:3035",
+        "Poids_Leger.html:3042"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-174",
+      "series": "B7",
+      "imagePath": "Images/Panneaux/B7_24.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:2430",
+        "assets/js/data/exam-light-data.js:2440",
+        "docs/exam-image-audit.md:20",
+        "docs/exam-image-inventory.json:2403",
+        "docs/exam-image-inventory.json:2421",
+        "Poids_Leger.html:3035",
+        "Poids_Leger.html:3042"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-175",
+      "series": "B7",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-176",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2488",
+        "docs/exam-image-inventory.json:2449",
+        "Poids_Leger.html:3076"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-177",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2506",
+        "docs/exam-image-inventory.json:2463",
+        "Poids_Leger.html:3091"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-178",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2520",
+        "docs/exam-image-inventory.json:2477",
+        "Poids_Leger.html:3102"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-179",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2538",
+        "docs/exam-image-inventory.json:2491",
+        "Poids_Leger.html:3117"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-180",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2556",
+        "docs/exam-image-inventory.json:2505",
+        "Poids_Leger.html:3132"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-181",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2574",
+        "docs/exam-image-inventory.json:2519",
+        "Poids_Leger.html:3147"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-182",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2588",
+        "docs/exam-image-inventory.json:2533",
+        "Poids_Leger.html:3158"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-183",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2602",
+        "docs/exam-image-inventory.json:2547",
+        "Poids_Leger.html:3169"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-184",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2612",
+        "docs/exam-image-inventory.json:2561",
+        "Poids_Leger.html:3176"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-185",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2622",
+        "docs/exam-image-inventory.json:2575",
+        "Poids_Leger.html:3183"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-186",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2632",
+        "docs/exam-image-inventory.json:2589",
+        "Poids_Leger.html:3190"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-187",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_12.jpeg",
+      "fileExists": false,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2650",
+        "docs/exam-image-audit.md:15",
+        "docs/exam-image-inventory.json:2603",
+        "Poids_Leger.html:3205"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-188",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2664",
+        "docs/exam-image-inventory.json:2618",
+        "Poids_Leger.html:3216"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-189",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2682",
+        "docs/exam-image-inventory.json:2632",
+        "Poids_Leger.html:3231"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-190",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2692",
+        "docs/exam-image-inventory.json:2646",
+        "Poids_Leger.html:3238"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-191",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2702",
+        "docs/exam-image-inventory.json:2660",
+        "Poids_Leger.html:3245"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-192",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2712",
+        "docs/exam-image-inventory.json:2674",
+        "Poids_Leger.html:3252"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-193",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2722",
+        "docs/exam-image-inventory.json:2688",
+        "Poids_Leger.html:3259"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-194",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2732",
+        "docs/exam-image-inventory.json:2702",
+        "Poids_Leger.html:3266"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-195",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2742",
+        "docs/exam-image-inventory.json:2716",
+        "Poids_Leger.html:3273"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-196",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2760",
+        "docs/exam-image-inventory.json:2730",
+        "Poids_Leger.html:3288"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-197",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2770",
+        "docs/exam-image-inventory.json:2744",
+        "Poids_Leger.html:3295"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-198",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2788",
+        "docs/exam-image-inventory.json:2758",
+        "Poids_Leger.html:3310"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-199",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2802",
+        "docs/exam-image-inventory.json:2772",
+        "Poids_Leger.html:3321"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-200",
+      "series": "B8",
+      "imagePath": "Images/Panneaux/B8_25.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2812",
+        "docs/exam-image-inventory.json:2786",
+        "Poids_Leger.html:3328"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-201",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2834",
+        "docs/exam-image-inventory.json:2800",
+        "Poids_Leger.html:3339"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-202",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2852",
+        "docs/exam-image-inventory.json:2814",
+        "Poids_Leger.html:3354"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-203",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2870",
+        "docs/exam-image-inventory.json:2828",
+        "Poids_Leger.html:3369"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-204",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2888",
+        "docs/exam-image-inventory.json:2842",
+        "Poids_Leger.html:3384"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-205",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2902",
+        "docs/exam-image-inventory.json:2856",
+        "Poids_Leger.html:3395"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-206",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2920",
+        "docs/exam-image-inventory.json:2870",
+        "Poids_Leger.html:3410"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-207",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2930",
+        "docs/exam-image-inventory.json:2884",
+        "Poids_Leger.html:3417"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-208",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2944",
+        "docs/exam-image-inventory.json:2898",
+        "Poids_Leger.html:3428"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-209",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2954",
+        "docs/exam-image-inventory.json:2912",
+        "Poids_Leger.html:3435"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-210",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2964",
+        "docs/exam-image-inventory.json:2926",
+        "Poids_Leger.html:3442"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-211",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2974",
+        "docs/exam-image-inventory.json:2940",
+        "Poids_Leger.html:3449"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-212",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:2992",
+        "docs/exam-image-inventory.json:2954",
+        "Poids_Leger.html:3464"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-213",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3002",
+        "docs/exam-image-inventory.json:2968",
+        "Poids_Leger.html:3471"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-214",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3020",
+        "docs/exam-image-inventory.json:2982",
+        "Poids_Leger.html:3486"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-215",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3030",
+        "docs/exam-image-inventory.json:2996",
+        "Poids_Leger.html:3493"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-216",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3048",
+        "docs/exam-image-inventory.json:3010",
+        "Poids_Leger.html:3508"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-217",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3058",
+        "docs/exam-image-inventory.json:3024",
+        "Poids_Leger.html:3515"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-218",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3076",
+        "docs/exam-image-inventory.json:3038",
+        "Poids_Leger.html:3530"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-219",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3094",
+        "docs/exam-image-inventory.json:3052",
+        "Poids_Leger.html:3545"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-220",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3104",
+        "docs/exam-image-inventory.json:3066",
+        "Poids_Leger.html:3552"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-221",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3118",
+        "docs/exam-image-inventory.json:3080",
+        "Poids_Leger.html:3563"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-222",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3128",
+        "docs/exam-image-inventory.json:3094",
+        "Poids_Leger.html:3570"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-223",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3146",
+        "docs/exam-image-inventory.json:3108",
+        "Poids_Leger.html:3585"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-224",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3156",
+        "docs/exam-image-inventory.json:3122",
+        "Poids_Leger.html:3592"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-225",
+      "series": "B9",
+      "imagePath": "Images/Panneaux/B9_25.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3174",
+        "docs/exam-image-inventory.json:3136",
+        "Poids_Leger.html:3607"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-226",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3196",
+        "docs/exam-image-inventory.json:3150",
+        "Poids_Leger.html:3618"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-227",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3214",
+        "docs/exam-image-inventory.json:3164",
+        "Poids_Leger.html:3633"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-228",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3224",
+        "docs/exam-image-inventory.json:3178",
+        "Poids_Leger.html:3640"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-229",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3242",
+        "docs/exam-image-inventory.json:3192",
+        "Poids_Leger.html:3655"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-230",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3252",
+        "docs/exam-image-inventory.json:3206",
+        "Poids_Leger.html:3662"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-231",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3270",
+        "docs/exam-image-inventory.json:3220",
+        "Poids_Leger.html:3677"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-232",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3288",
+        "docs/exam-image-inventory.json:3234",
+        "Poids_Leger.html:3692"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-233",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3306",
+        "docs/exam-image-inventory.json:3248",
+        "Poids_Leger.html:3707"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-234",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3316",
+        "docs/exam-image-inventory.json:3262",
+        "Poids_Leger.html:3714"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-235",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3326",
+        "docs/exam-image-inventory.json:3276",
+        "Poids_Leger.html:3721"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-236",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3336",
+        "docs/exam-image-inventory.json:3290",
+        "Poids_Leger.html:3728"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-237",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3354",
+        "docs/exam-image-inventory.json:3304",
+        "Poids_Leger.html:3743"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-238",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3364",
+        "docs/exam-image-inventory.json:3318",
+        "Poids_Leger.html:3750"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-239",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3382",
+        "docs/exam-image-inventory.json:3332",
+        "Poids_Leger.html:3765"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-240",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3400",
+        "docs/exam-image-inventory.json:3346",
+        "Poids_Leger.html:3780"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-241",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3418",
+        "docs/exam-image-inventory.json:3360",
+        "Poids_Leger.html:3795"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-242",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3428",
+        "docs/exam-image-inventory.json:3374",
+        "Poids_Leger.html:3802"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-243",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3446",
+        "docs/exam-image-inventory.json:3388",
+        "Poids_Leger.html:3817"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-244",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3456",
+        "docs/exam-image-inventory.json:3402",
+        "Poids_Leger.html:3824"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-245",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3474",
+        "docs/exam-image-inventory.json:3416",
+        "Poids_Leger.html:3839"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-246",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3484",
+        "docs/exam-image-inventory.json:3430",
+        "Poids_Leger.html:3846"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-247",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3494",
+        "docs/exam-image-inventory.json:3444",
+        "Poids_Leger.html:3853"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-248",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3504",
+        "docs/exam-image-inventory.json:3458",
+        "Poids_Leger.html:3860"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-249",
+      "series": "B10",
+      "imagePath": "Images/Panneaux/B10_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3522",
+        "docs/exam-image-inventory.json:3472",
+        "Poids_Leger.html:3875"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-250",
+      "series": "B10",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-251",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3562",
+        "docs/exam-image-inventory.json:3496",
+        "Poids_Leger.html:3901"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-252",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3580",
+        "docs/exam-image-inventory.json:3510",
+        "Poids_Leger.html:3916"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-253",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3598",
+        "docs/exam-image-inventory.json:3524",
+        "Poids_Leger.html:3931"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-254",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3616",
+        "docs/exam-image-inventory.json:3538",
+        "Poids_Leger.html:3946"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-255",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3634",
+        "docs/exam-image-inventory.json:3552",
+        "Poids_Leger.html:3961"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-256",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3648",
+        "docs/exam-image-inventory.json:3566",
+        "Poids_Leger.html:3972"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-257",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3658",
+        "docs/exam-image-inventory.json:3580",
+        "Poids_Leger.html:3979"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-258",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3668",
+        "docs/exam-image-inventory.json:3594",
+        "Poids_Leger.html:3986"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-259",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3678",
+        "docs/exam-image-inventory.json:3608",
+        "Poids_Leger.html:3993"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-260",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_10.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:3696",
+        "assets/js/data/exam-light-data.js:3768",
+        "docs/exam-image-audit.md:21",
+        "docs/exam-image-inventory.json:3622",
+        "docs/exam-image-inventory.json:3710",
+        "Poids_Leger.html:4008",
+        "Poids_Leger.html:4062"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-261",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3706",
+        "docs/exam-image-inventory.json:3640",
+        "Poids_Leger.html:4015"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-262",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3716",
+        "docs/exam-image-inventory.json:3654",
+        "Poids_Leger.html:4022"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-263",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3730",
+        "docs/exam-image-inventory.json:3668",
+        "Poids_Leger.html:4033"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-264",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3748",
+        "docs/exam-image-inventory.json:3682",
+        "Poids_Leger.html:4048"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-265",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3758",
+        "docs/exam-image-inventory.json:3696",
+        "Poids_Leger.html:4055"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-266",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_10.jpeg",
+      "fileExists": true,
+      "usageCount": 2,
+      "references": [
+        "assets/js/data/exam-light-data.js:3696",
+        "assets/js/data/exam-light-data.js:3768",
+        "docs/exam-image-audit.md:21",
+        "docs/exam-image-inventory.json:3622",
+        "docs/exam-image-inventory.json:3710",
+        "Poids_Leger.html:4008",
+        "Poids_Leger.html:4062"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-267",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3786",
+        "docs/exam-image-inventory.json:3728",
+        "Poids_Leger.html:4077"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-268",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3796",
+        "docs/exam-image-inventory.json:3742",
+        "Poids_Leger.html:4084"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-269",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3814",
+        "docs/exam-image-inventory.json:3756",
+        "Poids_Leger.html:4099"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-270",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3824",
+        "docs/exam-image-inventory.json:3770",
+        "Poids_Leger.html:4106"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-271",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3842",
+        "docs/exam-image-inventory.json:3784",
+        "Poids_Leger.html:4121"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-272",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3852",
+        "docs/exam-image-inventory.json:3798",
+        "Poids_Leger.html:4128"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-273",
+      "series": "B11",
+      "imagePath": "Images/Panneaux/B11_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3862",
+        "docs/exam-image-inventory.json:3812",
+        "Poids_Leger.html:4135"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-274",
+      "series": "B11",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-275",
+      "series": "B11",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-276",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3912",
+        "docs/exam-image-inventory.json:3846",
+        "Poids_Leger.html:4168"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-277",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3930",
+        "docs/exam-image-inventory.json:3860",
+        "Poids_Leger.html:4183"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-278",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3948",
+        "docs/exam-image-inventory.json:3874",
+        "Poids_Leger.html:4198"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-279",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3958",
+        "docs/exam-image-inventory.json:3888",
+        "Poids_Leger.html:4205"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-280",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3976",
+        "docs/exam-image-inventory.json:3902",
+        "Poids_Leger.html:4220"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-281",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:3986",
+        "docs/exam-image-inventory.json:3916",
+        "Poids_Leger.html:4227"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-282",
+      "series": "B12",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-283",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4006",
+        "docs/exam-image-inventory.json:3940",
+        "Poids_Leger.html:4241"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-284",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_9.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4016",
+        "docs/exam-image-inventory.json:3954",
+        "Poids_Leger.html:4248"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-285",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_10.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4026",
+        "docs/exam-image-inventory.json:3968",
+        "Poids_Leger.html:4255"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-286",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_11.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4036",
+        "docs/exam-image-inventory.json:3982",
+        "Poids_Leger.html:4262"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-287",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_12.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4046",
+        "docs/exam-image-inventory.json:3996",
+        "Poids_Leger.html:4269"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-288",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_13.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4060",
+        "docs/exam-image-inventory.json:4010",
+        "Poids_Leger.html:4280"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-289",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_14.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4078",
+        "docs/exam-image-inventory.json:4024",
+        "Poids_Leger.html:4295"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-290",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_15.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4096",
+        "docs/exam-image-inventory.json:4038",
+        "Poids_Leger.html:4310"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-291",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_16.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4106",
+        "docs/exam-image-inventory.json:4052",
+        "Poids_Leger.html:4317"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-292",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_17.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4124",
+        "docs/exam-image-inventory.json:4066",
+        "Poids_Leger.html:4332"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-293",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_18.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4142",
+        "docs/exam-image-inventory.json:4080",
+        "Poids_Leger.html:4347"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-294",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_19.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4152",
+        "docs/exam-image-inventory.json:4094",
+        "Poids_Leger.html:4354"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-295",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_20.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4162",
+        "docs/exam-image-inventory.json:4108",
+        "Poids_Leger.html:4361"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-296",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_21.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4172",
+        "docs/exam-image-inventory.json:4122",
+        "Poids_Leger.html:4368"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-297",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_22.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4182",
+        "docs/exam-image-inventory.json:4136",
+        "Poids_Leger.html:4375"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-298",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_23.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4192",
+        "docs/exam-image-inventory.json:4150",
+        "Poids_Leger.html:4382"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-299",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_24.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4202",
+        "docs/exam-image-inventory.json:4164",
+        "Poids_Leger.html:4389"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "light",
+      "questionId": "PL-300",
+      "series": "B12",
+      "imagePath": "Images/Panneaux/B12_25.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-light-data.js:4220",
+        "docs/exam-image-inventory.json:4178",
+        "Poids_Leger.html:4404"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-001",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:26",
+        "docs/exam-image-inventory.json:4192",
+        "Poids_Lourd.html:366"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-002",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:37",
+        "docs/exam-image-inventory.json:4206",
+        "Poids_Lourd.html:373"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-003",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:48",
+        "docs/exam-image-inventory.json:4220",
+        "Poids_Lourd.html:380"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-004",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:59",
+        "docs/exam-image-inventory.json:4234",
+        "Poids_Lourd.html:387"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-005",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:70",
+        "docs/exam-image-inventory.json:4248",
+        "Poids_Lourd.html:394"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-006",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:81",
+        "docs/exam-image-inventory.json:4262",
+        "Poids_Lourd.html:401"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-007",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:92",
+        "docs/exam-image-inventory.json:4276",
+        "Poids_Lourd.html:408"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-008",
+      "series": "C1",
+      "imagePath": "Images/Panneaux/C1_8.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:103",
+        "docs/exam-image-inventory.json:4290",
+        "Poids_Lourd.html:415"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-009",
+      "series": "C1",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-010",
+      "series": "C1",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-011",
+      "series": "C2",
+      "imagePath": "Images/Panneaux/C2_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:156",
+        "docs/exam-image-inventory.json:4324",
+        "Poids_Lourd.html:448"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-012",
+      "series": "C2",
+      "imagePath": "Images/Panneaux/C2_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:167",
+        "docs/exam-image-inventory.json:4338",
+        "Poids_Lourd.html:455"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-013",
+      "series": "C2",
+      "imagePath": "Images/Panneaux/C2_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:186",
+        "docs/exam-image-inventory.json:4352",
+        "Poids_Lourd.html:470"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-014",
+      "series": "C2",
+      "imagePath": "Images/Panneaux/C2_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:197",
+        "docs/exam-image-inventory.json:4366",
+        "Poids_Lourd.html:477"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-015",
+      "series": "C2",
+      "imagePath": "Images/Panneaux/C2_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:208",
+        "docs/exam-image-inventory.json:4380",
+        "Poids_Lourd.html:484"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-016",
+      "series": "C2",
+      "imagePath": "Images/Panneaux/C2_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:219",
+        "docs/exam-image-inventory.json:4394",
+        "Poids_Lourd.html:491"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-017",
+      "series": "C2",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-018",
+      "series": "C2",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-019",
+      "series": "C2",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-020",
+      "series": "C2",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-021",
+      "series": "C3",
+      "imagePath": "Images/Panneaux/C3_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:302",
+        "docs/exam-image-inventory.json:4448",
+        "Poids_Lourd.html:546"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-022",
+      "series": "C3",
+      "imagePath": "Images/Panneaux/C3_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:313",
+        "docs/exam-image-inventory.json:4462",
+        "Poids_Lourd.html:553"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-023",
+      "series": "C3",
+      "imagePath": "Images/Panneaux/C3_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:324",
+        "docs/exam-image-inventory.json:4476",
+        "Poids_Lourd.html:560"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-024",
+      "series": "C3",
+      "imagePath": "Images/Panneaux/C3_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:335",
+        "docs/exam-image-inventory.json:4490",
+        "Poids_Lourd.html:567"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-025",
+      "series": "C3",
+      "imagePath": "Images/Panneaux/C3_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:354",
+        "docs/exam-image-inventory.json:4504",
+        "Poids_Lourd.html:582"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-026",
+      "series": "C3",
+      "imagePath": "Images/Panneaux/C3_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:369",
+        "docs/exam-image-inventory.json:4518",
+        "Poids_Lourd.html:593"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-027",
+      "series": "C3",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-028",
+      "series": "C3",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-029",
+      "series": "C3",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-030",
+      "series": "C3",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-031",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:461",
+        "docs/exam-image-inventory.json:4572",
+        "Poids_Lourd.html:653"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-032",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:472",
+        "docs/exam-image-inventory.json:4586",
+        "Poids_Lourd.html:660"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-033",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:483",
+        "docs/exam-image-inventory.json:4600",
+        "Poids_Lourd.html:667"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-034",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:494",
+        "docs/exam-image-inventory.json:4614",
+        "Poids_Lourd.html:674"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-035",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:505",
+        "docs/exam-image-inventory.json:4628",
+        "Poids_Lourd.html:681"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-036",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:516",
+        "docs/exam-image-inventory.json:4642",
+        "Poids_Lourd.html:688"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-037",
+      "series": "C4",
+      "imagePath": "Images/Panneaux/C4_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:527",
+        "docs/exam-image-inventory.json:4656",
+        "Poids_Lourd.html:695"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-038",
+      "series": "C4",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-039",
+      "series": "C4",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-040",
+      "series": "C4",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-041",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_5.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:599",
+        "docs/exam-image-inventory.json:4700",
+        "Poids_Lourd.html:743"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-042",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_1.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:610",
+        "docs/exam-image-inventory.json:4714",
+        "Poids_Lourd.html:750"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-043",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_2.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:621",
+        "docs/exam-image-inventory.json:4728",
+        "Poids_Lourd.html:757"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-044",
+      "series": "C5",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-045",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_3.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:647",
+        "docs/exam-image-inventory.json:4752",
+        "Poids_Lourd.html:775"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-046",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_4.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:658",
+        "docs/exam-image-inventory.json:4766",
+        "Poids_Lourd.html:782"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-047",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_7.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:669",
+        "docs/exam-image-inventory.json:4780",
+        "Poids_Lourd.html:789"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-048",
+      "series": "C5",
+      "imagePath": "Images/Panneaux/C5_6.jpeg",
+      "fileExists": true,
+      "usageCount": 1,
+      "references": [
+        "assets/js/data/exam-heavy-data.js:680",
+        "docs/exam-image-inventory.json:4794",
+        "Poids_Lourd.html:796"
+      ],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-049",
+      "series": "C5",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    },
+    {
+      "examId": "heavy",
+      "questionId": "PLD-050",
+      "series": "C5",
+      "imagePath": "",
+      "fileExists": false,
+      "usageCount": 0,
+      "references": [],
+      "reviewStatus": "À vérifier"
+    }
+  ],
+  "unusedImages": [
+    "Images/Arret/Arrêt et stationnement interdis.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement de durée limitée avec contrôle par disque.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement de durée limitée à 1h30 avec contrôle par disque.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement interdit.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement payant.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée par disque.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée à 1h30, avec contrôle par disque.jpeg",
+    "Images/Arret/Entrée d'une zone à stationnement unilatéral à alternance semi-mensuelle.jpeg",
+    "Images/Arret/Sortie d'une zone à stationnement de durée limitée avec contrôle par disque.jpeg",
+    "Images/Arret/Sortie d'une zone à stationnement de durée limitée à 1h30 avec contrôle par disque.jpeg",
+    "Images/Arret/Sortie d'une zone à stationnement payant.jpeg",
+    "Images/Arret/Sortie d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée avec contrôle par disque.jpeg",
+    "Images/Arret/Sortie d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée à 1h30, avec contrôle par disque.jpeg",
+    "Images/Arret/Sortie d'une zone à stationnement unilatéral à alternance semi-mensuel.jpeg",
+    "Images/Arret/Sortie de zone à stationnement interdit.jpeg",
+    "Images/Arret/Stationnement interdit du 16 au dernier du mois.jpeg",
+    "Images/Arret/Stationnement interdit du 1er au 15 du mois.jpeg",
+    "Images/Arret/Stationnement interdit.jpeg",
+    "Images/Balise/Balise d'intersection.jpeg",
+    "Images/Balise/Balise d'obstacle.jpeg",
+    "Images/Balise/Balise de virage (explicative).jpeg",
+    "Images/Balise/Balise de virage (simple).jpeg",
+    "Images/Balise/Balise de virage à capuchon rouge.jpeg",
+    "Images/Balise/Délinéateur.jpeg",
+    "Images/Balise/Tête d'îlot directionnel à contournement par la droite.jpeg",
+    "Images/Indication/Aire piétonne.jpeg",
+    "Images/Indication/Arrêt autorisé sur trottoir – indications diverses.jpeg",
+    "Images/Indication/Arrêt d'autobus.jpeg",
+    "Images/Indication/Arrêt de tramway.jpeg",
+    "Images/Indication/Attention au feu – Risque d'incendie.jpeg",
+    "Images/Indication/Circulation à sens unique.jpeg",
+    "Images/Indication/Conditions particulières de circulation sur la route ou la voie transversale.jpeg",
+    "Images/Indication/Créneau de dépassement à 3 voies affectées.jpeg",
+    "Images/Indication/Emplacement d'arrêt d'urgence.jpeg",
+    "Images/Indication/Entrée d'autoroute.jpeg",
+    "Images/Indication/Entrée d'un tunnel (règles spécifiques).jpeg",
+    "Images/Indication/Entrée d'une zone de rencontre.jpeg",
+    "Images/Indication/Fin d'aire piétonne.jpeg",
+    "Images/Indication/Fin d'un créneau de dépassement à 3 voies affectées.jpeg",
+    "Images/Indication/Fin d'une piste ou bande cyclable conseillée.jpeg",
+    "Images/Indication/Fin de route à accès réglementé.jpeg",
+    "Images/Indication/Fin de vitesse conseillée.jpeg",
+    "Images/Indication/Fin de voie verte.jpeg",
+    "Images/Indication/Impasse avec issue pour piétons et cyclistes.jpeg",
+    "Images/Indication/Impasse avec issue pour piétons.jpeg",
+    "Images/Indication/Impasse.jpeg",
+    "Images/Indication/La voie de circulation en sens inverse est réservée aux autobus.jpeg",
+    "Images/Indication/La voie de droite est réservée aux usagers qui tournent à droite.jpeg",
+    "Images/Indication/Lieu aménagé pour le stationnement gratuit limité (disque).jpeg",
+    "Images/Indication/Lieu aménagé pour le stationnement gratuit limité à 1h30 (disque).jpeg",
+    "Images/Indication/Lieu aménagé pour le stationnement payant.jpeg",
+    "Images/Indication/Lieu aménagé pour le stationnement.jpeg",
+    "Images/Indication/Paiement auprès d'un péagiste.jpeg",
+    "Images/Indication/Paiement automatique par carte bancaire ou accréditive.jpeg",
+    "Images/Indication/Paiement automatique par pièces et billets.jpeg",
+    "Images/Indication/Paiement par abonnement.jpeg",
+    "Images/Indication/Passage pour piétons.jpeg",
+    "Images/Indication/Piste ou bande cyclable conseillée et réservée aux cycles.jpeg",
+    "Images/Indication/Priorité par rapport à la circulation venant en sens inverse.jpeg",
+    "Images/Indication/Présignalisation d'un créneau de dépassement ou d'une section à chaussées séparées.jpeg",
+    "Images/Indication/Présignalisation d'une gare de péage (2000 m).jpeg",
+    "Images/Indication/Présignalisation d'une impasse.jpeg",
+    "Images/Indication/Présignalisation de la praticabilité d'une section de route.jpeg",
+    "Images/Indication/Présignalisation du paiement du péage (1000 m).jpeg",
+    "Images/Indication/Rappel des limites de vitesse sur autoroute.jpeg",
+    "Images/Indication/Route à accès réglementé.jpeg",
+    "Images/Indication/Réduction du nombre de voies sur une route à chaussées séparées.jpeg",
+    "Images/Indication/Section de route à 3 voies affectées.jpeg",
+    "Images/Indication/Section à péage dans 1500 m.jpeg",
+    "Images/Indication/Sortie d'autoroute.jpeg",
+    "Images/Indication/Sortie d'une zone de rencontre.jpeg",
+    "Images/Indication/Sortie de tunnel.jpeg",
+    "Images/Indication/Station d'autopartage.jpeg",
+    "Images/Indication/Station de taxis.jpeg",
+    "Images/Indication/Stationnement règlementé pour les caravanes et autocaravanes.jpeg",
+    "Images/Indication/Surélévation de la chaussée (ralentisseur).jpeg",
+    "Images/Indication/Traversée de tramways.jpeg",
+    "Images/Indication/Vitesse conseillée.jpeg",
+    "Images/Indication/Voie de détresse à droite.jpeg",
+    "Images/Indication/Voie verte.jpeg",
+    "Images/obligation/Chaînes à neige obligatoire sur au moins 2 roues motrices.jpeg",
+    "Images/obligation/Chemin obligatoire pour cavaliers.jpeg",
+    "Images/obligation/Chemin obligatoire pour piétons.jpeg",
+    "Images/obligation/Contournement obligatoire par la droite.jpeg",
+    "Images/obligation/Contournement obligatoire par la gauche.jpeg",
+    "Images/obligation/Direction obligatoire à la prochaine intersection tout droit.jpeg",
+    "Images/obligation/Fin d'allumage des feux.jpeg",
+    "Images/obligation/Fin d'obligation de l'usage des chaînes à neige.jpeg",
+    "Images/obligation/Fin de chemin obligatoire pour piétons.jpeg",
+    "Images/obligation/Fin de piste ou bande obligatoire pour les cycles (vélos) sans side-car ou remorque.jpeg",
+    "Images/obligation/Fin de vitesse conseillée.jpeg",
+    "Images/obligation/Fin de vitesse minimale obligatoire.jpeg",
+    "Images/obligation/Fin de voie réservée au tramways.jpeg",
+    "Images/obligation/Fin de voie réservée au véhicules des services réguliers de transport en commun (autobus...).jpeg",
+    "Images/obligation/Obligation de tourner à droite avant le panneau.jpeg",
+    "Images/obligation/Obligation de tourner à gauche avant le panneau.jpeg",
+    "Images/obligation/Obligation dont la nature est mentionnée par une inscription sur le panneau.jpeg",
+    "Images/obligation/obligation_16.jpeg",
+    "Images/obligation/obligation_6.jpeg",
+    "Images/obligation/obligation_7.jpeg",
+    "Images/obligation/obligation_8.jpeg",
+    "Images/obligation/obligation_9.jpeg",
+    "Images/obligation/Piste ou bande obligatoire pour les cycles (vélos) sans side-car ou remorque.jpeg",
+    "Images/obligation/Vitesse conseillée.jpeg",
+    "Images/obligation/Vitesse minimale obligatoire.jpeg",
+    "Images/obligation/Voie réservée au tramways.jpeg",
+    "Images/obligation/Voie réservée au véhicule des services réguliers de transport en commun (autobus...).jpeg",
+    "Images/obligation/WhatsApp Image 2026-01-03 at 21.35.00 (1).jpeg",
+    "Images/Panneaux/B11_16.jpeg",
+    "Images/Panneaux/B1_22.jpeg",
+    "Images/Panneaux/B2_23.jpeg",
+    "Images/Panneaux/B2_24.jpeg",
+    "Images/Panneaux/B2_25.jpeg",
+    "Images/Panneaux/B7_23.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux cyclistes.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux cyclomoteurs.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux motocyclettes et motocyclettes légères.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux piétons.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux voitures à bras.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules agricoles à moteur.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules de transport en commun de personnes.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules dont la hauteur, chargement compris, est supérieure à 3,5 mètres.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules dont la largeur, chargement compris, est supérieure à 3,5 mètres.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules dont la longueur est supérieure à 10 mètres.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules dont le poids total autorisé en charge ou le poids total roulant autorisé excède 5,5 tonnes.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules pesant plus de 3 tonnes sur un essieu.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules tractant une caravane ou une remorque de plus de 250 kg.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules transportant des marchandises dangereuses.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules transportant des marchandises explosives ou facilement inflammables.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules transportant des marchandises susceptibles de polluer les eaux.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules à moteur à l'exception des cyclomoteurs.jpeg",
+    "Images/Panneaux_Rond/Accès interdit aux véhicules à traction animale.jpeg",
+    "Images/Panneaux_Rond/Accès interdit à tous les véhicules à moteur.jpeg",
+    "Images/Panneaux_Rond/Arrêt au poste de douane.jpeg",
+    "Images/Panneaux_Rond/Arrêt au poste de gendarmerie.jpeg",
+    "Images/Panneaux_Rond/Arrêt au poste de police.jpeg",
+    "Images/Panneaux_Rond/Arrêt au poste de péage.jpeg",
+    "Images/Panneaux_Rond/Autres interdictions dont la nature est indiquée par une inscription sur le panneau.jpeg",
+    "Images/Panneaux_Rond/Circulation interdite à tout véhicule dans les deux sens.jpeg",
+    "Images/Panneaux_Rond/Cédez le passage à la circulation venant en sens inverse.jpeg",
+    "Images/Panneaux_Rond/Entrée d'une zone à vitesse limitée à 30 .jpeg",
+    "Images/Panneaux_Rond/Fin d'interdiction aux poids lourds de dépasser les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg",
+    "Images/Panneaux_Rond/Fin d'interdiction aux poids lourds de dépasser les véhicules à moteur autres que ceux à deux roues sans side-carr.jpeg",
+    "Images/Panneaux_Rond/Fin d'interdiction de dépasser les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg",
+    "Images/Panneaux_Rond/Fin d'interdiction de l'usage de l'avertisseur sonore.jpeg",
+    "Images/Panneaux_Rond/Fin d'interdiction de stationner.jpeg",
+    "Images/Panneaux_Rond/Fin de limitation de vitesse .jpeg",
+    "Images/Panneaux_Rond/Fin de toutes les interdictions précédemment signalées, imposées aux véhicules en mouvement.jpeg",
+    "Images/Panneaux_Rond/Interdiction aux poids lourds de dépasser tous les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg",
+    "Images/Panneaux_Rond/Interdiction aux véhicules de circuler sans maintenir entre eux un intervalle au moins égal à 70 mètres.jpeg",
+    "Images/Panneaux_Rond/Interdiction de dépasser tous les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg",
+    "Images/Panneaux_Rond/Interdiction de faire demi-tour sur la route suivie jusqu'à la prochaine intersection incluse.jpeg",
+    "Images/Panneaux_Rond/Interdiction de tourner à droite à la prochaine intersection.jpeg",
+    "Images/Panneaux_Rond/Interdiction de tourner à gauche à la prochaine intersection.jpeg",
+    "Images/Panneaux_Rond/Limitation de vitesse .jpeg",
+    "Images/Panneaux_Rond/Sens interdit à tout véhicule.jpeg",
+    "Images/Panneaux_Rond/Signaux sonores interdits.jpeg",
+    "Images/Panneaux_Rond/Sortie d'une zone à vitesse limitée à 30 .jpeg",
+    "Images/Panneaux_temporaires/Accident.jpeg",
+    "Images/Panneaux_temporaires/Annonce de feux tricolores.jpeg",
+    "Images/Panneaux_temporaires/Barrage.jpeg",
+    "Images/Panneaux_temporaires/Bouchon.jpeg",
+    "Images/Panneaux_temporaires/Cassis ou dos-d'âne.jpeg",
+    "Images/Panneaux_temporaires/Changement de chaussée.jpeg",
+    "Images/Panneaux_temporaires/Chaussée glissante.jpeg",
+    "Images/Panneaux_temporaires/Chaussée rétrécie.jpeg",
+    "Images/Panneaux_temporaires/Danger non précisé.jpeg",
+    "Images/Panneaux_temporaires/Déviation (tourner à droite).jpeg",
+    "Images/Panneaux_temporaires/Déviation générique (500 m).jpeg",
+    "Images/Panneaux_temporaires/Déviation multiple ('Dév. 2').jpeg",
+    "Images/Panneaux_temporaires/Déviation multiple.jpeg",
+    "Images/Panneaux_temporaires/Déviation poids lourds 12 t.jpeg",
+    "Images/Panneaux_temporaires/Feux d'alternat temporaire.jpeg",
+    "Images/Panneaux_temporaires/Nappes de brouillard fumées épaisses.jpeg",
+    "Images/Panneaux_temporaires/pluie verglaçante.jpeg",
+    "Images/Panneaux_temporaires/Projection de gravillons.jpeg",
+    "Images/Panneaux_temporaires/Présence proche de piétons.jpeg",
+    "Images/Panneaux_temporaires/Route barrée à 300 m.jpeg",
+    "Images/Panneaux_temporaires/Réduction d'une voie.jpeg",
+    "Images/Panneaux_temporaires/Réduction de plusieurs voies.jpeg",
+    "Images/Panneaux_temporaires/Signal de position d'une déviation rétrécissement temporaire.jpeg",
+    "Images/Panneaux_temporaires/Signal manuel à double face (opérateur).jpeg",
+    "Images/Panneaux_temporaires/Travaux.jpeg",
+    "Images/Panneaux_temporaires/WhatsApp Image 2026-01-04 at 01.03.16 (1).jpeg",
+    "Images/Panneaux_temporaires/WhatsApp Image 2026-01-04 at 01.03.16 (2).jpeg",
+    "Images/Panneaux_Triangulaire/Annonce de feux tricolores.jpeg",
+    "Images/Panneaux_Triangulaire/Carrefour à sens giratoire.jpeg",
+    "Images/Panneaux_Triangulaire/Cassis ou dos-d'âne.jpeg",
+    "Images/Panneaux_Triangulaire/Chaussée particulièrement glissante.jpeg",
+    "Images/Panneaux_Triangulaire/Chaussée rétrécie par la droite.jpeg",
+    "Images/Panneaux_Triangulaire/Chaussée rétrécie par la gauche.jpeg",
+    "Images/Panneaux_Triangulaire/Chaussée rétrécie.jpeg",
+    "Images/Panneaux_Triangulaire/Circulation dans les deux sens.jpeg",
+    "Images/Panneaux_Triangulaire/Danger non précisé.jpeg",
+    "Images/Panneaux_Triangulaire/Descente dangereuse.jpeg",
+    "Images/Panneaux_Triangulaire/Débouché de cyclistes venant de droite.jpeg",
+    "Images/Panneaux_Triangulaire/Débouché de cyclistes venant de gauche.jpeg",
+    "Images/Panneaux_Triangulaire/Débouché sur un quai ou une berge.jpeg",
+    "Images/Panneaux_Triangulaire/Endroit fréquenté par les enfants.jpeg",
+    "Images/Panneaux_Triangulaire/Manche à l'aire.jpeg",
+    "Images/Panneaux_Triangulaire/Passage d'animaux domestiques.jpeg",
+    "Images/Panneaux_Triangulaire/Passage d'animaux sauvages.jpeg",
+    "Images/Panneaux_Triangulaire/Passage de cavaliers.jpeg",
+    "Images/Panneaux_Triangulaire/Passage pour piéton a 30m.jpeg",
+    "Images/Panneaux_Triangulaire/Passage pour piéton.jpeg",
+    "Images/Panneaux_Triangulaire/Passage à niveau avec barrière ou demi barrière en fonctionnement automatique.jpeg",
+    "Images/Panneaux_Triangulaire/Passage à niveau avec barrière ou demi barrière en fonctionnement manuel.jpeg",
+    "Images/Panneaux_Triangulaire/Passage à niveau sans barrière avec feu clignotant.jpeg",
+    "Images/Panneaux_Triangulaire/Passage à niveau sans barrière stop à 150m.jpeg",
+    "Images/Panneaux_Triangulaire/Passage à niveau sans barrière.jpeg",
+    "Images/Panneaux_Triangulaire/Pont mobile.jpeg",
+    "Images/Panneaux_Triangulaire/Ralentisseur de types dos-d'âne.jpeg",
+    "Images/Panneaux_Triangulaire/Risque de chute de pierre ou de présence sur la route de pierres tombées.jpeg",
+    "Images/Panneaux_Triangulaire/Succession de virages dont le premier est à droite.jpeg",
+    "Images/Panneaux_Triangulaire/Succession de virages dont le premier est à gauche.jpeg",
+    "Images/Panneaux_Triangulaire/Traversée d'une aire de danger aérien.jpeg",
+    "Images/Panneaux_Triangulaire/Traversée de voies de tramways.jpeg",
+    "Images/Panneaux_Triangulaire/Vent latéral.jpeg",
+    "Images/Panneaux_Triangulaire/Virage à droite.jpeg",
+    "Images/Panneaux_Triangulaire/Virage à gauche.jpeg",
+    "Images/Passageaniveau/Balises d'annonce d'un passage à niveau.jpeg",
+    "Images/Passageaniveau/La voie ferrée que je vais traverser sera électrifiée.jpeg",
+    "Images/Passageaniveau/Passage à niveau muni de barrières à fonctionnement manuel.jpeg",
+    "Images/Passageaniveau/Passage à niveau muni de demi-barrières à fonctionnement automatique.jpeg",
+    "Images/Passageaniveau/Passage à niveau sans barrières ni demi-barrières.jpeg",
+    "Images/Passageaniveau/Portique HAUTE TENSION DANGER.jpeg",
+    "Images/Passageaniveau/Signalisation de position (1 voie, avec signalisation automatique lumineuse et sonore).jpeg",
+    "Images/Passageaniveau/Signalisation de position (1 voie, sans barrières).jpeg",
+    "Images/Passageaniveau/Signalisation de position (plusieurs voies, sans barrières).jpeg",
+    "Images/Passageaniveau/UN TRAIN PEUT EN CACHER UN AUTRE – fonctionnement automatique.jpeg",
+    "Images/Propriete/Annonce d'un cédez le passage à 150m.jpeg",
+    "Images/Propriete/Annonce d'un stop.jpeg",
+    "Images/Propriete/Carrefour à sens giratoire.jpeg",
+    "Images/Propriete/Cédez le passage à l'intersection. Signal position.jpeg",
+    "Images/Propriete/Fin du caractère prioritaire d'une route.jpeg",
+    "Images/Propriete/Indication du caractère prioritaire d'une route.jpeg",
+    "Images/Propriete/Intersection avec une route dont les usagers doivent me céder le passage.jpeg",
+    "Images/Propriete/Intersection où je suis tenue de céder le passage aux véhicules de droite.jpeg",
+    "Images/Propriete/Pannonceau schéma.jpeg",
+    "Images/Propriete/Stop. Signal de position.jpeg",
+    "Images/Test/T1_1.jpeg",
+    "Images/Test/T1_10.jpeg",
+    "Images/Test/T1_2.jpeg",
+    "Images/Test/T1_3.jpeg",
+    "Images/Test/T1_4.jpeg",
+    "Images/Test/T1_5.jpeg",
+    "Images/Test/T1_6.jpeg",
+    "Images/Test/T1_7.jpeg",
+    "Images/Test/T1_8.jpeg",
+    "Images/Test/T1_9.jpeg",
+    "Images/Test/T2_1.jpeg",
+    "Images/Test/T2_10.jpeg",
+    "Images/Test/T2_2.jpeg",
+    "Images/Test/T2_3.jpeg",
+    "Images/Test/T2_4.jpeg",
+    "Images/Test/T2_5.jpeg",
+    "Images/Test/T2_6.jpeg",
+    "Images/Test/T2_7.jpeg",
+    "Images/Test/T2_8.jpeg",
+    "Images/Test/T2_9.jpeg",
+    "Images/Test/T3_1.jpeg",
+    "Images/Test/T3_10.jpeg",
+    "Images/Test/T3_2.jpeg",
+    "Images/Test/T3_3.jpeg",
+    "Images/Test/T3_4.jpeg",
+    "Images/Test/T3_5.jpeg",
+    "Images/Test/T3_6.jpeg",
+    "Images/Test/T3_7.jpeg",
+    "Images/Test/T3_8.jpeg",
+    "Images/Test/T3_9.jpeg"
+  ]
+}

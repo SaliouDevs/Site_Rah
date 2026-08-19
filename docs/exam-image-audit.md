@@ -1,0 +1,303 @@
+# Audit images examens
+
+Aucune image n a ete supprimee. Convention proposee pour les corrections futures:
+- Images/exams/poids-leger/pl-001.*
+- Images/exams/poids-lourd/pld-001.*
+
+## EXAMEN POIDS LEGER
+- questions: 300
+- images: 280
+- images manquantes: 3
+- doublons eventuels: 5
+
+- PL-025: Images/Panneaux/B1_25.jpeg
+- PL-050: Images/Panneaux/B1_25.jpeg
+- PL-187: Images/Panneaux/B8_12.jpeg
+
+- Images/Panneaux/B1_23.jpeg: PL-023, PL-048
+- Images/Panneaux/B1_24.jpeg: PL-024, PL-049
+- Images/Panneaux/B1_25.jpeg: PL-025, PL-050
+- Images/Panneaux/B7_24.jpeg: PL-173, PL-174
+- Images/Panneaux/B11_10.jpeg: PL-260, PL-266
+## EXAMEN POIDS LOURD
+- questions: 50
+- images: 34
+- images manquantes: 0
+- doublons eventuels: 0
+
+- aucune image manquante referencee
+
+- aucun doublon detecte
+
+## IMAGES NON REFERENCEES
+
+- Images/Arret/Arrêt et stationnement interdis.jpeg
+- Images/Arret/Entrée d'une zone à stationnement de durée limitée avec contrôle par disque.jpeg
+- Images/Arret/Entrée d'une zone à stationnement de durée limitée à 1h30 avec contrôle par disque.jpeg
+- Images/Arret/Entrée d'une zone à stationnement interdit.jpeg
+- Images/Arret/Entrée d'une zone à stationnement payant.jpeg
+- Images/Arret/Entrée d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée par disque.jpeg
+- Images/Arret/Entrée d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée à 1h30, avec contrôle par disque.jpeg
+- Images/Arret/Entrée d'une zone à stationnement unilatéral à alternance semi-mensuelle.jpeg
+- Images/Arret/Sortie d'une zone à stationnement de durée limitée avec contrôle par disque.jpeg
+- Images/Arret/Sortie d'une zone à stationnement de durée limitée à 1h30 avec contrôle par disque.jpeg
+- Images/Arret/Sortie d'une zone à stationnement payant.jpeg
+- Images/Arret/Sortie d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée avec contrôle par disque.jpeg
+- Images/Arret/Sortie d'une zone à stationnement unilatéral à alternance semi-mensuel et à durée limitée à 1h30, avec contrôle par disque.jpeg
+- Images/Arret/Sortie d'une zone à stationnement unilatéral à alternance semi-mensuel.jpeg
+- Images/Arret/Sortie de zone à stationnement interdit.jpeg
+- Images/Arret/Stationnement interdit du 16 au dernier du mois.jpeg
+- Images/Arret/Stationnement interdit du 1er au 15 du mois.jpeg
+- Images/Arret/Stationnement interdit.jpeg
+- Images/Balise/Balise d'intersection.jpeg
+- Images/Balise/Balise d'obstacle.jpeg
+- Images/Balise/Balise de virage (explicative).jpeg
+- Images/Balise/Balise de virage (simple).jpeg
+- Images/Balise/Balise de virage à capuchon rouge.jpeg
+- Images/Balise/Délinéateur.jpeg
+- Images/Balise/Tête d'îlot directionnel à contournement par la droite.jpeg
+- Images/Indication/Aire piétonne.jpeg
+- Images/Indication/Arrêt autorisé sur trottoir – indications diverses.jpeg
+- Images/Indication/Arrêt d'autobus.jpeg
+- Images/Indication/Arrêt de tramway.jpeg
+- Images/Indication/Attention au feu – Risque d'incendie.jpeg
+- Images/Indication/Circulation à sens unique.jpeg
+- Images/Indication/Conditions particulières de circulation sur la route ou la voie transversale.jpeg
+- Images/Indication/Créneau de dépassement à 3 voies affectées.jpeg
+- Images/Indication/Emplacement d'arrêt d'urgence.jpeg
+- Images/Indication/Entrée d'autoroute.jpeg
+- Images/Indication/Entrée d'un tunnel (règles spécifiques).jpeg
+- Images/Indication/Entrée d'une zone de rencontre.jpeg
+- Images/Indication/Fin d'aire piétonne.jpeg
+- Images/Indication/Fin d'un créneau de dépassement à 3 voies affectées.jpeg
+- Images/Indication/Fin d'une piste ou bande cyclable conseillée.jpeg
+- Images/Indication/Fin de route à accès réglementé.jpeg
+- Images/Indication/Fin de vitesse conseillée.jpeg
+- Images/Indication/Fin de voie verte.jpeg
+- Images/Indication/Impasse avec issue pour piétons et cyclistes.jpeg
+- Images/Indication/Impasse avec issue pour piétons.jpeg
+- Images/Indication/Impasse.jpeg
+- Images/Indication/La voie de circulation en sens inverse est réservée aux autobus.jpeg
+- Images/Indication/La voie de droite est réservée aux usagers qui tournent à droite.jpeg
+- Images/Indication/Lieu aménagé pour le stationnement gratuit limité (disque).jpeg
+- Images/Indication/Lieu aménagé pour le stationnement gratuit limité à 1h30 (disque).jpeg
+- Images/Indication/Lieu aménagé pour le stationnement payant.jpeg
+- Images/Indication/Lieu aménagé pour le stationnement.jpeg
+- Images/Indication/Paiement auprès d'un péagiste.jpeg
+- Images/Indication/Paiement automatique par carte bancaire ou accréditive.jpeg
+- Images/Indication/Paiement automatique par pièces et billets.jpeg
+- Images/Indication/Paiement par abonnement.jpeg
+- Images/Indication/Passage pour piétons.jpeg
+- Images/Indication/Piste ou bande cyclable conseillée et réservée aux cycles.jpeg
+- Images/Indication/Priorité par rapport à la circulation venant en sens inverse.jpeg
+- Images/Indication/Présignalisation d'un créneau de dépassement ou d'une section à chaussées séparées.jpeg
+- Images/Indication/Présignalisation d'une gare de péage (2000 m).jpeg
+- Images/Indication/Présignalisation d'une impasse.jpeg
+- Images/Indication/Présignalisation de la praticabilité d'une section de route.jpeg
+- Images/Indication/Présignalisation du paiement du péage (1000 m).jpeg
+- Images/Indication/Rappel des limites de vitesse sur autoroute.jpeg
+- Images/Indication/Route à accès réglementé.jpeg
+- Images/Indication/Réduction du nombre de voies sur une route à chaussées séparées.jpeg
+- Images/Indication/Section de route à 3 voies affectées.jpeg
+- Images/Indication/Section à péage dans 1500 m.jpeg
+- Images/Indication/Sortie d'autoroute.jpeg
+- Images/Indication/Sortie d'une zone de rencontre.jpeg
+- Images/Indication/Sortie de tunnel.jpeg
+- Images/Indication/Station d'autopartage.jpeg
+- Images/Indication/Station de taxis.jpeg
+- Images/Indication/Stationnement règlementé pour les caravanes et autocaravanes.jpeg
+- Images/Indication/Surélévation de la chaussée (ralentisseur).jpeg
+- Images/Indication/Traversée de tramways.jpeg
+- Images/Indication/Vitesse conseillée.jpeg
+- Images/Indication/Voie de détresse à droite.jpeg
+- Images/Indication/Voie verte.jpeg
+- Images/obligation/Chaînes à neige obligatoire sur au moins 2 roues motrices.jpeg
+- Images/obligation/Chemin obligatoire pour cavaliers.jpeg
+- Images/obligation/Chemin obligatoire pour piétons.jpeg
+- Images/obligation/Contournement obligatoire par la droite.jpeg
+- Images/obligation/Contournement obligatoire par la gauche.jpeg
+- Images/obligation/Direction obligatoire à la prochaine intersection tout droit.jpeg
+- Images/obligation/Fin d'allumage des feux.jpeg
+- Images/obligation/Fin d'obligation de l'usage des chaînes à neige.jpeg
+- Images/obligation/Fin de chemin obligatoire pour piétons.jpeg
+- Images/obligation/Fin de piste ou bande obligatoire pour les cycles (vélos) sans side-car ou remorque.jpeg
+- Images/obligation/Fin de vitesse conseillée.jpeg
+- Images/obligation/Fin de vitesse minimale obligatoire.jpeg
+- Images/obligation/Fin de voie réservée au tramways.jpeg
+- Images/obligation/Fin de voie réservée au véhicules des services réguliers de transport en commun (autobus...).jpeg
+- Images/obligation/Obligation de tourner à droite avant le panneau.jpeg
+- Images/obligation/Obligation de tourner à gauche avant le panneau.jpeg
+- Images/obligation/Obligation dont la nature est mentionnée par une inscription sur le panneau.jpeg
+- Images/obligation/obligation_16.jpeg
+- Images/obligation/obligation_6.jpeg
+- Images/obligation/obligation_7.jpeg
+- Images/obligation/obligation_8.jpeg
+- Images/obligation/obligation_9.jpeg
+- Images/obligation/Piste ou bande obligatoire pour les cycles (vélos) sans side-car ou remorque.jpeg
+- Images/obligation/Vitesse conseillée.jpeg
+- Images/obligation/Vitesse minimale obligatoire.jpeg
+- Images/obligation/Voie réservée au tramways.jpeg
+- Images/obligation/Voie réservée au véhicule des services réguliers de transport en commun (autobus...).jpeg
+- Images/obligation/WhatsApp Image 2026-01-03 at 21.35.00 (1).jpeg
+- Images/Panneaux/B11_16.jpeg
+- Images/Panneaux/B1_22.jpeg
+- Images/Panneaux/B2_23.jpeg
+- Images/Panneaux/B2_24.jpeg
+- Images/Panneaux/B2_25.jpeg
+- Images/Panneaux/B7_23.jpeg
+- Images/Panneaux_Rond/Accès interdit aux cyclistes.jpeg
+- Images/Panneaux_Rond/Accès interdit aux cyclomoteurs.jpeg
+- Images/Panneaux_Rond/Accès interdit aux motocyclettes et motocyclettes légères.jpeg
+- Images/Panneaux_Rond/Accès interdit aux piétons.jpeg
+- Images/Panneaux_Rond/Accès interdit aux voitures à bras.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules agricoles à moteur.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules de transport en commun de personnes.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules dont la hauteur, chargement compris, est supérieure à 3,5 mètres.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules dont la largeur, chargement compris, est supérieure à 3,5 mètres.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules dont la longueur est supérieure à 10 mètres.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules dont le poids total autorisé en charge ou le poids total roulant autorisé excède 5,5 tonnes.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules pesant plus de 3 tonnes sur un essieu.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules tractant une caravane ou une remorque de plus de 250 kg.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules transportant des marchandises dangereuses.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules transportant des marchandises explosives ou facilement inflammables.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules transportant des marchandises susceptibles de polluer les eaux.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules à moteur à l'exception des cyclomoteurs.jpeg
+- Images/Panneaux_Rond/Accès interdit aux véhicules à traction animale.jpeg
+- Images/Panneaux_Rond/Accès interdit à tous les véhicules à moteur.jpeg
+- Images/Panneaux_Rond/Arrêt au poste de douane.jpeg
+- Images/Panneaux_Rond/Arrêt au poste de gendarmerie.jpeg
+- Images/Panneaux_Rond/Arrêt au poste de police.jpeg
+- Images/Panneaux_Rond/Arrêt au poste de péage.jpeg
+- Images/Panneaux_Rond/Autres interdictions dont la nature est indiquée par une inscription sur le panneau.jpeg
+- Images/Panneaux_Rond/Circulation interdite à tout véhicule dans les deux sens.jpeg
+- Images/Panneaux_Rond/Cédez le passage à la circulation venant en sens inverse.jpeg
+- Images/Panneaux_Rond/Entrée d'une zone à vitesse limitée à 30 .jpeg
+- Images/Panneaux_Rond/Fin d'interdiction aux poids lourds de dépasser les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg
+- Images/Panneaux_Rond/Fin d'interdiction aux poids lourds de dépasser les véhicules à moteur autres que ceux à deux roues sans side-carr.jpeg
+- Images/Panneaux_Rond/Fin d'interdiction de dépasser les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg
+- Images/Panneaux_Rond/Fin d'interdiction de l'usage de l'avertisseur sonore.jpeg
+- Images/Panneaux_Rond/Fin d'interdiction de stationner.jpeg
+- Images/Panneaux_Rond/Fin de limitation de vitesse .jpeg
+- Images/Panneaux_Rond/Fin de toutes les interdictions précédemment signalées, imposées aux véhicules en mouvement.jpeg
+- Images/Panneaux_Rond/Interdiction aux poids lourds de dépasser tous les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg
+- Images/Panneaux_Rond/Interdiction aux véhicules de circuler sans maintenir entre eux un intervalle au moins égal à 70 mètres.jpeg
+- Images/Panneaux_Rond/Interdiction de dépasser tous les véhicules à moteur autres que ceux à deux roues sans side-car.jpeg
+- Images/Panneaux_Rond/Interdiction de faire demi-tour sur la route suivie jusqu'à la prochaine intersection incluse.jpeg
+- Images/Panneaux_Rond/Interdiction de tourner à droite à la prochaine intersection.jpeg
+- Images/Panneaux_Rond/Interdiction de tourner à gauche à la prochaine intersection.jpeg
+- Images/Panneaux_Rond/Limitation de vitesse .jpeg
+- Images/Panneaux_Rond/Sens interdit à tout véhicule.jpeg
+- Images/Panneaux_Rond/Signaux sonores interdits.jpeg
+- Images/Panneaux_Rond/Sortie d'une zone à vitesse limitée à 30 .jpeg
+- Images/Panneaux_temporaires/Accident.jpeg
+- Images/Panneaux_temporaires/Annonce de feux tricolores.jpeg
+- Images/Panneaux_temporaires/Barrage.jpeg
+- Images/Panneaux_temporaires/Bouchon.jpeg
+- Images/Panneaux_temporaires/Cassis ou dos-d'âne.jpeg
+- Images/Panneaux_temporaires/Changement de chaussée.jpeg
+- Images/Panneaux_temporaires/Chaussée glissante.jpeg
+- Images/Panneaux_temporaires/Chaussée rétrécie.jpeg
+- Images/Panneaux_temporaires/Danger non précisé.jpeg
+- Images/Panneaux_temporaires/Déviation (tourner à droite).jpeg
+- Images/Panneaux_temporaires/Déviation générique (500 m).jpeg
+- Images/Panneaux_temporaires/Déviation multiple ('Dév. 2').jpeg
+- Images/Panneaux_temporaires/Déviation multiple.jpeg
+- Images/Panneaux_temporaires/Déviation poids lourds 12 t.jpeg
+- Images/Panneaux_temporaires/Feux d'alternat temporaire.jpeg
+- Images/Panneaux_temporaires/Nappes de brouillard fumées épaisses.jpeg
+- Images/Panneaux_temporaires/pluie verglaçante.jpeg
+- Images/Panneaux_temporaires/Projection de gravillons.jpeg
+- Images/Panneaux_temporaires/Présence proche de piétons.jpeg
+- Images/Panneaux_temporaires/Route barrée à 300 m.jpeg
+- Images/Panneaux_temporaires/Réduction d'une voie.jpeg
+- Images/Panneaux_temporaires/Réduction de plusieurs voies.jpeg
+- Images/Panneaux_temporaires/Signal de position d'une déviation rétrécissement temporaire.jpeg
+- Images/Panneaux_temporaires/Signal manuel à double face (opérateur).jpeg
+- Images/Panneaux_temporaires/Travaux.jpeg
+- Images/Panneaux_temporaires/WhatsApp Image 2026-01-04 at 01.03.16 (1).jpeg
+- Images/Panneaux_temporaires/WhatsApp Image 2026-01-04 at 01.03.16 (2).jpeg
+- Images/Panneaux_Triangulaire/Annonce de feux tricolores.jpeg
+- Images/Panneaux_Triangulaire/Carrefour à sens giratoire.jpeg
+- Images/Panneaux_Triangulaire/Cassis ou dos-d'âne.jpeg
+- Images/Panneaux_Triangulaire/Chaussée particulièrement glissante.jpeg
+- Images/Panneaux_Triangulaire/Chaussée rétrécie par la droite.jpeg
+- Images/Panneaux_Triangulaire/Chaussée rétrécie par la gauche.jpeg
+- Images/Panneaux_Triangulaire/Chaussée rétrécie.jpeg
+- Images/Panneaux_Triangulaire/Circulation dans les deux sens.jpeg
+- Images/Panneaux_Triangulaire/Danger non précisé.jpeg
+- Images/Panneaux_Triangulaire/Descente dangereuse.jpeg
+- Images/Panneaux_Triangulaire/Débouché de cyclistes venant de droite.jpeg
+- Images/Panneaux_Triangulaire/Débouché de cyclistes venant de gauche.jpeg
+- Images/Panneaux_Triangulaire/Débouché sur un quai ou une berge.jpeg
+- Images/Panneaux_Triangulaire/Endroit fréquenté par les enfants.jpeg
+- Images/Panneaux_Triangulaire/Manche à l'aire.jpeg
+- Images/Panneaux_Triangulaire/Passage d'animaux domestiques.jpeg
+- Images/Panneaux_Triangulaire/Passage d'animaux sauvages.jpeg
+- Images/Panneaux_Triangulaire/Passage de cavaliers.jpeg
+- Images/Panneaux_Triangulaire/Passage pour piéton a 30m.jpeg
+- Images/Panneaux_Triangulaire/Passage pour piéton.jpeg
+- Images/Panneaux_Triangulaire/Passage à niveau avec barrière ou demi barrière en fonctionnement automatique.jpeg
+- Images/Panneaux_Triangulaire/Passage à niveau avec barrière ou demi barrière en fonctionnement manuel.jpeg
+- Images/Panneaux_Triangulaire/Passage à niveau sans barrière avec feu clignotant.jpeg
+- Images/Panneaux_Triangulaire/Passage à niveau sans barrière stop à 150m.jpeg
+- Images/Panneaux_Triangulaire/Passage à niveau sans barrière.jpeg
+- Images/Panneaux_Triangulaire/Pont mobile.jpeg
+- Images/Panneaux_Triangulaire/Ralentisseur de types dos-d'âne.jpeg
+- Images/Panneaux_Triangulaire/Risque de chute de pierre ou de présence sur la route de pierres tombées.jpeg
+- Images/Panneaux_Triangulaire/Succession de virages dont le premier est à droite.jpeg
+- Images/Panneaux_Triangulaire/Succession de virages dont le premier est à gauche.jpeg
+- Images/Panneaux_Triangulaire/Traversée d'une aire de danger aérien.jpeg
+- Images/Panneaux_Triangulaire/Traversée de voies de tramways.jpeg
+- Images/Panneaux_Triangulaire/Vent latéral.jpeg
+- Images/Panneaux_Triangulaire/Virage à droite.jpeg
+- Images/Panneaux_Triangulaire/Virage à gauche.jpeg
+- Images/Passageaniveau/Balises d'annonce d'un passage à niveau.jpeg
+- Images/Passageaniveau/La voie ferrée que je vais traverser sera électrifiée.jpeg
+- Images/Passageaniveau/Passage à niveau muni de barrières à fonctionnement manuel.jpeg
+- Images/Passageaniveau/Passage à niveau muni de demi-barrières à fonctionnement automatique.jpeg
+- Images/Passageaniveau/Passage à niveau sans barrières ni demi-barrières.jpeg
+- Images/Passageaniveau/Portique HAUTE TENSION DANGER.jpeg
+- Images/Passageaniveau/Signalisation de position (1 voie, avec signalisation automatique lumineuse et sonore).jpeg
+- Images/Passageaniveau/Signalisation de position (1 voie, sans barrières).jpeg
+- Images/Passageaniveau/Signalisation de position (plusieurs voies, sans barrières).jpeg
+- Images/Passageaniveau/UN TRAIN PEUT EN CACHER UN AUTRE – fonctionnement automatique.jpeg
+- Images/Propriete/Annonce d'un cédez le passage à 150m.jpeg
+- Images/Propriete/Annonce d'un stop.jpeg
+- Images/Propriete/Carrefour à sens giratoire.jpeg
+- Images/Propriete/Cédez le passage à l'intersection. Signal position.jpeg
+- Images/Propriete/Fin du caractère prioritaire d'une route.jpeg
+- Images/Propriete/Indication du caractère prioritaire d'une route.jpeg
+- Images/Propriete/Intersection avec une route dont les usagers doivent me céder le passage.jpeg
+- Images/Propriete/Intersection où je suis tenue de céder le passage aux véhicules de droite.jpeg
+- Images/Propriete/Pannonceau schéma.jpeg
+- Images/Propriete/Stop. Signal de position.jpeg
+- Images/Test/T1_1.jpeg
+- Images/Test/T1_10.jpeg
+- Images/Test/T1_2.jpeg
+- Images/Test/T1_3.jpeg
+- Images/Test/T1_4.jpeg
+- Images/Test/T1_5.jpeg
+- Images/Test/T1_6.jpeg
+- Images/Test/T1_7.jpeg
+- Images/Test/T1_8.jpeg
+- Images/Test/T1_9.jpeg
+- Images/Test/T2_1.jpeg
+- Images/Test/T2_10.jpeg
+- Images/Test/T2_2.jpeg
+- Images/Test/T2_3.jpeg
+- Images/Test/T2_4.jpeg
+- Images/Test/T2_5.jpeg
+- Images/Test/T2_6.jpeg
+- Images/Test/T2_7.jpeg
+- Images/Test/T2_8.jpeg
+- Images/Test/T2_9.jpeg
+- Images/Test/T3_1.jpeg
+- Images/Test/T3_10.jpeg
+- Images/Test/T3_2.jpeg
+- Images/Test/T3_3.jpeg
+- Images/Test/T3_4.jpeg
+- Images/Test/T3_5.jpeg
+- Images/Test/T3_6.jpeg
+- Images/Test/T3_7.jpeg
+- Images/Test/T3_8.jpeg
+- Images/Test/T3_9.jpeg

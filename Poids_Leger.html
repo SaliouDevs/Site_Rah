@@ -1106,6 +1106,11 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
+    <script src="./assets/js/supabase.js"></script>
+    <script src="./assets/js/config.js"></script>
+    <script src="./assets/js/exam-access.js"></script>
+    <script src="./assets/js/exam-review.js"></script>
     <script>
         // ===== DONNÉES DES SÉRIES B1 À B12 =====
         const seriesData = {
@@ -4412,6 +4417,7 @@
         let timerInterval;
         let selectedAnswers = {};
         let examScore = 0;
+        let reviewController = null;
 
         // ===== FONCTIONS PRINCIPALES =====
 
@@ -4514,6 +4520,7 @@
             document.querySelectorAll('.simple-option, .sub-question').forEach(resetOptionStyle);
             restoreSelectedAnswers();
             updateQuestionCounter();
+            if (reviewController) reviewController.refresh();
         }
 
         function restoreSelectedAnswers() {
@@ -4937,6 +4944,34 @@
             updatePerformanceChart();
         }
 
+        function renderPreviewBlocked() {
+            document.getElementById('header').style.display = 'block';
+            document.querySelector('.main-container').innerHTML = `
+                <section style="max-width:720px;margin:0 auto;background:#fff;border:1px solid #e1e5ee;border-radius:12px;padding:24px;text-align:center;">
+                    <h2 style="color:#1a3a6b;margin-bottom:10px;">Examen en correction</h2>
+                    <p style="color:#4a4a6a;">Cet examen n'est pas disponible pour les eleves pour le moment.</p>
+                </section>
+            `;
+            document.getElementById('exam-container').style.display = 'none';
+            document.getElementById('result-container').style.display = 'none';
+        }
+
+        function openReviewQuestion(series, questionNumber) {
+            window.parent.postMessage({ type: 'hideBottomNav' }, '*');
+            clearInterval(timerInterval);
+            currentSeries = series;
+            currentQuestion = questionNumber;
+            selectedAnswers = {};
+            document.getElementById('exam-series-title').textContent = `${seriesData[series].name}`;
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.main-container').style.display = 'none';
+            document.getElementById('exam-container').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('answer-warning').style.display = 'none';
+            document.getElementById('timer').textContent = 'REVIEW';
+            loadQuestion();
+        }
+
         function resetOptionStyle(element) {
             element.classList.remove('selected');
             element.style.background = '#f8f9fc';
@@ -5109,7 +5144,13 @@
             });
         }
 
-        function initApp() {
+        async function initApp() {
+            const previewContext = await window.resolveExamPreviewContext?.();
+            if (!window.canPreviewExam?.('poids_leger', previewContext)) {
+                renderPreviewBlocked();
+                return;
+            }
+
             Object.keys(seriesData).forEach(key => {
                 unlockedSeries[key] = true;
             });
@@ -5126,12 +5167,23 @@
             seriesData.B10.questions = questionsB10;
             seriesData.B11.questions = questionsB11;
             seriesData.B12.questions = questionsB12;
+
+            reviewController = window.initExamReview({
+                examId: 'poids_leger',
+                title: 'Poids Leger',
+                questionPrefix: 'PL',
+                getSeriesData: () => seriesData,
+                getCurrentSeries: () => currentSeries,
+                getCurrentQuestion: () => currentQuestion,
+                openQuestion: openReviewQuestion
+            });
             
             createSeriesCards();
             setupEventListeners();
             updateSeriesAccess();
             loadRecentTests();
             updatePerformanceChart();
+            reviewController.refresh();
         }
 
         document.addEventListener('DOMContentLoaded', initApp);

@@ -25,6 +25,8 @@
   };
 
   const EXAMS_CONFIG = {
+    light: { enabled: false },
+    heavy: { enabled: false },
     poidsLegerEnabled: false,
     poidsLourdEnabled: false
   };

@@ -4,6 +4,8 @@ import { renderLessonsView, renderLessonView } from './modules/lessons.js';
 import { renderPanelsView } from './modules/panels.js';
 import { renderTestsView } from './modules/tests.js';
 import { renderVideosView } from './modules/videos.js';
+import { renderExamHome, renderExamSeries, renderExamsView } from './modules/exam-engine.js';
+import { renderExamReviewDashboard, renderExamReviewQuestion } from './modules/exam-review.js';
 import {
   getLearningProgress,
   getLessonState,
@@ -37,6 +39,7 @@ async function initializeApp() {
 
   currentSettings = authContext.settings || {};
   currentUser = normalizeProfile(authContext.profile);
+  window.EAUTO_CURRENT_USER = currentUser;
   renderHeader();
   renderBottomNav();
   registerRoutes();
@@ -58,6 +61,11 @@ function registerRoutes() {
   registerRoute('/panels', (params) => renderPanelsView(appView, params));
   registerRoute('/panels/:category', (params) => renderPanelsView(appView, params));
   registerRoute('/tests', () => renderTestsView(appView));
+  registerRoute('/exams', () => renderExamsView(appView, currentUser));
+  registerRoute('/exam/:type', (params) => renderExamHome(appView, params, currentUser));
+  registerRoute('/exam/:type/series/:seriesId', (params) => renderExamSeries(appView, params, currentUser));
+  registerRoute('/exam-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
+  registerRoute('/exam-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
   registerRoute('/videos', (params) => renderVideosView(appView, params));
   registerRoute('/videos/:videoId', (params) => renderVideosView(appView, params));
   registerRoute('/progress', renderProgressView);
@@ -162,8 +170,8 @@ function renderHomeView() {
       <section class="dashboard-section">
         <div class="section-heading"><h2>Préparation examens</h2></div>
         <div class="exam-grid">
-          ${renderExamCard('Permis B', 'Poids léger', examsConfig.poidsLegerEnabled)}
-          ${renderExamCard('Permis C', 'Poids lourd', examsConfig.poidsLourdEnabled)}
+          ${renderExamCard('light', 'Permis B', 'Poids léger', examsConfig.light?.enabled || examsConfig.poidsLegerEnabled)}
+          ${renderExamCard('heavy', 'Permis C', 'Poids lourd', examsConfig.heavy?.enabled || examsConfig.poidsLourdEnabled)}
         </div>
       </section>
     </section>
@@ -288,12 +296,14 @@ function renderAboutView() {
   bindRouteLinks(appView);
 }
 
-function renderExamCard(license, title, enabled) {
+function renderExamCard(examId, license, title, enabled) {
+  const canPreview = typeof window.canPreviewExam === 'function' && window.canPreviewExam(examId, currentUser);
   return `
-    <button class="nav-card exam-card ${enabled ? '' : 'exam-unavailable'}" type="button" data-exam-card aria-disabled="${enabled ? 'false' : 'true'}">
+    <button class="nav-card exam-card ${enabled ? '' : 'exam-unavailable'}" type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}" aria-disabled="${enabled || canPreview ? 'false' : 'true'}">
       <span class="exam-license">${license}</span>
       <strong>${title}</strong>
       <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En correction</span>
+      ${canPreview ? '<span class="exam-preview-label">Prévisualiser</span>' : ''}
     </button>
   `;
 }
@@ -301,6 +311,11 @@ function renderExamCard(license, title, enabled) {
 function bindExamCards(root) {
   root.querySelectorAll('[data-exam-card]').forEach((button) => {
     button.addEventListener('click', () => {
+      const examId = button.dataset.examId;
+      if (typeof window.canPreviewExam === 'function' && window.canPreviewExam(examId, currentUser)) {
+        navigateTo(`/exam/${window.normalizeExamId?.(examId) || examId}`);
+        return;
+      }
       window.eautoModal(`
         <div class="modal-card">
           <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
@@ -398,11 +413,12 @@ async function deconnexion() {
 
 function updateBottomNav() {
   const path = getCurrentPath();
-  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+/.test(path);
+  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\//.test(path);
   bottomNav.style.display = immersive ? 'none' : 'flex';
   bottomNav.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'));
   const activeRoute = path.startsWith('/lesson') ? '/lessons'
     : path.startsWith('/tests') ? '/tests'
+    : path.startsWith('/exam') || path.startsWith('/exams') ? '/home'
     : path.startsWith('/progress') ? '/progress'
     : path.startsWith('/profile') || path.startsWith('/contact') || path.startsWith('/about') ? '/profile'
     : path.startsWith('/panels') || path.startsWith('/videos') ? ''
@@ -423,6 +439,7 @@ function normalizeProfile(profile) {
     formule: profile.formule || 'Formule Illimitée',
     prix: profile.prix || 2000,
     photo: profile.photo_url || profile.photo || null,
+    isAdmin: !!profile.isAdmin,
     isSupabaseUser: profile.isSupabaseUser,
     isDevUser: profile.isDevUser
   };

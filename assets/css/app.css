@@ -426,6 +426,19 @@ iframe {
   font-weight: 800;
 }
 
+.exam-preview-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 7px 10px;
+  color: #fff;
+  background: var(--teal-600);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
 .primary-action,
 .secondary-action,
 .text-back {
