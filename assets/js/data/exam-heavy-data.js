@@ -9,7 +9,6 @@ export const EXAM_HEAVY_DATA = {
   "durationMinutes": 15,
   "passingScore": 8,
   "historyKey": "eautoecole.examHistory.heavy",
-  "reviewStorageKey": "examReview:heavy",
   "series": [
     {
       "id": "C1",

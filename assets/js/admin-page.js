@@ -87,8 +87,8 @@ function renderDashboard() {
           <h2>Examens en correction</h2>
         </div>
         <div class="admin-actions">
-          <button class="admin-secondary" type="button" data-preview-exam="poids_leger">Prévisualiser Poids Léger</button>
-          <button class="admin-secondary" type="button" data-preview-exam="poids_lourd">Prévisualiser Poids Lourd</button>
+          <button class="admin-secondary" type="button" data-preview-exam="light">Accéder Poids Léger</button>
+          <button class="admin-secondary" type="button" data-preview-exam="heavy">Accéder Poids Lourd</button>
         </div>
       </section>
       <section class="admin-card">

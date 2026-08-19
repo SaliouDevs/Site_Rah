@@ -17,7 +17,7 @@ export function renderExamsView(container, currentUser) {
       <div class="view-heading">
         <p class="eyebrow">Préparation examens</p>
         <h1>Examens</h1>
-        <p>Les examens Poids léger et Poids lourd restent en correction. La prévisualisation est réservée à l'administration et au développement local.</p>
+        <p>Les examens Poids léger et Poids lourd sont en vérification. Un accès temporaire est disponible pour les personnes autorisées.</p>
       </div>
       <div class="exam-grid">
         ${renderExamEntry(EXAM_LIGHT_DATA, currentUser)}
@@ -56,7 +56,6 @@ export function renderExamHome(container, params, currentUser) {
       <section class="exam-panel">
         <div class="card-heading">
           <h2>Progression</h2>
-          <button class="secondary-action compact" type="button" data-route="/exam-review/${exam.id}">Review</button>
         </div>
         <div class="exam-history-note">
           <strong>Dernière tentative</strong>
@@ -254,13 +253,12 @@ function renderCorrections(container) {
 }
 
 function renderExamEntry(exam, currentUser) {
-  const canPreview = canAccess(exam, currentUser);
   return `
-    <button class="nav-card exam-card ${isEnabled(exam) ? '' : 'exam-unavailable'}" type="button" data-exam-entry="${exam.id}" aria-disabled="${isEnabled(exam) || canPreview ? 'false' : 'true'}">
+    <button class="nav-card exam-card" type="button" data-exam-entry="${exam.id}">
       <span class="exam-license">${escapeHTML(exam.license)}</span>
       <strong>${escapeHTML(exam.title)}</strong>
-      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En correction</span>
-      ${canPreview ? '<span class="exam-preview-label">Prévisualiser</span>' : ''}
+      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En vérification</span>
+      <span class="exam-preview-label">Accéder</span>
     </button>
   `;
 }
@@ -273,14 +271,7 @@ function bindExamEntries(container, currentUser) {
         navigateTo(`/exam/${exam.id}`);
         return;
       }
-      window.eautoModal(`
-        <div class="modal-card">
-          <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
-          <div class="exam-unavailable-icon"><i class="fas fa-screwdriver-wrench"></i></div>
-          <h2>Examen en cours de correction</h2>
-          <p>Nous vérifions actuellement certaines questions avant de remettre cet examen en ligne.</p>
-        </div>
-      `);
+      openExamAccessModal(exam?.id);
     });
   });
 }
@@ -293,12 +284,13 @@ function renderExamBlocked(container, exam) {
       <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
       <div class="empty-state">
         <i class="fas fa-screwdriver-wrench"></i>
-        <h1>${escapeHTML(exam.title)} est en correction</h1>
-        <p>Cet examen n'est pas encore disponible pour les élèves.</p>
+        <h1>${escapeHTML(exam.title)} est en vérification</h1>
+        <p>Un accès temporaire est disponible pour les personnes autorisées.</p>
       </div>
     </section>
   `;
   bindRouteLinks(container);
+  window.setTimeout(() => openExamAccessModal(exam.id), 0);
 }
 
 function renderUnknownExam(container) {
@@ -378,6 +370,56 @@ function canAccess(exam, currentUser) {
   return typeof window.canAccessExam === 'function' && window.canAccessExam(exam.id, currentUser);
 }
 
+export function openExamAccessModal(examId) {
+  const exam = getExam(examId);
+  if (!exam || typeof window.eautoModal !== 'function') return;
+  window.eautoModal(`
+    <div class="modal-card exam-access-modal">
+      <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
+      <div class="exam-unavailable-icon"><i class="fas fa-screwdriver-wrench"></i></div>
+      <h2>Examen en vérification</h2>
+      <p>Cet examen est actuellement en phase de vérification. Certaines images sont encore en cours de contrôle.</p>
+      <p>L'accès est réservé aux personnes autorisées pendant cette période.</p>
+      <div class="reader-actions">
+        <button class="secondary-action" type="button" data-close-modal>Fermer</button>
+        <button class="primary-action" type="button" data-open-dev-access>Accès développeur</button>
+      </div>
+    </div>
+  `);
+  document.querySelector('[data-open-dev-access]')?.addEventListener('click', () => openPinModal(exam));
+}
+
+function openPinModal(exam) {
+  window.eautoModal(`
+    <form class="modal-card exam-access-modal" data-exam-pin-form>
+      <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
+      <h2>Code d'accès</h2>
+      <label for="examAccessPin">Code d'accès</label>
+      <input id="examAccessPin" name="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="one-time-code" required>
+      <p class="form-error" data-exam-pin-error hidden>Code d'accès incorrect.</p>
+      <div class="reader-actions">
+        <button class="secondary-action" type="button" data-close-modal>Annuler</button>
+        <button class="primary-action" type="submit">Accéder</button>
+      </div>
+    </form>
+  `);
+  const form = document.querySelector('[data-exam-pin-form]');
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const config = window.EXAM_PREVIEW_CONFIG || {};
+    const value = new FormData(form).get('pin');
+    if (!config.enabled || value !== config.pin) {
+      form.querySelector('[data-exam-pin-error]').hidden = false;
+      return;
+    }
+    window.grantTemporaryExamPreview?.();
+    window.eautoToast?.('Accès autorisé.');
+    document.getElementById('modal-root').innerHTML = '';
+    navigateTo(`/exam/${exam.id}`);
+  });
+  form?.querySelector('input')?.focus();
+}
+
 function isEnabled(exam) {
   return typeof window.isExamEnabled === 'function' && window.isExamEnabled(exam.id);
 }
@@ -433,3 +475,5 @@ function escapeHTML(value) {
 function escapeAttribute(value) {
   return escapeHTML(value);
 }
+
+window.openExamAccessModal = openExamAccessModal;
