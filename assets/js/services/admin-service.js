@@ -14,7 +14,3 @@ export async function renameUser(userId, prenom) {
 export async function resetUserPassword(userId, password) {
   return window.sbAdminResetPassword(userId, password);
 }
-
-export async function deleteUser(userId) {
-  return window.sbInvokeAdminAction('delete-user', { userId });
-}
