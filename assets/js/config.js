@@ -7,16 +7,21 @@
 
   const DEV_CONFIG = {
     enabled: true,
-    autoLogin: true,
-    role: 'student',
+    autoLogin: false,
+    role: 'normal',
     skipWelcome: true,
     allowedRoles: ['student', 'admin', 'normal']
   };
 
   const DEMO_CONFIG = {
-    enabled: true,
-    autoLoginStudent: true,
+    enabled: false,
+    autoLoginStudent: false,
     showBadge: false
+  };
+
+  const ADMIN_CONFIG = {
+    alias: 'admin',
+    aliasEmail: '762572877@siterah.sn'
   };
 
   const EXAMS_CONFIG = {
@@ -41,6 +46,7 @@
   window.APP_CONFIG = APP_CONFIG;
   window.DEV_CONFIG = DEV_CONFIG;
   window.DEMO_CONFIG = DEMO_CONFIG;
+  window.ADMIN_CONFIG = ADMIN_CONFIG;
   window.EXAMS_CONFIG = EXAMS_CONFIG;
   window.LEARNING_CONFIG = LEARNING_CONFIG;
   window.CONTACT_CONFIG = CONTACT_CONFIG;
@@ -49,6 +55,7 @@
     app: APP_CONFIG,
     dev: DEV_CONFIG,
     demo: DEMO_CONFIG,
+    admin: ADMIN_CONFIG,
     exams: EXAMS_CONFIG,
     learning: LEARNING_CONFIG,
     contact: CONTACT_CONFIG,

@@ -1698,7 +1698,7 @@
   - Initialisation de `users` depuis `localStorage`
   - Fonctions `login()`, `register()`, `checkSession()` basées localStorage
   - Tout accès à `localStorage.getItem('users')`, `localStorage.setItem('currentUser', ...)`
-  - Le compte admin hardcodé `762572877 / AA00ARD`
+  - Le compte admin doit être géré par Supabase Auth, sans mot de passe hardcodé dans le dépôt
 
 - [ ] **Step 5 : Tester index.html**
 
