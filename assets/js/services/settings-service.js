@@ -68,7 +68,11 @@ function applySettingsToLegacyConfig(settings) {
     window.CONTACT_CONFIG.address = settings.support_address || window.CONTACT_CONFIG.address;
   }
   if (window.EXAMS_CONFIG) {
-    window.EXAMS_CONFIG.poidsLegerEnabled = Boolean(settings.examen_poids_leger_enabled);
-    window.EXAMS_CONFIG.poidsLourdEnabled = Boolean(settings.examen_poids_lourd_enabled);
+    const lightEnabled = Boolean(settings.examen_poids_leger_enabled);
+    const heavyEnabled = Boolean(settings.examen_poids_lourd_enabled);
+    window.EXAMS_CONFIG.light = { ...(window.EXAMS_CONFIG.light || {}), enabled: lightEnabled };
+    window.EXAMS_CONFIG.heavy = { ...(window.EXAMS_CONFIG.heavy || {}), enabled: heavyEnabled };
+    window.EXAMS_CONFIG.poidsLegerEnabled = lightEnabled;
+    window.EXAMS_CONFIG.poidsLourdEnabled = heavyEnabled;
   }
 }

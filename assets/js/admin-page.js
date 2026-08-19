@@ -17,6 +17,7 @@ async function initAdmin() {
   const dev = resolveLocalDevUser();
   if (dev?.isAdmin) {
     state.currentUser = dev;
+    window.EAUTO_CURRENT_USER = state.currentUser;
     bindShell();
     render();
     return;
@@ -31,6 +32,7 @@ async function initAdmin() {
   }
 
   state.currentUser = auth.profile;
+  window.EAUTO_CURRENT_USER = state.currentUser;
   bindShell();
   await refreshData();
   render();
@@ -82,6 +84,15 @@ function renderDashboard() {
       </div>
       <section class="admin-card">
         <div class="card-heading">
+          <h2>Examens en correction</h2>
+        </div>
+        <div class="admin-actions">
+          <button class="admin-secondary" type="button" data-preview-exam="poids_leger">Prévisualiser Poids Léger</button>
+          <button class="admin-secondary" type="button" data-preview-exam="poids_lourd">Prévisualiser Poids Lourd</button>
+        </div>
+      </section>
+      <section class="admin-card">
+        <div class="card-heading">
           <h2>Dernières inscriptions</h2>
           <button class="admin-secondary" type="button" data-open-users>Voir utilisateurs</button>
         </div>
@@ -97,6 +108,14 @@ function renderDashboard() {
   document.querySelector('[data-open-users]').addEventListener('click', () => {
     state.currentView = 'users';
     render();
+  });
+  document.querySelectorAll('[data-preview-exam]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const examId = button.dataset.previewExam;
+      if (window.canPreviewExam?.(examId, state.currentUser)) {
+        window.location.href = `index.html${window.getExamPreviewUrl(examId)}`;
+      }
+    });
   });
 }
 

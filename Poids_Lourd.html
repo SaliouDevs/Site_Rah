@@ -351,6 +351,11 @@
             <button class="btn" id="return-btn">🏠 Accueil</button>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
+<script src="./assets/js/supabase.js"></script>
+<script src="./assets/js/config.js"></script>
+<script src="./assets/js/exam-access.js"></script>
+<script src="./assets/js/exam-review.js"></script>
 <script>
 // Données des séries avec toutes les questions et RÉPONSES EXACTES
 let seriesData = {
@@ -836,6 +841,7 @@ let activeAudioButton = null;
 let canModifyAnswers = true;
 let examInProgress = false;
 let savedExamState = null;
+let reviewController = null;
 
 // Texte audio pour les questions
 const audioQuestions = {
@@ -992,11 +998,28 @@ function playSnMp3(filePath, button) {
 }
 
 // Initialisation
-function initApp() {
+async function initApp() {
+    const previewContext = await window.resolveExamPreviewContext?.();
+    if (!window.canPreviewExam?.('poids_lourd', previewContext)) {
+        renderPreviewBlocked();
+        return;
+    }
+
+    reviewController = window.initExamReview({
+        examId: 'poids_lourd',
+        title: 'Poids Lourd',
+        questionPrefix: 'PLD',
+        getSeriesData: () => seriesData,
+        getCurrentSeries: () => currentSeries,
+        getCurrentQuestion: () => currentQuestion,
+        openQuestion: openReviewQuestion
+    });
+
     setupEventListeners();
     updateSeriesAccess();
     loadRecentTests();
     updatePerformanceChart();
+    reviewController.refresh();
     
     // Vérifier si un examen était en cours dans localStorage
     try {
@@ -1478,6 +1501,7 @@ function loadQuestion() {
     
     // Mettre à jour le compteur
     updateQuestionCounter();
+    if (reviewController) reviewController.refresh();
 }
 
 function restoreSelectedAnswers() {
@@ -2144,6 +2168,37 @@ function returnToMain() {
     
     loadRecentTests();
     updatePerformanceChart();
+}
+
+function renderPreviewBlocked() {
+    document.getElementById('header').style.display = 'block';
+    document.querySelector('.main-container').innerHTML = `
+        <section style="max-width:720px;margin:0 auto;background:#fff;border:1px solid #e1e5ee;border-radius:8px;padding:24px;text-align:center;">
+            <h2 style="color:#1E5799;margin-bottom:10px;">Examen en correction</h2>
+            <p style="color:#333;">Cet examen n'est pas disponible pour les eleves pour le moment.</p>
+        </section>
+    `;
+    document.getElementById('exam-container').style.display = 'none';
+    document.getElementById('result-container').style.display = 'none';
+}
+
+function openReviewQuestion(series, questionNumber) {
+    window.parent.postMessage({ type: 'hideBottomNav' }, '*');
+    stopAllAudio();
+    clearInterval(timerInterval);
+    currentSeries = series;
+    currentQuestion = questionNumber;
+    selectedAnswers = {};
+    examInProgress = false;
+    canModifyAnswers = true;
+    document.getElementById('exam-series-title').textContent = `Série C${series.slice(1)}`;
+    document.getElementById('header').style.display = 'none';
+    document.querySelector('.main-container').style.display = 'none';
+    document.getElementById('exam-container').style.display = 'block';
+    document.getElementById('result-container').style.display = 'none';
+    document.getElementById('answer-warning').style.display = 'none';
+    document.getElementById('timer').textContent = 'REVIEW';
+    loadQuestion();
 }
 
 // Ajouter cet événement pour sauvegarder avant de quitter

@@ -19,7 +19,7 @@ export function navigateTo(path) {
 }
 
 export function getCurrentPath() {
-  return window.location.hash.replace(/^#/, '') || '/home';
+  return (window.location.hash.replace(/^#/, '') || '/home').split('?')[0];
 }
 
 export function startRouter() {
