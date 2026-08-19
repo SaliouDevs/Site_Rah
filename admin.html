@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eAutoecole - Admin Control Center</title>
+    <title>eAutoecole - Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -19,11 +19,10 @@
                     <span><i class="fas fa-car-side"></i></span>
                     <div>
                         <strong>eAutoecole</strong>
-                        <small>Control Center</small>
+                        <small>Admin</small>
                     </div>
                 </div>
                 <div class="admin-actions">
-                    <span data-service-status></span>
                     <button class="admin-secondary" type="button" data-admin-logout>Déconnexion</button>
                 </div>
             </div>
@@ -31,12 +30,8 @@
 
         <main class="admin-main">
             <nav class="admin-nav" aria-label="Navigation admin">
-                <button class="active" type="button" data-admin-view="dashboard">Dashboard</button>
+                <button class="active" type="button" data-admin-view="dashboard">Tableau de bord</button>
                 <button type="button" data-admin-view="users">Utilisateurs</button>
-                <button type="button" data-admin-view="messages">Messages</button>
-                <button type="button" data-admin-view="application">Application</button>
-                <button type="button" data-admin-view="security">Sécurité</button>
-                <button type="button" data-admin-view="journal">Journal</button>
             </nav>
             <section id="admin-view"></section>
         </main>

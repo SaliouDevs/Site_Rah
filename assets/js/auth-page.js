@@ -1,15 +1,12 @@
 import { registerStudent, resolveAuthMessage, signInWithIdentifier } from './services/auth-service.js';
-import { loadAppSettings } from './services/settings-service.js';
 
 const state = {
-  activeTab: 'login',
-  settings: null
+  activeTab: 'login'
 };
 
 document.addEventListener('DOMContentLoaded', initAuthPage);
 
 async function initAuthPage() {
-  state.settings = await loadAppSettings();
   bindTabs();
   bindPasswordToggles();
   bindPhoneFormatters();
@@ -79,16 +76,12 @@ async function handleLogin(event) {
     }
     if (result.profile?.status === 'pending') {
       await window.sbLogout();
-      showAlert('Votre inscription est en attente de validation.', 'warning');
+      showAlert('Votre inscription est en attente de validation par l’auto-école.', 'warning');
       return;
     }
     if (result.profile?.status === 'blocked') {
       await window.sbLogout();
-      showAlert('Votre compte est actuellement suspendu. Contactez l’auto-école pour plus d’informations.', 'error');
-      return;
-    }
-    if (result.settings?.maintenance_enabled) {
-      showAlert('Service temporairement indisponible. Nous effectuons actuellement des améliorations. Merci de réessayer prochainement.', 'warning');
+      showAlert('Votre compte est actuellement bloqué. Veuillez contacter l’auto-école.', 'error');
       return;
     }
     window.location.href = 'index.html';
@@ -156,5 +149,6 @@ function normalizeAuthError(error) {
   const message = error?.message || 'Erreur de connexion.';
   if (message.includes('Invalid login')) return 'Numéro ou mot de passe incorrect.';
   if (message.includes('already registered')) return 'Ce numéro est déjà inscrit. Connectez-vous.';
+  if (message.includes('Failed to fetch')) return 'Connexion au serveur impossible. Vérifiez votre réseau puis réessayez.';
   return message;
 }

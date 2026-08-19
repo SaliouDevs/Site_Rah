@@ -181,6 +181,10 @@ body.admin-page {
   gap: 12px;
 }
 
+.user-tools {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
 .admin-form label {
   display: grid;
   gap: 6px;
@@ -235,6 +239,57 @@ body.admin-page {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.admin-actions button {
+  min-width: 0;
+}
+
+.card-heading,
+.latest-item,
+.user-card > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.latest-list,
+.user-card,
+.user-card dl {
+  display: grid;
+  gap: 12px;
+}
+
+.latest-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.latest-item:last-child {
+  border-bottom: 0;
+}
+
+.latest-item div,
+.user-card dl div {
+  display: grid;
+  gap: 3px;
+}
+
+.latest-item span:not(.badge),
+.user-card dt {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.user-card dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.admin-user-cards {
+  display: none;
+  gap: 12px;
 }
 
 .badge {
@@ -294,6 +349,42 @@ body.admin-page {
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   box-shadow: var(--shadow-md);
+}
+
+.toast.error {
+  background: var(--danger);
+}
+
+@media (max-width: 720px) {
+  .admin-topbar-inner {
+    align-items: flex-start;
+  }
+
+  .admin-main {
+    padding: 14px;
+  }
+
+  .admin-table-wrap {
+    display: none;
+  }
+
+  .admin-user-cards {
+    display: grid;
+  }
+
+  .admin-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .admin-actions button {
+    width: 100%;
+  }
+
+  .card-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 @media (min-width: 900px) {
