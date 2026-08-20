@@ -13,15 +13,14 @@ export function getExamImageRules() {
   };
 }
 
-export async function loadExamSettings({ force = false } = {}) {
+export async function loadExamSettings({ force = false, emit = false } = {}) {
   if (!force && settingsCache) return settingsCache;
   const fallback = [
     { exam_key: 'light', status: 'verification' },
     { exam_key: 'heavy', status: 'verification' }
   ];
   if (!window.sb) {
-    settingsCache = fallback;
-    return settingsCache;
+    return applyExamSettings(fallback, { emit });
   }
   try {
     const { data, error } = await window.sb
@@ -29,12 +28,10 @@ export async function loadExamSettings({ force = false } = {}) {
       .select('exam_key,status,updated_at,updated_by')
       .order('exam_key', { ascending: true });
     if (error) throw error;
-    settingsCache = mergeExamSettings(data || fallback);
+    return applyExamSettings(data || fallback, { emit });
   } catch (_) {
-    settingsCache = fallback;
+    return applyExamSettings(fallback, { emit });
   }
-  applyExamSettingsToConfig(settingsCache);
-  return settingsCache;
 }
 
 export function getCachedExamSettings() {
@@ -58,11 +55,23 @@ export async function updateExamStatus(examKey, status) {
     .select()
     .single();
   if (error) throw error;
-  settingsCache = mergeExamSettings(getCachedExamSettings().map((item) => (
+  applyExamSettings(getCachedExamSettings().map((item) => (
     item.exam_key === normalizedExamKey ? data : item
   )));
-  applyExamSettingsToConfig(settingsCache);
   return data;
+}
+
+export function applyExamSettings(settings, { emit = true } = {}) {
+  const previous = settingsSignature(settingsCache);
+  settingsCache = mergeExamSettings(settings);
+  applyExamSettingsToConfig(settingsCache);
+  const next = settingsSignature(settingsCache);
+  if (emit && previous !== next) {
+    window.dispatchEvent(new CustomEvent('exam-settings-updated', {
+      detail: { settings: settingsCache }
+    }));
+  }
+  return settingsCache;
 }
 
 export async function loadExamImageOverrides(examKey, { force = false } = {}) {
@@ -204,6 +213,13 @@ function mergeExamSettings(rows) {
     updated_at: byKey.get(examKey)?.updated_at || null,
     updated_by: byKey.get(examKey)?.updated_by || null
   }));
+}
+
+function settingsSignature(settings) {
+  return (settings || [])
+    .map((setting) => `${setting.exam_key}:${setting.status || 'verification'}`)
+    .sort()
+    .join('|');
 }
 
 function buildStoragePath(examKey, questionId, mimeType) {

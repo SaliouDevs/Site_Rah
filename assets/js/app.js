@@ -13,6 +13,7 @@ import {
 } from './progress.js';
 import { requireAuthenticatedUser, logoutCurrentUser } from './services/auth-service.js';
 import { startMaintenanceGuard } from './services/maintenance-guard.js';
+import { startExamSettingsSync } from './services/exam-settings-sync.js';
 
 const appConfig = window.APP_CONFIG;
 const examsConfig = window.EXAMS_CONFIG;
@@ -53,6 +54,7 @@ async function initializeApp() {
   updateBottomNav();
   installProfileGuard(authContext.user?.id);
   installMaintenanceGuard();
+  installExamSettingsSync();
   window.addEventListener('hashchange', updateBottomNav);
   window.addEventListener('learning-progress-updated', () => {
     if (getCurrentPath() === '/home' || getCurrentPath() === '/progress') {
@@ -66,6 +68,44 @@ function installMaintenanceGuard() {
     user: currentUser,
     onMaintenance: renderMaintenanceView
   });
+}
+
+function installExamSettingsSync() {
+  window.addEventListener('exam-settings-updated', handleExamSettingsUpdated);
+  startExamSettingsSync();
+}
+
+function handleExamSettingsUpdated() {
+  const path = getCurrentPath();
+  if (path === '/home') {
+    renderHomeView();
+    renderBottomNav();
+    updateBottomNav();
+    return;
+  }
+  if (path === '/exams') {
+    renderCurrentRoute();
+    updateBottomNav();
+    return;
+  }
+  const match = path.match(/^\/exam\/([^/]+)/);
+  if (!match) return;
+
+  const examId = window.normalizeExamId?.(match[1]) || match[1];
+  if (currentUser?.isAdmin) {
+    if (!path.includes('/series/')) {
+      renderCurrentRoute();
+    }
+    return;
+  }
+  if (typeof window.canAccessExam === 'function' && window.canAccessExam(examId, currentUser)) {
+    if (!path.includes('/series/')) {
+      renderCurrentRoute();
+    }
+    return;
+  }
+  navigateTo('/home');
+  window.eautoToast?.("Cet examen n'est plus disponible.");
 }
 
 function clearStaleAdminExamOrigin(user) {

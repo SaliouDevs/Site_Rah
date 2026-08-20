@@ -81,16 +81,4 @@ function applySettingsToLegacyConfig(settings) {
     window.CONTACT_CONFIG.email = settings.support_email || window.CONTACT_CONFIG.email;
     window.CONTACT_CONFIG.address = settings.support_address || window.CONTACT_CONFIG.address;
   }
-  if (window.EXAMS_CONFIG && Array.isArray(settings.exam_settings)) {
-    settings.exam_settings.forEach((examSetting) => {
-      const status = examSetting.status || 'verification';
-      window.EXAMS_CONFIG[examSetting.exam_key] = {
-        ...(window.EXAMS_CONFIG[examSetting.exam_key] || {}),
-        status,
-        enabled: status === 'online'
-      };
-    });
-    window.EXAMS_CONFIG.poidsLegerEnabled = window.EXAMS_CONFIG.light?.status === 'online';
-    window.EXAMS_CONFIG.poidsLourdEnabled = window.EXAMS_CONFIG.heavy?.status === 'online';
-  }
 }
