@@ -358,6 +358,16 @@ body.admin-page {
   font-weight: 800;
 }
 
+.exam-backend-notice {
+  display: grid;
+  gap: 6px;
+  border-color: rgba(216, 150, 20, 0.45);
+}
+
+.exam-backend-notice span {
+  color: var(--text-secondary);
+}
+
 .exam-question-admin-list {
   display: grid;
   gap: 12px;

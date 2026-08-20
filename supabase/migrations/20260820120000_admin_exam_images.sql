@@ -1,5 +1,19 @@
 -- Admin-managed exam image overrides and exam publication status.
 
+-- Admin role helper used by exam RLS/storage policies.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT COALESCE(
+    auth.jwt() -> 'app_metadata' ->> 'role',
+    ''
+  ) = 'admin';
+$$;
+
 CREATE TABLE IF NOT EXISTS public.exam_question_images (
   question_id text PRIMARY KEY,
   exam_key text NOT NULL CHECK (exam_key IN ('light', 'heavy')),

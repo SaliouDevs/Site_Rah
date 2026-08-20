@@ -41,7 +41,9 @@ const state = {
   examOverrides: {
     light: new Map(),
     heavy: new Map()
-  }
+  },
+  examBackendConfigured: true,
+  examBackendError: ''
 };
 
 document.addEventListener('DOMContentLoaded', initAdmin);
@@ -69,7 +71,8 @@ async function initAdmin() {
   state.currentUser = auth.profile;
   window.EAUTO_CURRENT_USER = state.currentUser;
   bindShell();
-  await refreshData();
+  await refreshUsers();
+  await refreshExams({ silent: true });
   render();
 }
 
@@ -83,17 +86,43 @@ function bindShell() {
   document.querySelector('[data-admin-logout]').addEventListener('click', () => logoutCurrentUser(state.currentUser));
 }
 
-async function refreshData() {
-  const [overview, examSettings, lightOverrides, heavyOverrides] = await Promise.all([
-    loadAdminOverview(),
-    loadExamSettings({ force: true }),
-    loadExamImageOverrides('light', { force: true }),
-    loadExamImageOverrides('heavy', { force: true })
-  ]);
+async function refreshUsers() {
+  const overview = await loadAdminOverview();
   state.profiles = overview.profiles || [];
-  state.examSettings = examSettings || [];
-  state.examOverrides.light = lightOverrides;
-  state.examOverrides.heavy = heavyOverrides;
+  return overview;
+}
+
+async function refreshExams({ silent = false } = {}) {
+  try {
+    const [examSettings, lightOverrides, heavyOverrides] = await Promise.all([
+      loadExamSettings({ force: true }),
+      loadExamImageOverrides('light', { force: true }),
+      loadExamImageOverrides('heavy', { force: true })
+    ]);
+    state.examBackendConfigured = true;
+    state.examBackendError = '';
+    state.examSettings = examSettings || [];
+    state.examOverrides.light = lightOverrides;
+    state.examOverrides.heavy = heavyOverrides;
+  } catch (error) {
+    state.examBackendConfigured = false;
+    state.examBackendError = error.message || 'Configuration examens indisponible';
+    state.examSettings = [
+      { exam_key: 'light', status: 'verification' },
+      { exam_key: 'heavy', status: 'verification' }
+    ];
+    state.examOverrides.light = new Map();
+    state.examOverrides.heavy = new Map();
+    if (!silent && state.currentView === 'exams') renderExams();
+  }
+}
+
+async function refreshCurrentViewData() {
+  if (state.currentView === 'exams') {
+    await refreshExams();
+    return;
+  }
+  await refreshUsers();
 }
 
 function render() {
@@ -132,8 +161,8 @@ function renderDashboard() {
           <h2>Examens en correction</h2>
         </div>
         <div class="admin-actions">
-          <button class="admin-secondary" type="button" data-preview-exam="light">Accéder Poids Léger</button>
-          <button class="admin-secondary" type="button" data-preview-exam="heavy">Accéder Poids Lourd</button>
+          <button class="admin-secondary" type="button" data-open-exam="light">Accéder Poids Léger</button>
+          <button class="admin-secondary" type="button" data-open-exam="heavy">Accéder Poids Lourd</button>
         </div>
       </section>
       <section class="admin-card">
@@ -148,17 +177,17 @@ function renderDashboard() {
     </section>
   `);
   document.querySelector('[data-refresh]').addEventListener('click', async () => {
-    await runAction(refreshData, 'Données actualisées', false);
+    await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false });
   });
   document.querySelector('[data-open-users]').addEventListener('click', () => {
     state.currentView = 'users';
     render();
   });
-  document.querySelectorAll('[data-preview-exam]').forEach((button) => {
+  document.querySelectorAll('[data-open-exam]').forEach((button) => {
     button.addEventListener('click', () => {
-      const examId = button.dataset.previewExam;
-      if (window.canPreviewExam?.(examId, state.currentUser)) {
-        window.location.href = `index.html${window.getExamPreviewUrl(examId)}`;
+      const examId = button.dataset.openExam;
+      if (window.canAccessExam?.(examId, state.currentUser)) {
+        window.location.href = `index.html${window.getExamUrl(examId)}`;
       }
     });
   });
@@ -184,6 +213,12 @@ function renderExams() {
           </button>
         `).join('')}
       </div>
+      ${state.examBackendConfigured ? '' : `
+        <section class="admin-card exam-backend-notice">
+          <strong>Le module de gestion des examens n'est pas encore configuré sur le backend.</strong>
+          <span>Les tables Supabase examens ne sont pas encore disponibles. Les utilisateurs restent gérés normalement.</span>
+        </section>
+      `}
       <section class="admin-card admin-form exam-admin-toolbar">
         <label>Recherche
           <input data-exam-search placeholder="ID ou texte question" value="${escapeAttribute(state.examQuery)}">
@@ -199,7 +234,7 @@ function renderExams() {
             ${Object.entries(EXAM_STATUS_LABELS).map(([value, label]) => `<option value="${value}" ${setting.status === value ? 'selected' : ''}>${label}</option>`).join('')}
           </select>
         </label>
-        <button class="admin-button" type="button" data-save-exam-status>Enregistrer statut</button>
+        <button class="admin-button" type="button" data-save-exam-status ${state.examBackendConfigured ? '' : 'disabled'}>Enregistrer statut</button>
       </section>
       <div class="exam-admin-summary">
         <span>${questions.length} question${questions.length > 1 ? 's' : ''}</span>
@@ -246,7 +281,7 @@ function renderUsers() {
     </section>
   `);
   document.querySelector('[data-refresh]').addEventListener('click', async () => {
-    await runAction(refreshData, 'Données actualisées', false);
+    await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false });
   });
   document.querySelector('[data-user-search]').addEventListener('input', (event) => {
     state.query = event.target.value;
@@ -334,7 +369,8 @@ function bindUserActions() {
 
 function bindExamActions() {
   document.querySelector('[data-refresh]').addEventListener('click', async () => {
-    await runAction(refreshData, 'Données actualisées', false);
+    await refreshExams();
+    if (state.examBackendConfigured) toast('Données examens actualisées');
     renderExams();
   });
   document.querySelectorAll('[data-exam-tab]').forEach((button) => {
@@ -353,11 +389,12 @@ function bindExamActions() {
     renderExams();
   });
   document.querySelector('[data-save-exam-status]').addEventListener('click', async () => {
+    if (!state.examBackendConfigured) return;
     const status = document.querySelector('[data-exam-status]').value;
     await runAction(async () => {
       await updateExamStatus(state.examKey, status);
       state.examSettings = await loadExamSettings({ force: true });
-    }, 'Statut examen mis à jour');
+    }, 'Statut examen mis à jour', true, { refreshAfter: false });
   });
   document.querySelectorAll('[data-upload-question-image]').forEach((button) => {
     button.addEventListener('click', () => openImagePicker(button.dataset.uploadQuestionImage));
@@ -393,7 +430,7 @@ function renderExamQuestionCard(question) {
           <code>${escapeHTML(override?.storage_path || question.image || 'Aucune image')}</code>
         </div>
         <div class="admin-actions">
-          <button class="admin-button" type="button" data-upload-question-image="${escapeAttribute(question.id)}">Remplacer l'image</button>
+          <button class="admin-button" type="button" data-upload-question-image="${escapeAttribute(question.id)}" ${state.examBackendConfigured ? '' : 'disabled'}>Remplacer l'image</button>
           ${override ? `<button class="admin-secondary" type="button" data-restore-question-image="${escapeAttribute(question.id)}">Restaurer l'image originale</button>` : ''}
         </div>
       </div>
@@ -402,6 +439,7 @@ function renderExamQuestionCard(question) {
 }
 
 function openImagePicker(questionId) {
+  if (!state.examBackendConfigured) return;
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = getExamImageRules().allowedTypes.join(',');
@@ -491,10 +529,10 @@ function confirmRestoreImage(questionId) {
   });
 }
 
-async function runAction(fn, successMessage, rerender = true) {
+async function runAction(fn, successMessage, rerender = true, { refreshAfter = true } = {}) {
   try {
     await fn();
-    await refreshData();
+    if (refreshAfter) await refreshCurrentViewData();
     toast(successMessage);
     if (rerender) render();
   } catch (error) {

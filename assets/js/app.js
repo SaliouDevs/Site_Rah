@@ -5,7 +5,6 @@ import { renderPanelsView } from './modules/panels.js';
 import { renderTestsView } from './modules/tests.js';
 import { renderVideosView } from './modules/videos.js';
 import { renderExamHome, renderExamSeries, renderExamsView } from './modules/exam-engine.js';
-import { renderExamReviewDashboard, renderExamReviewQuestion } from './modules/exam-review.js';
 import {
   getLearningProgress,
   getLessonState,
@@ -64,10 +63,6 @@ function registerRoutes() {
   registerRoute('/exams', () => renderExamsView(appView, currentUser));
   registerRoute('/exam/:type', (params) => renderExamHome(appView, params, currentUser));
   registerRoute('/exam/:type/series/:seriesId', (params) => renderExamSeries(appView, params, currentUser));
-  registerRoute('/exam-image-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
-  registerRoute('/exam-image-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
-  registerRoute('/exam-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
-  registerRoute('/exam-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
   registerRoute('/videos', (params) => renderVideosView(appView, params));
   registerRoute('/videos/:videoId', (params) => renderVideosView(appView, params));
   registerRoute('/progress', renderProgressView);
@@ -308,7 +303,7 @@ function renderExamCard(examId, license, title) {
       <span class="exam-license">${license}</span>
       <strong>${title}</strong>
       <span class="exam-status-badge ${escapeAttribute(status)}"><i class="fas ${icon}"></i> ${escapeHTML(window.getExamStatusLabel?.(examId) || 'En vérification')}</span>
-      <span class="exam-preview-label">${actionLabel}</span>
+      <span class="exam-action-label">${actionLabel}</span>
     </button>
   `;
 }
@@ -317,7 +312,7 @@ function bindExamCards(root) {
   root.querySelectorAll('[data-exam-card]').forEach((button) => {
     button.addEventListener('click', () => {
       const examId = button.dataset.examId;
-      if (typeof window.canPreviewExam === 'function' && window.canPreviewExam(examId, currentUser)) {
+      if (typeof window.canAccessExam === 'function' && window.canAccessExam(examId, currentUser)) {
         navigateTo(`/exam/${window.normalizeExamId?.(examId) || examId}`);
         return;
       }
@@ -411,7 +406,7 @@ async function deconnexion() {
 
 function updateBottomNav() {
   const path = getCurrentPath();
-  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\/|^\/exam-image-review\//.test(path);
+  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\//.test(path);
   bottomNav.style.display = immersive ? 'none' : 'flex';
   bottomNav.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'));
   const activeRoute = path.startsWith('/lesson') ? '/lessons'

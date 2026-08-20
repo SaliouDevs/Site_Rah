@@ -31,15 +31,6 @@
     poidsLourdEnabled: false
   };
 
-  // TEMPORARY EXAM REVIEW ACCESS
-  // REMOVE BEFORE PUBLIC EXAM RELEASE
-  const EXAM_PREVIEW_CONFIG = {
-    enabled: true,
-    pin: '0011',
-    durationMs: 2 * 60 * 60 * 1000,
-    storageKey: 'eauto_exam_preview'
-  };
-
   const LEARNING_CONFIG = {
     masteryThreshold: 80,
     totalLessons: 9,
@@ -59,7 +50,6 @@
   window.DEMO_CONFIG = DEMO_CONFIG;
   window.ADMIN_CONFIG = ADMIN_CONFIG;
   window.EXAMS_CONFIG = EXAMS_CONFIG;
-  window.EXAM_PREVIEW_CONFIG = EXAM_PREVIEW_CONFIG;
   window.LEARNING_CONFIG = LEARNING_CONFIG;
   window.CONTACT_CONFIG = CONTACT_CONFIG;
 
@@ -69,7 +59,6 @@
     demo: DEMO_CONFIG,
     admin: ADMIN_CONFIG,
     exams: EXAMS_CONFIG,
-    examPreview: EXAM_PREVIEW_CONFIG,
     learning: LEARNING_CONFIG,
     contact: CONTACT_CONFIG,
     lessons: {
