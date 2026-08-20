@@ -479,6 +479,16 @@ async function verifyLoginDuringMaintenance(browser) {
     maintenance: { enabled: true, message: 'Maintenance login test' }
   });
   await student.goto(`${baseUrl}/auth.html`, { waitUntil: 'domcontentloaded' });
+  const maintenanceDom = await student.evaluate(() => document.documentElement.outerHTML);
+  for (const forbidden of ['rah@admin', '762572877@siterah.sn']) {
+    if (maintenanceDom.includes(forbidden)) throw new Error(`Maintenance auth DOM exposes ${forbidden}`);
+  }
+  const adminFieldPresentation = await student.evaluate(() => {
+    const label = document.querySelector('label[for="loginIdentifier"]')?.textContent || '';
+    const placeholder = document.getElementById('loginIdentifier')?.getAttribute('placeholder') || '';
+    return `${label} ${placeholder}`;
+  });
+  if (adminFieldPresentation.includes('+221')) throw new Error('Maintenance admin login field displays +221');
   await student.locator('#loginIdentifier').fill('77 000 00 00');
   await student.locator('#loginPassword').fill('secret12');
   await student.locator('[data-login-form]').evaluate((form) => form.requestSubmit());
@@ -499,7 +509,33 @@ async function verifyLoginDuringMaintenance(browser) {
   await admin.locator('[data-login-form]').evaluate((form) => form.requestSubmit());
   await admin.waitForURL(/admin\.html/);
   await expectText(admin, 'body', 'Tableau de bord');
+  const adminSessionUser = await admin.evaluate(async () => (await window.sbGetSession())?.user?.id);
+  if (adminSessionUser !== 'admin-user') throw new Error(`Admin session not persisted after login: ${adminSessionUser}`);
+  await admin.locator('[data-maintenance-enabled]').uncheck();
+  await admin.getByRole('button', { name: 'Désactiver la maintenance' }).click();
+  await expectText(admin, '#modal-root', 'Remettre le site en ligne ?');
+  await admin.locator('#modal-root').getByRole('button', { name: 'Remettre en ligne' }).click();
+  await expectText(admin, '#toast-root', 'Site remis en ligne.');
+  const adminState = await admin.evaluate(async () => ({
+    sessionUser: (await window.sbGetSession())?.user?.id,
+    logoutCount: window.__mockState.logoutCount,
+    runtimeUpdateCount: window.__mockState.runtimeUpdateCount
+  }));
+  if (adminState.sessionUser !== 'admin-user') throw new Error('Admin session lost after maintenance mutation');
+  if (adminState.logoutCount !== 0) throw new Error(`Admin was signed out during maintenance: ${adminState.logoutCount}`);
+  if (adminState.runtimeUpdateCount !== 1) throw new Error(`Maintenance mutation count mismatch: ${adminState.runtimeUpdateCount}`);
   await admin.close();
+
+  const normal = await browser.newPage();
+  await installSupabaseMock(normal, {
+    maintenance: { enabled: false, message: 'Maintenance login test' }
+  });
+  await normal.goto(`${baseUrl}/auth.html`, { waitUntil: 'domcontentloaded' });
+  await normal.locator('#loginIdentifier').fill('77 000 00 00');
+  await normal.locator('#loginPassword').fill('secret12');
+  await normal.locator('[data-login-form]').evaluate((form) => form.requestSubmit());
+  await normal.waitForURL(/index\.html/);
+  await normal.close();
 }
 
 async function verifyAdmin(browser) {

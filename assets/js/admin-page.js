@@ -772,7 +772,7 @@ async function ensureAdminSession() {
 
 function isRecoverableSessionError(error) {
   const text = `${error?.message || ''} ${error?.code || ''} ${error?.status || ''}`.toLowerCase();
-  return text.includes('jwt') || text.includes('token') || text.includes('session') || text.includes('expired') || text.includes('401');
+  return text.includes('jwt') || text.includes('token') || text.includes('session') || text.includes('expired') || text.includes('401') || text.includes('non connecté');
 }
 
 function setButtonBusy(target, busy) {
