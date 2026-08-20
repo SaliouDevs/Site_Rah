@@ -70,8 +70,8 @@ function applySettingsToLegacyConfig(settings) {
   if (window.EXAMS_CONFIG) {
     const lightEnabled = Boolean(settings.examen_poids_leger_enabled);
     const heavyEnabled = Boolean(settings.examen_poids_lourd_enabled);
-    window.EXAMS_CONFIG.light = { ...(window.EXAMS_CONFIG.light || {}), enabled: lightEnabled };
-    window.EXAMS_CONFIG.heavy = { ...(window.EXAMS_CONFIG.heavy || {}), enabled: heavyEnabled };
+    window.EXAMS_CONFIG.light = { ...(window.EXAMS_CONFIG.light || {}), status: lightEnabled ? 'online' : 'verification', enabled: lightEnabled };
+    window.EXAMS_CONFIG.heavy = { ...(window.EXAMS_CONFIG.heavy || {}), status: heavyEnabled ? 'online' : 'verification', enabled: heavyEnabled };
     window.EXAMS_CONFIG.poidsLegerEnabled = lightEnabled;
     window.EXAMS_CONFIG.poidsLourdEnabled = heavyEnabled;
   }

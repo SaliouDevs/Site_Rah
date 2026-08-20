@@ -408,10 +408,6 @@ iframe {
   font-size: 0.84rem;
 }
 
-.exam-card.exam-unavailable {
-  background: var(--surface-muted);
-}
-
 .exam-status-badge {
   display: inline-flex;
   align-items: center;

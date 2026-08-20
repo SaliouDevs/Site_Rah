@@ -9,7 +9,6 @@ export const EXAM_LIGHT_DATA = {
   "durationMinutes": 30,
   "passingScore": 21,
   "historyKey": "eautoecole.examHistory.light",
-  "reviewStorageKey": "examReview:light",
   "series": [
     {
       "id": "B1",

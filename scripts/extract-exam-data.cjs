@@ -49,7 +49,6 @@ function extractLight() {
     durationMinutes: 30,
     passingScore: 21,
     historyKey: 'eautoecole.examHistory.light',
-    reviewStorageKey: 'examReview:light',
     series: Object.keys(result.questions).map((seriesId) => ({
       id: seriesId,
       legacyId: seriesId,
@@ -89,7 +88,6 @@ function extractHeavy() {
     durationMinutes: 15,
     passingScore: 8,
     historyKey: 'eautoecole.examHistory.heavy',
-    reviewStorageKey: 'examReview:heavy',
     series: legacyIds.map((legacyId, index) => {
       const id = `C${index + 1}`;
       const questions = result[legacyId].questions.map((question, questionIndex) => {

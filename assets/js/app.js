@@ -64,6 +64,8 @@ function registerRoutes() {
   registerRoute('/exams', () => renderExamsView(appView, currentUser));
   registerRoute('/exam/:type', (params) => renderExamHome(appView, params, currentUser));
   registerRoute('/exam/:type/series/:seriesId', (params) => renderExamSeries(appView, params, currentUser));
+  registerRoute('/exam-image-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
+  registerRoute('/exam-image-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
   registerRoute('/exam-review/:type', (params) => renderExamReviewDashboard(appView, params, currentUser));
   registerRoute('/exam-review/:type/:questionId', (params) => renderExamReviewQuestion(appView, params, currentUser));
   registerRoute('/videos', (params) => renderVideosView(appView, params));
@@ -170,8 +172,8 @@ function renderHomeView() {
       <section class="dashboard-section">
         <div class="section-heading"><h2>Préparation examens</h2></div>
         <div class="exam-grid">
-          ${renderExamCard('light', 'Permis B', 'Poids léger', examsConfig.light?.enabled || examsConfig.poidsLegerEnabled)}
-          ${renderExamCard('heavy', 'Permis C', 'Poids lourd', examsConfig.heavy?.enabled || examsConfig.poidsLourdEnabled)}
+          ${renderExamCard('light', 'Permis B', 'Poids léger')}
+          ${renderExamCard('heavy', 'Permis C', 'Poids lourd')}
         </div>
       </section>
     </section>
@@ -296,14 +298,13 @@ function renderAboutView() {
   bindRouteLinks(appView);
 }
 
-function renderExamCard(examId, license, title, enabled) {
-  const canPreview = typeof window.canPreviewExam === 'function' && window.canPreviewExam(examId, currentUser);
+function renderExamCard(examId, license, title) {
   return `
-    <button class="nav-card exam-card ${enabled ? '' : 'exam-unavailable'}" type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}" aria-disabled="${enabled || canPreview ? 'false' : 'true'}">
+    <button class="nav-card exam-card" type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}">
       <span class="exam-license">${license}</span>
       <strong>${title}</strong>
-      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En correction</span>
-      ${canPreview ? '<span class="exam-preview-label">Prévisualiser</span>' : ''}
+      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En vérification</span>
+      <span class="exam-preview-label">Accéder</span>
     </button>
   `;
 }
@@ -316,14 +317,7 @@ function bindExamCards(root) {
         navigateTo(`/exam/${window.normalizeExamId?.(examId) || examId}`);
         return;
       }
-      window.eautoModal(`
-        <div class="modal-card">
-          <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
-          <div class="exam-unavailable-icon"><i class="fas fa-screwdriver-wrench"></i></div>
-          <h2>Examen en cours de correction</h2>
-          <p>Nous vérifions actuellement certaines questions avant de remettre cet examen en ligne.</p>
-        </div>
-      `);
+      window.openExamAccessModal?.(examId);
     });
   });
 }
@@ -413,7 +407,7 @@ async function deconnexion() {
 
 function updateBottomNav() {
   const path = getCurrentPath();
-  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\//.test(path);
+  const immersive = /^\/lesson\/|^\/panels\/|^\/videos\/.+|^\/exam\/[^/]+\/series\/|^\/exam-image-review\//.test(path);
   bottomNav.style.display = immersive ? 'none' : 'flex';
   bottomNav.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'));
   const activeRoute = path.startsWith('/lesson') ? '/lessons'
