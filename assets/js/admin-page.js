@@ -161,8 +161,8 @@ function renderDashboard() {
           <h2>Examens en correction</h2>
         </div>
         <div class="admin-actions">
-          <button class="admin-secondary" type="button" data-preview-exam="light">Accéder Poids Léger</button>
-          <button class="admin-secondary" type="button" data-preview-exam="heavy">Accéder Poids Lourd</button>
+          <button class="admin-secondary" type="button" data-open-exam="light">Accéder Poids Léger</button>
+          <button class="admin-secondary" type="button" data-open-exam="heavy">Accéder Poids Lourd</button>
         </div>
       </section>
       <section class="admin-card">
@@ -183,11 +183,11 @@ function renderDashboard() {
     state.currentView = 'users';
     render();
   });
-  document.querySelectorAll('[data-preview-exam]').forEach((button) => {
+  document.querySelectorAll('[data-open-exam]').forEach((button) => {
     button.addEventListener('click', () => {
-      const examId = button.dataset.previewExam;
-      if (window.canPreviewExam?.(examId, state.currentUser)) {
-        window.location.href = `index.html${window.getExamPreviewUrl(examId)}`;
+      const examId = button.dataset.openExam;
+      if (window.canAccessExam?.(examId, state.currentUser)) {
+        window.location.href = `index.html${window.getExamUrl(examId)}`;
       }
     });
   });
