@@ -7,7 +7,13 @@ const SUPABASE_URL      = 'https://mhoxpqskssbxuuyzjsqx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ob3hwcXNrc3NieHV1eXpqc3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDc3NzksImV4cCI6MjEwMjI4Mzc3OX0.psB1yyyAjzPNPsymyxUGiki3mS6CiZd8NKHlnGC0b78';
 
 const { createClient } = window.supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+    }
+});
 
 // ── Utilitaire téléphone ─────────────────────────────────────────
 function phoneToEmail(telephone) {
@@ -57,11 +63,14 @@ async function sbLogout() {
 }
 
 async function sbGetSession() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    if (error) throw error;
     return session;
 }
 
 async function sbGetUser() {
+    const session = await sbGetSession();
+    if (session?.user) return session.user;
     const { data: { user } } = await supabaseClient.auth.getUser();
     return user;
 }

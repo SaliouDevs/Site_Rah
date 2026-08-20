@@ -53,7 +53,7 @@ function applyMaintenanceMode(settings) {
   document.querySelector('[data-show-register]').hidden = true;
   document.querySelector('[data-login-form] h2').textContent = 'Connexion administrateur';
   document.querySelector('label[for="loginIdentifier"]').textContent = 'Identifiant administrateur';
-  document.getElementById('loginIdentifier').placeholder = window.ADMIN_CONFIG.alias;
+  document.getElementById('loginIdentifier').placeholder = 'Votre identifiant';
   document.querySelector('[data-login-submit]').textContent = 'Se connecter à l’admin';
   document.querySelector('[data-auth-alert]').textContent = getMaintenanceMessage(settings);
 }
@@ -131,7 +131,7 @@ async function handleLogin(event) {
   } catch (error) {
     showAlert(normalizeAuthError(error), 'error');
   } finally {
-    setBusy('[data-login-submit]', false, 'Se connecter');
+    setBusy('[data-login-submit]', false, state.maintenance ? 'Se connecter à l’admin' : 'Se connecter');
   }
 }
 
