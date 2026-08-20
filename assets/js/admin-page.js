@@ -1,5 +1,6 @@
 import { requireAuthenticatedUser, logoutCurrentUser, resolveLocalDevUser } from './services/auth-service.js';
 import { loadAdminOverview, renameUser, resetUserPassword, updateUserStatus } from './services/admin-service.js';
+import { loadRuntimeSettings, updateRuntimeMaintenance } from './services/runtime-service.js';
 import { EXAM_LIGHT_DATA } from './data/exam-light-data.js';
 import { EXAM_HEAVY_DATA } from './data/exam-heavy-data.js';
 import {
@@ -22,16 +23,17 @@ const EXAM_LABELS = {
   heavy: 'Poids Lourd'
 };
 
-const EXAM_STATUS_LABELS = {
-  verification: 'En vérification',
-  online: 'En ligne',
-  offline: 'Hors ligne'
-};
+const EXAM_NAV_ORIGIN_KEY = 'examNavigationOrigin';
+const EXAM_ADMIN_RETURN_SECTION_KEY = 'examAdminReturnSection';
 
 const state = {
   currentView: 'dashboard',
   currentUser: null,
   profiles: [],
+  userTotal: 0,
+  userCounts: { total: 0, pending: 0, active: 0, blocked: 0 },
+  userPage: 1,
+  userPageSize: 10,
   filter: 'all',
   query: '',
   examKey: 'light',
@@ -43,13 +45,18 @@ const state = {
     heavy: new Map()
   },
   examBackendConfigured: true,
-  examBackendError: ''
+  examBackendError: '',
+  runtimeSettings: {
+    maintenance_enabled: false,
+    maintenance_message: ''
+  }
 };
 
 document.addEventListener('DOMContentLoaded', initAdmin);
 
 async function initAdmin() {
   setView('<section class="admin-card">Chargement admin...</section>');
+  state.currentView = resolveInitialView();
 
   const dev = resolveLocalDevUser();
   if (dev?.isAdmin) {
@@ -71,8 +78,11 @@ async function initAdmin() {
   state.currentUser = auth.profile;
   window.EAUTO_CURRENT_USER = state.currentUser;
   bindShell();
-  await refreshUsers();
-  await refreshExams({ silent: true });
+  await Promise.all([
+    refreshUsers(),
+    refreshExams({ silent: true }),
+    refreshRuntimeSettings()
+  ]);
   render();
 }
 
@@ -87,9 +97,21 @@ function bindShell() {
 }
 
 async function refreshUsers() {
-  const overview = await loadAdminOverview();
+  const overview = await loadAdminOverview({
+    page: state.userPage,
+    pageSize: state.userPageSize,
+    status: state.filter,
+    query: state.query
+  });
   state.profiles = overview.profiles || [];
+  state.userTotal = overview.total || 0;
+  state.userCounts = overview.counts || countProfilesFromPage();
   return overview;
+}
+
+async function refreshRuntimeSettings() {
+  state.runtimeSettings = await loadRuntimeSettings({ force: true });
+  return state.runtimeSettings;
 }
 
 async function refreshExams({ silent = false } = {}) {
@@ -141,6 +163,7 @@ function render() {
 function renderDashboard() {
   const counts = countProfiles();
   const latest = [...state.profiles].slice(0, 6);
+  const maintenance = state.runtimeSettings?.maintenance_enabled;
   setView(`
     <section class="admin-view">
       <div class="admin-heading">
@@ -156,6 +179,22 @@ function renderDashboard() {
         ${metric('Actifs', counts.active)}
         ${metric('Bloqués', counts.blocked)}
       </div>
+      <section class="admin-card admin-form maintenance-card">
+        <div class="card-heading">
+          <h2>Mode maintenance</h2>
+          <span class="badge ${maintenance ? 'pending' : 'active'}">${maintenance ? 'Maintenance active' : 'Site en ligne'}</span>
+        </div>
+        <label class="admin-switch">
+          <input type="checkbox" data-maintenance-enabled ${maintenance ? 'checked' : ''}>
+          <span>Activer le mode maintenance</span>
+        </label>
+        <label>Message
+          <textarea data-maintenance-message>${escapeHTML(state.runtimeSettings?.maintenance_message || '')}</textarea>
+        </label>
+        <div class="admin-actions">
+          <button class="admin-button" type="button" data-save-maintenance>${maintenance ? 'Désactiver la maintenance' : 'Activer la maintenance'}</button>
+        </div>
+      </section>
       <section class="admin-card">
         <div class="card-heading">
           <h2>Examens en correction</h2>
@@ -191,12 +230,12 @@ function renderDashboard() {
       }
     });
   });
+  document.querySelector('[data-save-maintenance]').addEventListener('click', saveMaintenanceSettings);
 }
 
 function renderExams() {
   const exam = getSelectedExam();
   const questions = filteredExamQuestions(exam);
-  const setting = getSelectedExamSetting();
   setView(`
     <section class="admin-view">
       <div class="admin-heading">
@@ -219,6 +258,9 @@ function renderExams() {
           <span>Les tables Supabase examens ne sont pas encore disponibles. Les utilisateurs restent gérés normalement.</span>
         </section>
       `}
+      <div class="exam-publish-grid">
+        ${Object.keys(EXAMS).map(renderExamPublishCard).join('')}
+      </div>
       <section class="admin-card admin-form exam-admin-toolbar">
         <label>Recherche
           <input data-exam-search placeholder="ID ou texte question" value="${escapeAttribute(state.examQuery)}">
@@ -229,12 +271,7 @@ function renderExams() {
             ${exam.series.map((series) => `<option value="${escapeAttribute(series.id)}" ${state.examSeries === series.id ? 'selected' : ''}>${escapeHTML(series.id)}</option>`).join('')}
           </select>
         </label>
-        <label>Statut
-          <select data-exam-status>
-            ${Object.entries(EXAM_STATUS_LABELS).map(([value, label]) => `<option value="${value}" ${setting.status === value ? 'selected' : ''}>${label}</option>`).join('')}
-          </select>
-        </label>
-        <button class="admin-button" type="button" data-save-exam-status ${state.examBackendConfigured ? '' : 'disabled'}>Enregistrer statut</button>
+        <button class="admin-secondary" type="button" data-open-selected-exam>Ouvrir l'examen</button>
       </section>
       <div class="exam-admin-summary">
         <span>${questions.length} question${questions.length > 1 ? 's' : ''}</span>
@@ -248,8 +285,29 @@ function renderExams() {
   bindExamActions();
 }
 
+function renderExamPublishCard(examKey) {
+  const setting = getExamSetting(examKey);
+  const isOnline = setting.status === 'online';
+  return `
+    <section class="admin-card exam-publish-card">
+      <div>
+        <strong>${escapeHTML(EXAM_LABELS[examKey])}</strong>
+        <span>${isOnline ? 'Disponible aux élèves' : 'En vérification'}</span>
+      </div>
+      <label class="admin-switch">
+        <input type="checkbox" data-exam-availability="${escapeAttribute(examKey)}" ${isOnline ? 'checked' : ''} ${state.examBackendConfigured ? '' : 'disabled'}>
+        <span>Disponible aux élèves : ${isOnline ? 'ON' : 'OFF'}</span>
+      </label>
+      <button class="admin-secondary" type="button" data-open-exam-preview="${escapeAttribute(examKey)}">Ouvrir l'examen</button>
+    </section>
+  `;
+}
+
 function renderUsers() {
-  const profiles = filteredProfiles();
+  const profiles = state.profiles;
+  const pageCount = Math.max(1, Math.ceil(state.userTotal / state.userPageSize));
+  const start = state.userTotal ? ((state.userPage - 1) * state.userPageSize) + 1 : 0;
+  const end = Math.min(state.userPage * state.userPageSize, state.userTotal);
   setView(`
     <section class="admin-view">
       <div class="admin-heading">
@@ -269,6 +327,14 @@ function renderUsers() {
           </select>
         </label>
       </section>
+      <div class="admin-pagination">
+        <span>${start}–${end} sur ${state.userTotal} utilisateur${state.userTotal > 1 ? 's' : ''}</span>
+        <div class="admin-actions">
+          <button class="admin-secondary" type="button" data-user-page="prev" ${state.userPage <= 1 ? 'disabled' : ''}>← Précédent</button>
+          <span>Page ${state.userPage} sur ${pageCount}</span>
+          <button class="admin-secondary" type="button" data-user-page="next" ${state.userPage >= pageCount ? 'disabled' : ''}>Suivant →</button>
+        </div>
+      </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead><tr><th>Prénom</th><th>Téléphone</th><th>Formule</th><th>Statut</th><th>Actions</th></tr></thead>
@@ -282,14 +348,24 @@ function renderUsers() {
   `);
   document.querySelector('[data-refresh]').addEventListener('click', async () => {
     await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false });
+    renderUsers();
   });
   document.querySelector('[data-user-search]').addEventListener('input', (event) => {
     state.query = event.target.value;
-    renderUsers();
+    state.userPage = 1;
+    refreshUsers().then(renderUsers).catch((error) => toast(error.message || 'Chargement refusé', true));
   });
   document.querySelector('[data-user-filter]').addEventListener('change', (event) => {
     state.filter = event.target.value;
-    renderUsers();
+    state.userPage = 1;
+    refreshUsers().then(renderUsers).catch((error) => toast(error.message || 'Chargement refusé', true));
+  });
+  document.querySelectorAll('[data-user-page]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      state.userPage += button.dataset.userPage === 'next' ? 1 : -1;
+      await refreshUsers();
+      renderUsers();
+    });
   });
   bindUserActions();
 }
@@ -388,19 +464,23 @@ function bindExamActions() {
     state.examSeries = event.target.value;
     renderExams();
   });
-  document.querySelector('[data-save-exam-status]').addEventListener('click', async () => {
-    if (!state.examBackendConfigured) return;
-    const status = document.querySelector('[data-exam-status]').value;
-    await runAction(async () => {
-      await updateExamStatus(state.examKey, status);
-      state.examSettings = await loadExamSettings({ force: true });
-    }, 'Statut examen mis à jour', true, { refreshAfter: false });
+  document.querySelector('[data-open-selected-exam]').addEventListener('click', () => openExamInSpa(state.examKey));
+  document.querySelectorAll('[data-open-exam-preview]').forEach((button) => {
+    button.addEventListener('click', () => openExamInSpa(button.dataset.openExamPreview));
+  });
+  document.querySelectorAll('[data-exam-availability]').forEach((input) => {
+    input.addEventListener('change', async () => {
+      await updateExamAvailability(input.dataset.examAvailability, input.checked);
+    });
   });
   document.querySelectorAll('[data-upload-question-image]').forEach((button) => {
     button.addEventListener('click', () => openImagePicker(button.dataset.uploadQuestionImage));
   });
   document.querySelectorAll('[data-restore-question-image]').forEach((button) => {
     button.addEventListener('click', () => confirmRestoreImage(button.dataset.restoreQuestionImage));
+  });
+  document.querySelectorAll('[data-view-question-in-exam]').forEach((button) => {
+    button.addEventListener('click', () => openQuestionInExam(button.dataset.viewQuestionInExam));
   });
 }
 
@@ -432,6 +512,7 @@ function renderExamQuestionCard(question) {
         <div class="admin-actions">
           <button class="admin-button" type="button" data-upload-question-image="${escapeAttribute(question.id)}" ${state.examBackendConfigured ? '' : 'disabled'}>Remplacer l'image</button>
           ${override ? `<button class="admin-secondary" type="button" data-restore-question-image="${escapeAttribute(question.id)}">Restaurer l'image originale</button>` : ''}
+          ${override ? `<button class="admin-secondary" type="button" data-view-question-in-exam="${escapeAttribute(question.id)}">Voir dans l'examen</button>` : ''}
         </div>
       </div>
     </article>
@@ -529,6 +610,80 @@ function confirmRestoreImage(questionId) {
   });
 }
 
+async function updateExamAvailability(examKey, isOnline) {
+  if (!state.examBackendConfigured) return;
+  const status = isOnline ? 'online' : 'verification';
+  const label = EXAM_LABELS[examKey] || 'Examen';
+  const message = isOnline
+    ? `${label} est maintenant disponible aux élèves.`
+    : `${label} est repassé en vérification.`;
+  await runAction(async () => {
+    await updateExamStatus(examKey, status);
+    state.examSettings = await loadExamSettings({ force: true });
+  }, message, true, { refreshAfter: false });
+}
+
+function openExamInSpa(examKey) {
+  sessionStorage.setItem(EXAM_NAV_ORIGIN_KEY, 'admin');
+  sessionStorage.setItem(EXAM_ADMIN_RETURN_SECTION_KEY, 'exams');
+  window.location.href = `index.html${window.getExamUrl(examKey)}`;
+}
+
+function openQuestionInExam(questionId) {
+  const question = findQuestion(questionId);
+  if (!question) return;
+  sessionStorage.setItem(EXAM_NAV_ORIGIN_KEY, 'admin');
+  sessionStorage.setItem(EXAM_ADMIN_RETURN_SECTION_KEY, 'exams');
+  window.location.href = `index.html#/exam/${state.examKey}/series/${encodeURIComponent(question.seriesId)}?question=${encodeURIComponent(question.id)}`;
+}
+
+async function saveMaintenanceSettings() {
+  const enabled = document.querySelector('[data-maintenance-enabled]').checked;
+  const wasEnabled = Boolean(state.runtimeSettings?.maintenance_enabled);
+  const message = document.querySelector('[data-maintenance-message]').value;
+  if (enabled !== wasEnabled) {
+    openMaintenanceConfirm({
+      enabled,
+      message,
+      onConfirm: () => applyMaintenanceSettings(enabled, message)
+    });
+    return;
+  }
+  await applyMaintenanceSettings(enabled, message);
+}
+
+async function applyMaintenanceSettings(enabled, message) {
+  await runAction(async () => {
+    state.runtimeSettings = await updateRuntimeMaintenance({ enabled, message });
+  }, enabled ? 'Maintenance activée.' : 'Site remis en ligne.', true, { refreshAfter: false });
+}
+
+function openMaintenanceConfirm({ enabled, message, onConfirm }) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop">
+      <div class="admin-modal">
+        <h2>${enabled ? 'Activer le mode maintenance ?' : 'Remettre le site en ligne ?'}</h2>
+        <p>${enabled
+          ? 'Les élèves actuellement connectés seront déconnectés et ne pourront pas se reconnecter tant que la maintenance restera active.'
+          : 'Les utilisateurs pourront à nouveau se connecter et utiliser eAutoecole.'}</p>
+        <div class="admin-actions">
+          <button class="admin-secondary" type="button" data-close-modal>Annuler</button>
+          <button class="admin-button" type="button" data-confirm-maintenance>${enabled ? 'Activer la maintenance' : 'Remettre en ligne'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  root.querySelector('[data-close-modal]').addEventListener('click', () => {
+    root.innerHTML = '';
+    renderDashboard();
+  });
+  root.querySelector('[data-confirm-maintenance]').addEventListener('click', async () => {
+    root.innerHTML = '';
+    await onConfirm(message);
+  });
+}
+
 async function runAction(fn, successMessage, rerender = true, { refreshAfter = true } = {}) {
   try {
     await fn();
@@ -572,6 +727,10 @@ function latestProfile(profile) {
 }
 
 function countProfiles() {
+  return state.userCounts || countProfilesFromPage();
+}
+
+function countProfilesFromPage() {
   return {
     total: state.profiles.length,
     pending: state.profiles.filter((p) => p.status === 'pending').length,
@@ -580,21 +739,12 @@ function countProfiles() {
   };
 }
 
-function filteredProfiles() {
-  const q = state.query.trim().toLowerCase();
-  return state.profiles.filter((profile) => {
-    const matchesFilter = state.filter === 'all' || profile.status === state.filter;
-    const text = `${profile.prenom || ''} ${profile.telephone || ''}`.toLowerCase();
-    return matchesFilter && text.includes(q);
-  });
-}
-
 function getSelectedExam() {
   return EXAMS[state.examKey] || EXAMS.light;
 }
 
-function getSelectedExamSetting() {
-  return state.examSettings.find((setting) => setting.exam_key === state.examKey) || { exam_key: state.examKey, status: 'verification' };
+function getExamSetting(examKey) {
+  return state.examSettings.find((setting) => setting.exam_key === examKey) || { exam_key: examKey, status: 'verification' };
 }
 
 function getAllExamQuestions(exam) {
@@ -620,6 +770,21 @@ function countOverrides(examKey) {
 
 function setView(html) {
   document.getElementById('admin-view').innerHTML = html;
+}
+
+function resolveInitialView() {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get('view') || sessionStorage.getItem(EXAM_ADMIN_RETURN_SECTION_KEY);
+  sessionStorage.removeItem(EXAM_NAV_ORIGIN_KEY);
+  sessionStorage.removeItem(EXAM_ADMIN_RETURN_SECTION_KEY);
+  if (view === 'users' || view === 'exams' || view === 'dashboard') {
+    if (params.has('view')) {
+      const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+      window.history.replaceState(null, '', cleanUrl);
+    }
+    return view;
+  }
+  return 'dashboard';
 }
 
 function metric(label, value) {

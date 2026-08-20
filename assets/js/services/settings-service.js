@@ -1,4 +1,5 @@
 import { loadExamSettings } from './exam-service.js';
+import { loadRuntimeSettings } from './runtime-service.js';
 
 const fallbackSettings = {
   maintenance_enabled: false,
@@ -24,12 +25,20 @@ let settingsChannel = null;
 export async function loadAppSettings() {
   if (!window.sb) return { ...fallbackSettings };
   try {
-    const [{ data, error }, examSettings] = await Promise.all([
+    const [{ data, error }, examSettings, runtimeSettings] = await Promise.all([
       window.sb.from('app_settings').select('*').eq('id', 'global').single(),
-      loadExamSettings({ force: true })
+      loadExamSettings({ force: true }),
+      loadRuntimeSettings({ force: true })
     ]);
     if (error) throw error;
-    cachedSettings = { ...fallbackSettings, ...(data || {}), exam_settings: examSettings };
+    cachedSettings = {
+      ...fallbackSettings,
+      ...(data || {}),
+      maintenance_enabled: runtimeSettings.maintenance_enabled,
+      maintenance_message: runtimeSettings.maintenance_message,
+      exam_settings: examSettings,
+      runtime_settings: runtimeSettings
+    };
   } catch (error) {
     cachedSettings = { ...fallbackSettings };
   }

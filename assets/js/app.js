@@ -12,6 +12,7 @@ import {
   getStateLabel
 } from './progress.js';
 import { requireAuthenticatedUser, logoutCurrentUser } from './services/auth-service.js';
+import { getMaintenanceMessage, subscribeToRuntimeSettings } from './services/runtime-service.js';
 
 const appConfig = window.APP_CONFIG;
 const examsConfig = window.EXAMS_CONFIG;
@@ -31,7 +32,7 @@ async function initializeApp() {
   applySavedTheme();
   installUiGlobals();
 
-  const authContext = await requireAuthenticatedUser({ onMaintenance: renderMaintenanceView });
+  const authContext = await requireAuthenticatedUser({ allowAdmin: true, onMaintenance: renderMaintenanceView });
   if (!authContext) {
     return;
   }
@@ -45,11 +46,22 @@ async function initializeApp() {
   startRouter();
   updateBottomNav();
   installProfileGuard(authContext.user?.id);
+  installMaintenanceGuard();
   window.addEventListener('hashchange', updateBottomNav);
   window.addEventListener('learning-progress-updated', () => {
     if (getCurrentPath() === '/home' || getCurrentPath() === '/progress') {
       renderCurrentRoute();
     }
+  });
+}
+
+function installMaintenanceGuard() {
+  if (currentUser?.isAdmin) return;
+  subscribeToRuntimeSettings(async (settings) => {
+    if (!settings.maintenance_enabled) return;
+    sessionStorage.setItem('maintenance_message', getMaintenanceMessage(settings));
+    if (typeof window.sbLogout === 'function') await window.sbLogout();
+    window.location.href = 'auth.html?maintenance=1';
   });
 }
 
@@ -297,14 +309,20 @@ function renderExamCard(examId, license, title) {
   const status = window.getExamStatus?.(examId) || 'verification';
   if (status === 'offline') return '';
   const icon = status === 'online' ? 'fa-circle-check' : 'fa-screwdriver-wrench';
-  const actionLabel = status === 'online' ? 'Commencer' : 'Accéder';
+  const description = status === 'online'
+    ? "Préparation à l'examen"
+    : 'Certaines questions sont encore en cours de contrôle.';
+  const tag = status === 'online' ? 'button' : 'article';
+  const interactiveAttrs = status === 'online'
+    ? `type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}"`
+    : `data-exam-id="${escapeAttribute(examId)}" aria-disabled="true"`;
   return `
-    <button class="nav-card exam-card ${escapeAttribute(status)}" type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}">
+    <${tag} class="nav-card exam-card ${escapeAttribute(status)}" ${interactiveAttrs}>
       <span class="exam-license">${license}</span>
       <strong>${title}</strong>
       <span class="exam-status-badge ${escapeAttribute(status)}"><i class="fas ${icon}"></i> ${escapeHTML(window.getExamStatusLabel?.(examId) || 'En vérification')}</span>
-      <span class="exam-action-label">${actionLabel}</span>
-    </button>
+      <small>${escapeHTML(description)}</small>
+    </${tag}>
   `;
 }
 

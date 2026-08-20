@@ -185,10 +185,71 @@ body.admin-page {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.maintenance-card {
+  max-width: 760px;
+}
+
+.admin-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 850;
+}
+
+.admin-switch input {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  flex: 0 0 auto;
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.admin-switch input::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 160ms ease;
+}
+
+.admin-switch input:checked {
+  accent-color: var(--teal-600);
+  border-color: var(--teal-600);
+  background: var(--teal-600);
+}
+
+.admin-switch input:checked::before {
+  transform: translateX(20px);
+}
+
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+  font-weight: 800;
+}
+
 .admin-form label {
   display: grid;
   gap: 6px;
   font-weight: 850;
+}
+
+.admin-form label.admin-switch {
+  display: flex;
 }
 
 .admin-form input,
@@ -345,8 +406,29 @@ body.admin-page {
   border-color: var(--navy-950);
 }
 
+.exam-publish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.exam-publish-card {
+  display: grid;
+  gap: 12px;
+}
+
+.exam-publish-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.exam-publish-card div span {
+  color: var(--text-secondary);
+  font-weight: 800;
+}
+
 .exam-admin-toolbar {
-  grid-template-columns: minmax(180px, 1fr) minmax(130px, 180px) minmax(150px, 190px) auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(130px, 180px) auto;
   align-items: end;
 }
 

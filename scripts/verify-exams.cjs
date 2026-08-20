@@ -42,7 +42,8 @@ async function installSupabaseMock(page, options = {}) {
     role = 'student',
     statuses = { light: 'verification', heavy: 'verification' },
     overrides = [],
-    profiles = []
+    profiles = [],
+    maintenance = { enabled: false, message: 'Maintenance test' }
   } = options;
   await page.route('**/assets/js/supabase.js', (route) => route.fulfill({
     contentType: 'text/javascript',
@@ -53,6 +54,8 @@ async function installSupabaseMock(page, options = {}) {
         statuses: ${JSON.stringify(statuses)},
         overrides: ${JSON.stringify(overrides)},
         profiles: ${JSON.stringify(profiles)},
+        maintenance: ${JSON.stringify(maintenance)},
+        logoutCount: 0,
         deleted: []
       };
       const user = mockState.auth === 'none' ? null : {
@@ -77,8 +80,20 @@ async function installSupabaseMock(page, options = {}) {
           then(resolve) { return Promise.resolve(this._result()).then(resolve); },
           _singleData() {
             if (table === 'app_settings') return { id: 'global' };
+            if (table === 'runtime_settings') {
+              if (this.updatePayload) {
+                mockState.maintenance.enabled = this.updatePayload.maintenance_enabled;
+                mockState.maintenance.message = this.updatePayload.maintenance_message;
+              }
+              return {
+                id: 'global',
+                maintenance_enabled: mockState.maintenance.enabled,
+                maintenance_message: mockState.maintenance.message
+              };
+            }
             if (table === 'exam_settings') {
               const examKey = this.filters?.exam_key || this.value || 'light';
+              if (this.updatePayload) mockState.statuses[examKey] = this.updatePayload.status;
               return { exam_key: examKey, status: this.updatePayload?.status || mockState.statuses[examKey] || 'verification' };
             }
             if (table === 'exam_question_images') return this.upsertPayload || mockState.overrides[0] || null;
@@ -86,6 +101,20 @@ async function installSupabaseMock(page, options = {}) {
           },
           _result() {
             if (table === 'app_settings') return { data: { id: 'global' }, error: null };
+            if (table === 'runtime_settings') {
+              if (this.updatePayload) {
+                mockState.maintenance.enabled = this.updatePayload.maintenance_enabled;
+                mockState.maintenance.message = this.updatePayload.maintenance_message;
+              }
+              return {
+                data: {
+                  id: 'global',
+                  maintenance_enabled: mockState.maintenance.enabled,
+                  maintenance_message: mockState.maintenance.message
+                },
+                error: null
+              };
+            }
             if (table === 'exam_settings') {
               if (this.updatePayload) {
                 const examKey = this.filters?.exam_key || this.value;
@@ -133,10 +162,32 @@ async function installSupabaseMock(page, options = {}) {
         return { id: user.id, prenom: 'Eleve', telephone: '770000000', status: mockState.auth, isAdmin: false, isSupabaseUser: true };
       };
       window.sbIsAdmin = (candidate) => candidate?.app_metadata?.role === 'admin';
-      window.sbLogout = async () => {};
-      window.sbSubscribe = () => ({});
+      window.sbLogout = async () => {
+        mockState.logoutCount += 1;
+        sessionStorage.setItem('mock_logout_count', String(mockState.logoutCount));
+      };
+      window.sbSubscribe = (channelName, config, callback) => {
+        mockState.subscription = { channelName, config, callback };
+        return {};
+      };
       window.sbRemoveChannel = () => {};
       window.sbGetAllProfiles = async () => mockState.profiles;
+      window.sbGetProfilesPage = async ({ page = 1, pageSize = 10, status = 'all', query = '' } = {}) => {
+        const q = String(query || '').toLowerCase();
+        const filtered = mockState.profiles.filter((profile) => {
+          const statusMatch = status === 'all' || profile.status === status;
+          const text = String((profile.prenom || '') + ' ' + (profile.telephone || '')).toLowerCase();
+          return statusMatch && (!q || text.includes(q));
+        });
+        const start = (page - 1) * pageSize;
+        return { profiles: filtered.slice(start, start + pageSize), total: filtered.length };
+      };
+      window.sbGetProfileCounts = async () => ({
+        total: mockState.profiles.length,
+        pending: mockState.profiles.filter((profile) => profile.status === 'pending').length,
+        active: mockState.profiles.filter((profile) => profile.status === 'active').length,
+        blocked: mockState.profiles.filter((profile) => profile.status === 'blocked').length
+      });
       window.sbAdminUpdateStatus = async (id, status) => ({ id, status });
       window.sbAdminRenameUser = async (id, prenom) => ({ id, prenom });
       window.sbAdminResetPassword = async () => {};
@@ -187,8 +238,11 @@ async function verifyExamStatuses(browser) {
   await installSupabaseMock(verification, { statuses: { light: 'verification', heavy: 'verification' } });
   await verification.goto(`${indexUrl}#/exams`, { waitUntil: 'domcontentloaded' });
   await expectText(verification, 'body', 'En vérification');
-  await verification.locator('[data-exam-entry="light"]').click();
-  await expectText(verification, '#modal-root', 'Examen en vérification');
+  await expectText(verification, 'body', 'Certaines questions sont encore en cours de contrôle.');
+  await expectCount(verification, 'button[data-exam-entry="light"]', 0);
+  await expectCount(verification, 'text=Accéder', 0);
+  await verification.goto(`${indexUrl}#/exam/light`, { waitUntil: 'domcontentloaded' });
+  await expectText(verification, 'body', 'en vérification');
   await verification.close();
 
   const offline = await browser.newPage();
@@ -209,8 +263,10 @@ async function verifyExamStatuses(browser) {
   await expectText(online, 'body', '50');
   await online.goto(`${indexUrl}#/exam/light/series/B1`, { waitUntil: 'domcontentloaded' });
   await expectText(online, 'body', 'Poids léger · B1');
+  await expectCount(online, 'text=PL-001', 0);
   await online.goto(`${indexUrl}#/exam/heavy/series/C1`, { waitUntil: 'domcontentloaded' });
   await expectText(online, 'body', 'Poids lourd · C1');
+  await expectCount(online, 'text=PLD-001', 0);
   await online.close();
 }
 
@@ -220,18 +276,115 @@ async function verifyImageOverride(browser) {
     statuses: { light: 'online', heavy: 'verification' },
     overrides: [{ question_id: 'PL-001', exam_key: 'light', series_id: 'B1', storage_path: 'light/PL-001/mock.webp' }]
   });
-  await page.goto(`${indexUrl}#/exam/light/series/B1`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${indexUrl}#/exam/light/series/B1?question=PL-001`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.exam-question-image');
   const src = await page.locator('.exam-question-image').getAttribute('src');
   if (!src.includes('exam-images/light/PL-001/mock.webp')) throw new Error(`Override not used: ${src}`);
   await page.close();
 }
 
+async function verifyAdminQuestionLink(browser) {
+  const page = await browser.newPage();
+  await installSupabaseMock(page, {
+    role: 'admin',
+    statuses: { light: 'verification', heavy: 'verification' },
+    profiles: [],
+    overrides: [{ question_id: 'PL-001', exam_key: 'light', series_id: 'B1', storage_path: 'light/PL-001/mock.webp' }]
+  });
+  await page.goto(adminUrl, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Examens', exact: true }).click();
+  await page.getByPlaceholder('ID ou texte question').fill('PL-001');
+  await page.getByRole('button', { name: "Voir dans l'examen" }).click();
+  await page.waitForURL(/#\/exam\/light\/series\/B1\?question=PL-001/);
+  await expectText(page, 'body', 'Question 1 / 25');
+  const src = await page.locator('.exam-question-image').getAttribute('src');
+  if (!src.includes('exam-images/light/PL-001/mock.webp')) throw new Error(`Admin question link did not use override: ${src}`);
+  await page.close();
+}
+
+async function verifyAdminExamReturn(browser) {
+  for (const [examKey, expectedSeries] of [['light', 'B1'], ['heavy', 'C1']]) {
+    const page = await browser.newPage();
+    await installSupabaseMock(page, {
+      role: 'admin',
+      statuses: { light: 'verification', heavy: 'offline' },
+      profiles: []
+    });
+    await page.goto(`${adminUrl}?view=exams`, { waitUntil: 'domcontentloaded' });
+    await expectText(page, 'body', 'Gestion des examens');
+    await page.locator(`[data-open-exam-preview="${examKey}"]`).click();
+    await page.waitForURL(new RegExp(`#\\/exam\\/${examKey}`));
+    await expectText(page, 'body', expectedSeries);
+    await page.getByRole('button', { name: '← Retour' }).click();
+    await page.waitForURL(/admin\.html/);
+    await expectText(page, 'body', 'Gestion des examens');
+    const origin = await page.evaluate(() => sessionStorage.getItem('examNavigationOrigin'));
+    if (origin) throw new Error('Admin exam return origin was not cleaned');
+    await page.close();
+  }
+}
+
+async function verifyStudentExamReturn(browser) {
+  const page = await browser.newPage();
+  await installSupabaseMock(page, { statuses: { light: 'online', heavy: 'verification' } });
+  await page.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await page.locator('button[data-exam-card][data-exam-id="light"]').click();
+  await page.waitForURL(/#\/exam\/light/);
+  await page.getByRole('button', { name: '← Retour' }).click();
+  await page.waitForURL(/#\/home/);
+  await expectText(page, 'body', 'Bonjour');
+  await page.close();
+}
+
+async function verifyMaintenance(browser) {
+  const page = await browser.newPage();
+  await installSupabaseMock(page, {
+    statuses: { light: 'online', heavy: 'online' },
+    maintenance: { enabled: false, message: 'Maintenance test' }
+  });
+  await page.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => localStorage.setItem('eautoecole.learningProgress', '{"kept":true}'));
+  await page.evaluate(() => {
+    window.__mockState.maintenance.enabled = true;
+    window.__mockState.subscription.callback({
+      new: {
+        id: 'global',
+        maintenance_enabled: true,
+        maintenance_message: 'Maintenance test'
+      }
+    });
+  });
+  await page.waitForURL(/auth\.html\?maintenance=1/);
+  await expectText(page, 'body', 'Maintenance test');
+  const progress = await page.evaluate(() => localStorage.getItem('eautoecole.learningProgress'));
+  if (progress !== '{"kept":true}') throw new Error('Maintenance logout removed local progress');
+  const logoutCount = await page.evaluate(() => Number(sessionStorage.getItem('mock_logout_count') || 0));
+  if (logoutCount < 1) throw new Error('Maintenance did not sign out Supabase session');
+  await page.close();
+
+  const admin = await browser.newPage();
+  await installSupabaseMock(admin, {
+    role: 'admin',
+    maintenance: { enabled: true, message: 'Maintenance test' }
+  });
+  await admin.goto(adminUrl, { waitUntil: 'domcontentloaded' });
+  await expectText(admin, 'body', 'Tableau de bord');
+  await admin.close();
+}
+
 async function verifyAdmin(browser) {
   const profiles = [
     { id: 'u1', prenom: 'Pending', telephone: '771', formule: 'Formule Illimitée', prix: 2000, status: 'pending' },
     { id: 'u2', prenom: 'Active', telephone: '772', formule: 'Formule Illimitée', prix: 2000, status: 'active' },
-    { id: 'u3', prenom: 'Blocked', telephone: '773', formule: 'Formule Illimitée', prix: 2000, status: 'blocked' }
+    { id: 'u3', prenom: 'Blocked', telephone: '773', formule: 'Formule Illimitée', prix: 2000, status: 'blocked' },
+    ...Array.from({ length: 23 }, (_, index) => ({
+      id: `u${index + 4}`,
+      prenom: `User ${index + 4}`,
+      telephone: `78${String(index + 4).padStart(7, '0')}`,
+      formule: 'Formule Illimitée',
+      prix: 2000,
+      status: 'active'
+    }))
   ];
   const page = await browser.newPage({ viewport: { width: 430, height: 932 } });
   await installSupabaseMock(page, {
@@ -242,15 +395,32 @@ async function verifyAdmin(browser) {
   });
   await page.goto(adminUrl, { waitUntil: 'domcontentloaded' });
   await expectText(page, 'body', 'Utilisateurs total');
-  await expectText(page, 'body', '3');
+  await expectText(page, 'body', '26');
+  await expectText(page, 'body', 'Mode maintenance');
   await page.getByRole('button', { name: 'Utilisateurs', exact: true }).click();
+  await expectText(page, 'body', '1–10 sur 26 utilisateurs');
+  await expectCount(page, '.admin-table tbody tr', 10);
   await expectText(page, 'body', 'Pending');
   await expectText(page, 'body', 'Active');
   await expectText(page, 'body', 'Blocked');
+  await page.getByRole('button', { name: 'Suivant →' }).click();
+  await expectText(page, 'body', '11–20 sur 26 utilisateurs');
+  await page.getByRole('button', { name: '← Précédent' }).click();
+  await page.getByPlaceholder('Prénom ou téléphone').fill('Blocked');
+  await expectText(page, 'body', '1–1 sur 1 utilisateur');
+  await expectText(page, 'body', 'Blocked');
+  await page.getByPlaceholder('Prénom ou téléphone').fill('');
+  await page.locator('[data-user-filter]').selectOption('pending');
+  await expectText(page, 'body', '1–1 sur 1 utilisateur');
+  await page.locator('[data-user-filter]').selectOption('all');
   await page.getByRole('button', { name: 'Examens', exact: true }).click();
+  await expectText(page, 'body', 'Disponible aux élèves : OFF');
+  await page.locator('[data-exam-availability="light"]').check();
+  await expectText(page, '#toast-root', 'Poids Léger est maintenant disponible aux élèves.');
   await page.getByPlaceholder('ID ou texte question').fill('PL-001');
   await expectText(page, 'body', 'PL-001');
   await expectText(page, 'body', 'Personnalisée');
+  await expectText(page, 'body', "Voir dans l'examen");
   await page.getByRole('button', { name: "Restaurer l'image originale" }).click();
   await page.getByRole('button', { name: 'Restaurer', exact: true }).click();
   await expectText(page, '#toast-root', 'Image originale restaurée.');
@@ -263,9 +433,20 @@ async function verifyAdmin(browser) {
   await chooser.setFiles(tmpFile);
   await expectText(page, 'body', 'Enregistrer');
   await page.getByRole('button', { name: 'Annuler' }).click();
-  await page.locator('[data-exam-status]').selectOption('offline');
-  await page.getByRole('button', { name: 'Enregistrer statut' }).click();
-  await expectText(page, '#toast-root', 'Statut examen mis à jour');
+  await page.locator('[data-exam-availability="light"]').uncheck();
+  await expectText(page, '#toast-root', 'Poids Léger est repassé en vérification.');
+  await page.getByRole('button', { name: 'Tableau de bord', exact: true }).click();
+  await page.locator('[data-maintenance-enabled]').check();
+  await page.getByRole('button', { name: 'Activer la maintenance' }).click();
+  await expectText(page, '#modal-root', 'Activer le mode maintenance ?');
+  await page.locator('#modal-root').getByRole('button', { name: 'Activer la maintenance', exact: true }).click();
+  await expectText(page, '#toast-root', 'Maintenance activée.');
+  await expectText(page, 'body', 'Maintenance active');
+  await page.locator('[data-maintenance-enabled]').uncheck();
+  await page.getByRole('button', { name: 'Désactiver la maintenance' }).click();
+  await expectText(page, '#modal-root', 'Remettre le site en ligne ?');
+  await page.locator('#modal-root').getByRole('button', { name: 'Remettre en ligne' }).click();
+  await expectText(page, '#toast-root', 'Site remis en ligne.');
   await page.close();
 }
 
@@ -273,6 +454,7 @@ async function verifyResponsive(browser) {
   const viewports = [
     { width: 390, height: 844 },
     { width: 430, height: 932 },
+    { width: 768, height: 1024 },
     { width: 1366, height: 768 }
   ];
   for (const viewport of viewports) {
@@ -301,6 +483,10 @@ async function verifyResponsive(browser) {
     await verifyAuth(browser);
     await verifyExamStatuses(browser);
     await verifyImageOverride(browser);
+    await verifyAdminQuestionLink(browser);
+    await verifyAdminExamReturn(browser);
+    await verifyStudentExamReturn(browser);
+    await verifyMaintenance(browser);
     await verifyAdmin(browser);
     await verifyResponsive(browser);
     console.log('permanent exam verification passed');

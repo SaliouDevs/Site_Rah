@@ -9,6 +9,8 @@ export const EXAM_DATA = {
 };
 
 let activeExam = null;
+const EXAM_NAV_ORIGIN_KEY = 'examNavigationOrigin';
+const EXAM_ADMIN_RETURN_SECTION_KEY = 'examAdminReturnSection';
 
 export function renderExamsView(container, currentUser) {
   setBottomNavVisible(true);
@@ -16,7 +18,7 @@ export function renderExamsView(container, currentUser) {
   const visibleExams = [EXAM_LIGHT_DATA, EXAM_HEAVY_DATA].filter((exam) => getStatus(exam) !== 'offline');
   container.innerHTML = `
     <section class="view-stack exams-view">
-      <button class="text-back" type="button" data-route="/home">← Retour</button>
+      <button class="text-back" type="button" data-exam-back>← Retour</button>
       <div class="view-heading">
         <p class="eyebrow">Préparation examens</p>
         <h1>Examens</h1>
@@ -27,7 +29,7 @@ export function renderExamsView(container, currentUser) {
       </div>
     </section>
   `;
-  bindRouteLinks(container);
+  bindExamBack(container, currentUser);
   bindExamEntries(container, currentUser);
 }
 
@@ -45,7 +47,7 @@ export async function renderExamHome(container, params, currentUser) {
   const totalQuestions = getAllQuestions(exam).length;
   container.innerHTML = `
     <section class="view-stack exam-home-view">
-      <button class="text-back" type="button" data-route="/home">← Retour</button>
+      <button class="text-back" type="button" data-exam-back>← Retour</button>
       <div class="view-heading compact">
         <p class="eyebrow">${escapeHTML(exam.license)}</p>
         <h1>${escapeHTML(exam.title)}</h1>
@@ -79,7 +81,7 @@ export async function renderExamHome(container, params, currentUser) {
       </section>
     </section>
   `;
-  bindRouteLinks(container);
+  bindExamBack(container, currentUser);
   container.querySelectorAll('[data-start-exam-series]').forEach((button) => {
     button.addEventListener('click', () => navigateTo(`/exam/${exam.id}/series/${button.dataset.startExamSeries}`));
   });
@@ -95,10 +97,11 @@ export async function renderExamSeries(container, params, currentUser) {
   if (!series) return renderUnknownExam(container);
 
   setBottomNavVisible(false);
+  const initialIndex = getInitialQuestionIndex(series);
   activeExam = {
     exam,
     series,
-    currentIndex: 0,
+    currentIndex: initialIndex,
     answers: {},
     validated: {}
   };
@@ -114,7 +117,7 @@ function renderActiveQuestion(container) {
   container.innerHTML = `
     <section class="exam-active-view immersive-view">
       <div class="exam-active-topbar">
-        <button class="text-back" type="button" data-quit-exam>← Quitter</button>
+      <button class="text-back" type="button" data-quit-exam>← Quitter</button>
         <div>
           <strong>${escapeHTML(exam.title)} · ${escapeHTML(series.id)}</strong>
           <span>Question ${currentIndex + 1} / ${series.questions.length}</span>
@@ -123,7 +126,7 @@ function renderActiveQuestion(container) {
       <div class="exam-progress-track"><span style="width:${progress}%"></span></div>
       <article class="exam-question-panel">
         ${question.image ? `<img class="exam-question-image" src="${escapeAttribute(question.image)}" alt="" loading="lazy">` : ''}
-        <div class="exam-question-meta"><span>${escapeHTML(question.id)}</span><strong>Question ${currentIndex + 1}</strong></div>
+        <div class="exam-question-meta"><strong>Question ${currentIndex + 1} / ${series.questions.length}</strong></div>
         <h1>${escapeHTML(question.text || '')}</h1>
         <div class="exam-options">
           ${renderQuestionOptions(question, answer, isValidated)}
@@ -151,7 +154,11 @@ function bindActiveQuestion(container) {
       onConfirm: () => {
         activeExam = null;
         setBottomNavVisible(true);
-        navigateTo(`/exam/${exam.id}`);
+        if (hasAdminExamOrigin()) {
+          returnToAdmin();
+        } else {
+          navigateTo(`/exam/${exam.id}`);
+        }
       }
     });
   });
@@ -235,7 +242,7 @@ function renderCorrections(container) {
       <div class="exam-correction-list">
         ${series.questions.map((question, index) => `
           <article class="exam-correction-card ${isCorrect(question, answers[index]) ? 'correct' : 'wrong'}">
-            <div class="exam-question-meta"><span>${escapeHTML(question.id)}</span><strong>${isCorrect(question, answers[index]) ? 'Correct' : 'À revoir'}</strong></div>
+            <div class="exam-question-meta"><strong>Question ${index + 1} · ${isCorrect(question, answers[index]) ? 'Correct' : 'À revoir'}</strong></div>
             <p>${escapeHTML(question.text || '')}</p>
             <dl>
               <div><dt>Ta réponse</dt><dd>${escapeHTML(formatAnswer(question, answers[index]))}</dd></div>
@@ -260,19 +267,25 @@ function renderCorrections(container) {
 function renderExamEntry(exam, currentUser) {
   const status = getStatus(exam);
   const icon = status === 'online' ? 'fa-circle-check' : 'fa-screwdriver-wrench';
-  const actionLabel = status === 'online' ? 'Commencer' : 'Accéder';
+  const description = status === 'online'
+    ? "Préparation à l'examen"
+    : 'Certaines questions sont encore en cours de contrôle.';
+  const tag = status === 'online' ? 'button' : 'article';
+  const attrs = status === 'online'
+    ? `type="button" data-exam-entry="${escapeAttribute(exam.id)}"`
+    : `data-exam-entry="${escapeAttribute(exam.id)}" aria-disabled="true"`;
   return `
-    <button class="nav-card exam-card ${escapeAttribute(status)}" type="button" data-exam-entry="${exam.id}">
+    <${tag} class="nav-card exam-card ${escapeAttribute(status)}" ${attrs}>
       <span class="exam-license">${escapeHTML(exam.license)}</span>
       <strong>${escapeHTML(exam.title)}</strong>
       <span class="exam-status-badge ${escapeAttribute(status)}"><i class="fas ${icon}"></i> ${escapeHTML(window.getExamStatusLabel?.(exam.id) || 'En vérification')}</span>
-      <span class="exam-action-label">${actionLabel}</span>
-    </button>
+      <small>${escapeHTML(description)}</small>
+    </${tag}>
   `;
 }
 
 function bindExamEntries(container, currentUser) {
-  container.querySelectorAll('[data-exam-entry]').forEach((button) => {
+  container.querySelectorAll('button[data-exam-entry]').forEach((button) => {
     button.addEventListener('click', () => {
       const exam = getExam(button.dataset.examEntry);
       if (exam && canAccess(exam, currentUser)) {
@@ -291,7 +304,7 @@ function renderExamBlocked(container, exam) {
   activeExam = null;
   container.innerHTML = `
     <section class="view-stack">
-      <button class="text-back" type="button" data-route="/home">← Retour</button>
+      <button class="text-back" type="button" data-exam-back>← Retour</button>
       <div class="empty-state">
         <i class="fas ${isOffline ? 'fa-ban' : 'fa-screwdriver-wrench'}"></i>
         <h1>${escapeHTML(exam.title)} est ${isOffline ? 'hors ligne' : 'en vérification'}</h1>
@@ -299,7 +312,7 @@ function renderExamBlocked(container, exam) {
       </div>
     </section>
   `;
-  bindRouteLinks(container);
+  bindExamBack(container, window.EAUTO_CURRENT_USER);
   if (!isOffline) window.setTimeout(() => openExamAccessModal(exam.id), 0);
 }
 
@@ -384,6 +397,14 @@ function getStatus(exam) {
   return window.getExamStatus?.(exam.id) || 'verification';
 }
 
+function getInitialQuestionIndex(series) {
+  const params = new URLSearchParams((window.location.hash.split('?')[1] || ''));
+  const questionId = params.get('question');
+  if (!questionId) return 0;
+  const index = series.questions.findIndex((question) => question.id === questionId);
+  return index >= 0 ? index : 0;
+}
+
 export function openExamAccessModal(examId) {
   const exam = getExam(examId);
   if (!exam || typeof window.eautoModal !== 'function') return;
@@ -447,6 +468,33 @@ function bindRouteLinks(root) {
   root.querySelectorAll('[data-route]').forEach((button) => {
     button.addEventListener('click', () => navigateTo(button.dataset.route));
   });
+}
+
+function bindExamBack(container, currentUser) {
+  container.querySelectorAll('[data-exam-back]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (isAdminUser(currentUser) && hasAdminExamOrigin()) {
+        returnToAdmin();
+        return;
+      }
+      navigateTo('/home');
+    });
+  });
+}
+
+function hasAdminExamOrigin() {
+  return sessionStorage.getItem(EXAM_NAV_ORIGIN_KEY) === 'admin';
+}
+
+function returnToAdmin() {
+  const view = sessionStorage.getItem(EXAM_ADMIN_RETURN_SECTION_KEY) || 'exams';
+  sessionStorage.removeItem(EXAM_NAV_ORIGIN_KEY);
+  sessionStorage.removeItem(EXAM_ADMIN_RETURN_SECTION_KEY);
+  window.location.href = `admin.html?view=${encodeURIComponent(view)}`;
+}
+
+function isAdminUser(user) {
+  return Boolean(user?.isAdmin || user?.app_metadata?.role === 'admin');
 }
 
 function setBottomNavVisible(isVisible) {
