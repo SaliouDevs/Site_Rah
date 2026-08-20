@@ -1,3 +1,5 @@
+import { loadExamSettings } from './exam-service.js';
+
 const fallbackSettings = {
   maintenance_enabled: false,
   maintenance_title: 'Maintenance en cours',
@@ -22,9 +24,12 @@ let settingsChannel = null;
 export async function loadAppSettings() {
   if (!window.sb) return { ...fallbackSettings };
   try {
-    const { data, error } = await window.sb.from('app_settings').select('*').eq('id', 'global').single();
+    const [{ data, error }, examSettings] = await Promise.all([
+      window.sb.from('app_settings').select('*').eq('id', 'global').single(),
+      loadExamSettings({ force: true })
+    ]);
     if (error) throw error;
-    cachedSettings = { ...fallbackSettings, ...(data || {}) };
+    cachedSettings = { ...fallbackSettings, ...(data || {}), exam_settings: examSettings };
   } catch (error) {
     cachedSettings = { ...fallbackSettings };
   }
@@ -67,12 +72,16 @@ function applySettingsToLegacyConfig(settings) {
     window.CONTACT_CONFIG.email = settings.support_email || window.CONTACT_CONFIG.email;
     window.CONTACT_CONFIG.address = settings.support_address || window.CONTACT_CONFIG.address;
   }
-  if (window.EXAMS_CONFIG) {
-    const lightEnabled = Boolean(settings.examen_poids_leger_enabled);
-    const heavyEnabled = Boolean(settings.examen_poids_lourd_enabled);
-    window.EXAMS_CONFIG.light = { ...(window.EXAMS_CONFIG.light || {}), status: lightEnabled ? 'online' : 'verification', enabled: lightEnabled };
-    window.EXAMS_CONFIG.heavy = { ...(window.EXAMS_CONFIG.heavy || {}), status: heavyEnabled ? 'online' : 'verification', enabled: heavyEnabled };
-    window.EXAMS_CONFIG.poidsLegerEnabled = lightEnabled;
-    window.EXAMS_CONFIG.poidsLourdEnabled = heavyEnabled;
+  if (window.EXAMS_CONFIG && Array.isArray(settings.exam_settings)) {
+    settings.exam_settings.forEach((examSetting) => {
+      const status = examSetting.status || 'verification';
+      window.EXAMS_CONFIG[examSetting.exam_key] = {
+        ...(window.EXAMS_CONFIG[examSetting.exam_key] || {}),
+        status,
+        enabled: status === 'online'
+      };
+    });
+    window.EXAMS_CONFIG.poidsLegerEnabled = window.EXAMS_CONFIG.light?.status === 'online';
+    window.EXAMS_CONFIG.poidsLourdEnabled = window.EXAMS_CONFIG.heavy?.status === 'online';
   }
 }

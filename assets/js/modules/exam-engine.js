@@ -1,6 +1,7 @@
 import { EXAM_LIGHT_DATA } from '../data/exam-light-data.js';
 import { EXAM_HEAVY_DATA } from '../data/exam-heavy-data.js';
 import { navigateTo } from '../router.js';
+import { getExamWithImageOverrides } from '../services/exam-service.js';
 
 export const EXAM_DATA = {
   light: EXAM_LIGHT_DATA,
@@ -12,28 +13,32 @@ let activeExam = null;
 export function renderExamsView(container, currentUser) {
   setBottomNavVisible(true);
   activeExam = null;
+  const visibleExams = [EXAM_LIGHT_DATA, EXAM_HEAVY_DATA].filter((exam) => getStatus(exam) !== 'offline');
   container.innerHTML = `
     <section class="view-stack exams-view">
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="view-heading">
         <p class="eyebrow">Préparation examens</p>
         <h1>Examens</h1>
         <p>Les examens Poids léger et Poids lourd sont en vérification. Un accès temporaire est disponible pour les personnes autorisées.</p>
       </div>
       <div class="exam-grid">
-        ${renderExamEntry(EXAM_LIGHT_DATA, currentUser)}
-        ${renderExamEntry(EXAM_HEAVY_DATA, currentUser)}
+        ${visibleExams.map((exam) => renderExamEntry(exam, currentUser)).join('') || '<p>Aucun examen disponible.</p>'}
       </div>
     </section>
   `;
+  bindRouteLinks(container);
   bindExamEntries(container, currentUser);
 }
 
-export function renderExamHome(container, params, currentUser) {
-  const exam = getExam(params.type);
+export async function renderExamHome(container, params, currentUser) {
+  let exam = getExam(params.type);
   if (!exam) return renderUnknownExam(container);
   setBottomNavVisible(true);
   activeExam = null;
   if (!canAccess(exam, currentUser)) return renderExamBlocked(container, exam);
+  container.innerHTML = '<section class="loading-screen"><span class="spinner"></span><p>Chargement examen...</p></section>';
+  exam = await getExamWithImageOverrides(exam);
 
   const history = readHistory(exam);
   const latest = history[0];
@@ -41,7 +46,7 @@ export function renderExamHome(container, params, currentUser) {
   const canOpenImageReview = typeof window.canPreviewExam === 'function' && window.canPreviewExam(exam.id, currentUser);
   container.innerHTML = `
     <section class="view-stack exam-home-view">
-      <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="view-heading compact">
         <p class="eyebrow">${escapeHTML(exam.license)}</p>
         <h1>${escapeHTML(exam.title)}</h1>
@@ -86,10 +91,12 @@ export function renderExamHome(container, params, currentUser) {
   });
 }
 
-export function renderExamSeries(container, params, currentUser) {
-  const exam = getExam(params.type);
+export async function renderExamSeries(container, params, currentUser) {
+  let exam = getExam(params.type);
   if (!exam) return renderUnknownExam(container);
   if (!canAccess(exam, currentUser)) return renderExamBlocked(container, exam);
+  container.innerHTML = '<section class="loading-screen"><span class="spinner"></span><p>Chargement série...</p></section>';
+  exam = await getExamWithImageOverrides(exam);
   const series = getSeries(exam, params.seriesId);
   if (!series) return renderUnknownExam(container);
 
@@ -257,12 +264,15 @@ function renderCorrections(container) {
 }
 
 function renderExamEntry(exam, currentUser) {
+  const status = getStatus(exam);
+  const icon = status === 'online' ? 'fa-circle-check' : 'fa-screwdriver-wrench';
+  const actionLabel = status === 'online' ? 'Commencer' : 'Accéder';
   return `
-    <button class="nav-card exam-card" type="button" data-exam-entry="${exam.id}">
+    <button class="nav-card exam-card ${escapeAttribute(status)}" type="button" data-exam-entry="${exam.id}">
       <span class="exam-license">${escapeHTML(exam.license)}</span>
       <strong>${escapeHTML(exam.title)}</strong>
-      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En vérification</span>
-      <span class="exam-preview-label">Accéder</span>
+      <span class="exam-status-badge ${escapeAttribute(status)}"><i class="fas ${icon}"></i> ${escapeHTML(window.getExamStatusLabel?.(exam.id) || 'En vérification')}</span>
+      <span class="exam-preview-label">${actionLabel}</span>
     </button>
   `;
 }
@@ -281,20 +291,22 @@ function bindExamEntries(container, currentUser) {
 }
 
 function renderExamBlocked(container, exam) {
+  const status = getStatus(exam);
+  const isOffline = status === 'offline';
   setBottomNavVisible(true);
   activeExam = null;
   container.innerHTML = `
     <section class="view-stack">
-      <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="empty-state">
-        <i class="fas fa-screwdriver-wrench"></i>
-        <h1>${escapeHTML(exam.title)} est en vérification</h1>
-        <p>Un accès temporaire est disponible pour les personnes autorisées.</p>
+        <i class="fas ${isOffline ? 'fa-ban' : 'fa-screwdriver-wrench'}"></i>
+        <h1>${escapeHTML(exam.title)} est ${isOffline ? 'hors ligne' : 'en vérification'}</h1>
+        <p>${isOffline ? "Cet examen n'est pas disponible actuellement." : 'Un accès temporaire est disponible pour les personnes autorisées.'}</p>
       </div>
     </section>
   `;
   bindRouteLinks(container);
-  window.setTimeout(() => openExamAccessModal(exam.id), 0);
+  if (!isOffline) window.setTimeout(() => openExamAccessModal(exam.id), 0);
 }
 
 function renderUnknownExam(container) {
@@ -374,19 +386,39 @@ function canAccess(exam, currentUser) {
   return typeof window.canAccessExam === 'function' && window.canAccessExam(exam.id, currentUser);
 }
 
+function getStatus(exam) {
+  return window.getExamStatus?.(exam.id) || 'verification';
+}
+
 export function openExamAccessModal(examId) {
   const exam = getExam(examId);
   if (!exam || typeof window.eautoModal !== 'function') return;
+  const status = getStatus(exam);
+  if (status === 'offline') {
+    window.eautoModal(`
+      <div class="modal-card exam-access-modal">
+        <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
+        <div class="exam-unavailable-icon"><i class="fas fa-ban"></i></div>
+        <h2>Examen hors ligne</h2>
+        <p>Cet examen n'est pas disponible actuellement.</p>
+        <div class="reader-actions">
+          <button class="secondary-action" type="button" data-close-modal>Fermer</button>
+        </div>
+      </div>
+    `);
+    return;
+  }
+  const canUsePreviewPin = Boolean(window.EXAM_PREVIEW_CONFIG?.enabled);
   window.eautoModal(`
     <div class="modal-card exam-access-modal">
       <button class="modal-close" type="button" data-close-modal aria-label="Fermer">×</button>
       <div class="exam-unavailable-icon"><i class="fas fa-screwdriver-wrench"></i></div>
       <h2>Examen en vérification</h2>
       <p>Cet examen est actuellement en phase de vérification. Certaines images sont encore en cours de contrôle.</p>
-      <p>L'accès est réservé aux personnes autorisées pendant cette période.</p>
+      <p>L'accès est réservé à l'administration pendant cette période.</p>
       <div class="reader-actions">
         <button class="secondary-action" type="button" data-close-modal>Fermer</button>
-        <button class="primary-action" type="button" data-open-dev-access>Accès développeur</button>
+        ${canUsePreviewPin ? '<button class="primary-action" type="button" data-open-dev-access>Accès développeur</button>' : ''}
       </div>
     </div>
   `);

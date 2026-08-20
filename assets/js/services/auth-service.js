@@ -1,3 +1,5 @@
+import { loadAppSettings } from './settings-service.js';
+
 const DEV_AUTO_LOGIN_DISABLED_KEY = 'devAutoLoginDisabled';
 
 const devStudent = {
@@ -26,7 +28,7 @@ export async function requireAuthenticatedUser({ allowAdmin = false, onMaintenan
   }
 
   const isAdmin = window.sbIsAdmin(session.user);
-  const settings = {};
+  const settings = await loadAppSettings();
   let profile = null;
   try {
     profile = await window.sbGetProfile();
@@ -75,7 +77,7 @@ export async function signInWithIdentifier(identifier, password) {
   } catch (error) {
     if (!isAdmin) throw error;
   }
-  const settings = {};
+  const settings = await loadAppSettings();
   return { ...result, user, profile, settings, isAdmin };
 }
 
