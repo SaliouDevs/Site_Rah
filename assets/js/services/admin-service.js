@@ -1,10 +1,17 @@
 export async function loadAdminOverview({ page = 1, pageSize = 10, status = 'all', query = '' } = {}) {
   if (typeof window.sbGetProfilesPage === 'function' && typeof window.sbGetProfileCounts === 'function') {
-    const [pageResult, counts] = await Promise.all([
+    const [pageResult, countsResult] = await Promise.allSettled([
       window.sbGetProfilesPage({ page, pageSize, status, query }),
       window.sbGetProfileCounts()
     ]);
-    return { ...pageResult, counts };
+    if (pageResult.status === 'rejected') throw pageResult.reason;
+    if (countsResult.status === 'rejected') {
+      console.warn('Compteurs utilisateurs indisponibles', countsResult.reason);
+    }
+    return {
+      ...pageResult.value,
+      counts: countsResult.status === 'fulfilled' ? countsResult.value : null
+    };
   }
   throw new Error('Pagination utilisateurs indisponible');
 }

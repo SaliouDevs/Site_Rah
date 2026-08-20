@@ -12,7 +12,7 @@ import {
   getStateLabel
 } from './progress.js';
 import { requireAuthenticatedUser, logoutCurrentUser } from './services/auth-service.js';
-import { getMaintenanceMessage, subscribeToRuntimeSettings } from './services/runtime-service.js';
+import { startMaintenanceGuard } from './services/maintenance-guard.js';
 
 const appConfig = window.APP_CONFIG;
 const examsConfig = window.EXAMS_CONFIG;
@@ -40,6 +40,7 @@ async function initializeApp() {
   currentSettings = authContext.settings || {};
   currentUser = normalizeProfile(authContext.profile);
   window.EAUTO_CURRENT_USER = currentUser;
+  clearStaleAdminExamOrigin(currentUser);
   window.EAUTO_RENDER_HOME = () => {
     renderHomeView();
     renderBottomNav();
@@ -61,13 +62,16 @@ async function initializeApp() {
 }
 
 function installMaintenanceGuard() {
-  if (currentUser?.isAdmin) return;
-  subscribeToRuntimeSettings(async (settings) => {
-    if (!settings.maintenance_enabled) return;
-    sessionStorage.setItem('maintenance_message', getMaintenanceMessage(settings));
-    if (typeof window.sbLogout === 'function') await window.sbLogout();
-    window.location.href = 'auth.html?maintenance=1';
+  startMaintenanceGuard({
+    user: currentUser,
+    onMaintenance: renderMaintenanceView
   });
+}
+
+function clearStaleAdminExamOrigin(user) {
+  if (user?.isAdmin) return;
+  sessionStorage.removeItem('examNavigationOrigin');
+  sessionStorage.removeItem('examAdminReturnSection');
 }
 
 function registerRoutes() {

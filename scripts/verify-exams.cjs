@@ -56,7 +56,11 @@ async function installSupabaseMock(page, options = {}) {
         profiles: ${JSON.stringify(profiles)},
         maintenance: ${JSON.stringify(maintenance)},
         logoutCount: 0,
-        deleted: []
+        deleted: [],
+        subscriptions: [],
+        refreshCount: 0,
+        statusUpdateCount: 0,
+        runtimeUpdateCount: 0
       };
       const user = mockState.auth === 'none' ? null : {
         id: mockState.role === 'admin' ? 'admin-user' : 'student-user',
@@ -82,6 +86,7 @@ async function installSupabaseMock(page, options = {}) {
             if (table === 'app_settings') return { id: 'global' };
             if (table === 'runtime_settings') {
               if (this.updatePayload) {
+                mockState.runtimeUpdateCount += 1;
                 mockState.maintenance.enabled = this.updatePayload.maintenance_enabled;
                 mockState.maintenance.message = this.updatePayload.maintenance_message;
               }
@@ -93,7 +98,10 @@ async function installSupabaseMock(page, options = {}) {
             }
             if (table === 'exam_settings') {
               const examKey = this.filters?.exam_key || this.value || 'light';
-              if (this.updatePayload) mockState.statuses[examKey] = this.updatePayload.status;
+              if (this.updatePayload) {
+                mockState.statusUpdateCount += 1;
+                mockState.statuses[examKey] = this.updatePayload.status;
+              }
               return { exam_key: examKey, status: this.updatePayload?.status || mockState.statuses[examKey] || 'verification' };
             }
             if (table === 'exam_question_images') return this.upsertPayload || mockState.overrides[0] || null;
@@ -103,6 +111,7 @@ async function installSupabaseMock(page, options = {}) {
             if (table === 'app_settings') return { data: { id: 'global' }, error: null };
             if (table === 'runtime_settings') {
               if (this.updatePayload) {
+                mockState.runtimeUpdateCount += 1;
                 mockState.maintenance.enabled = this.updatePayload.maintenance_enabled;
                 mockState.maintenance.message = this.updatePayload.maintenance_message;
               }
@@ -118,6 +127,7 @@ async function installSupabaseMock(page, options = {}) {
             if (table === 'exam_settings') {
               if (this.updatePayload) {
                 const examKey = this.filters?.exam_key || this.value;
+                mockState.statusUpdateCount += 1;
                 mockState.statuses[examKey] = this.updatePayload.status;
                 return { data: { exam_key: examKey, status: this.updatePayload.status }, error: null };
               }
@@ -154,6 +164,10 @@ async function installSupabaseMock(page, options = {}) {
       };
       window.sbGetSession = async () => user ? ({ user }) : null;
       window.sbGetUser = async () => user;
+      window.sbLogin = async () => {
+        if (!user) throw new Error('Invalid login credentials');
+        return { user, session: { user } };
+      };
       window.sbGetProfile = async () => {
         if (!user) return null;
         if (mockState.role === 'admin') {
@@ -162,12 +176,17 @@ async function installSupabaseMock(page, options = {}) {
         return { id: user.id, prenom: 'Eleve', telephone: '770000000', status: mockState.auth, isAdmin: false, isSupabaseUser: true };
       };
       window.sbIsAdmin = (candidate) => candidate?.app_metadata?.role === 'admin';
+      window.sbRefreshSession = async () => {
+        mockState.refreshCount += 1;
+        return user ? ({ user }) : null;
+      };
       window.sbLogout = async () => {
         mockState.logoutCount += 1;
         sessionStorage.setItem('mock_logout_count', String(mockState.logoutCount));
       };
       window.sbSubscribe = (channelName, config, callback) => {
         mockState.subscription = { channelName, config, callback };
+        mockState.subscriptions.push({ channelName, config });
         return {};
       };
       window.sbRemoveChannel = () => {};
@@ -322,6 +341,36 @@ async function verifyAdminExamReturn(browser) {
     if (origin) throw new Error('Admin exam return origin was not cleaned');
     await page.close();
   }
+
+  const reload = await browser.newPage();
+  await installSupabaseMock(reload, {
+    role: 'admin',
+    statuses: { light: 'verification', heavy: 'verification' },
+    profiles: []
+  });
+  await reload.goto(`${adminUrl}?view=exams`, { waitUntil: 'domcontentloaded' });
+  await reload.locator('[data-open-exam-preview="light"]').click();
+  await reload.waitForURL(/#\/exam\/light/);
+  await reload.reload({ waitUntil: 'domcontentloaded' });
+  await reload.getByRole('button', { name: '← Retour' }).click();
+  await reload.waitForURL(/admin\.html/);
+  await expectText(reload, 'body', 'Gestion des examens');
+  await reload.close();
+
+  const dashboard = await browser.newPage();
+  await installSupabaseMock(dashboard, {
+    role: 'admin',
+    statuses: { light: 'verification', heavy: 'verification' },
+    profiles: []
+  });
+  await dashboard.goto(adminUrl, { waitUntil: 'domcontentloaded' });
+  await expectText(dashboard, 'body', 'Tableau de bord');
+  await dashboard.locator('[data-open-exam="light"]').click();
+  await dashboard.waitForURL(/#\/exam\/light/);
+  await dashboard.getByRole('button', { name: '← Retour' }).click();
+  await dashboard.waitForURL(/admin\.html/);
+  await expectText(dashboard, 'body', 'Gestion des examens');
+  await dashboard.close();
 }
 
 async function verifyStudentExamReturn(browser) {
@@ -334,6 +383,21 @@ async function verifyStudentExamReturn(browser) {
   await page.waitForURL(/#\/home/);
   await expectText(page, 'body', 'Bonjour');
   await page.close();
+
+  const stale = await browser.newPage();
+  await installSupabaseMock(stale, { statuses: { light: 'online', heavy: 'verification' } });
+  await stale.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await stale.evaluate(() => {
+    sessionStorage.setItem('examNavigationOrigin', 'admin');
+    sessionStorage.setItem('examAdminReturnSection', 'exams');
+  });
+  await stale.reload({ waitUntil: 'domcontentloaded' });
+  const origin = await stale.evaluate(() => sessionStorage.getItem('examNavigationOrigin'));
+  if (origin) throw new Error('Non-admin did not clear stale admin exam origin');
+  await stale.goto(`${indexUrl}#/exam/light`, { waitUntil: 'domcontentloaded' });
+  await stale.locator('[data-exam-back]').click();
+  await stale.waitForURL(/#\/home/);
+  await stale.close();
 }
 
 async function verifyMaintenance(browser) {
@@ -362,12 +426,78 @@ async function verifyMaintenance(browser) {
   if (logoutCount < 1) throw new Error('Maintenance did not sign out Supabase session');
   await page.close();
 
+  const fallback = await browser.newPage();
+  await installSupabaseMock(fallback, {
+    statuses: { light: 'online', heavy: 'online' },
+    maintenance: { enabled: false, message: 'Maintenance fallback' }
+  });
+  await fallback.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  const runtimeSubscriptions = await fallback.evaluate(() => window.__mockState.subscriptions.filter((item) => item.config.table === 'runtime_settings').length);
+  if (runtimeSubscriptions !== 1) throw new Error(`Expected one runtime_settings subscription, got ${runtimeSubscriptions}`);
+  await fallback.evaluate(() => {
+    window.__mockState.maintenance.enabled = true;
+    window.__mockState.maintenance.message = 'Maintenance fallback';
+    window.dispatchEvent(new Event('focus'));
+  });
+  await fallback.waitForURL(/auth\.html\?maintenance=1/);
+  await expectText(fallback, 'body', 'Maintenance fallback');
+  await fallback.close();
+
+  const polling = await browser.newPage();
+  await installSupabaseMock(polling, {
+    statuses: { light: 'online', heavy: 'online' },
+    maintenance: { enabled: false, message: 'Maintenance polling' }
+  });
+  await polling.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await polling.evaluate(async () => {
+    const module = await import('/assets/js/services/maintenance-guard.js');
+    module.stopMaintenanceGuard();
+    window.__mockState.maintenance.enabled = true;
+    window.__mockState.maintenance.message = 'Maintenance polling';
+    module.startMaintenanceGuard({
+      user: { isAdmin: false },
+      pollIntervalMs: 50
+    });
+  });
+  await polling.waitForURL(/auth\.html\?maintenance=1/);
+  await expectText(polling, 'body', 'Maintenance polling');
+  await polling.close();
+
   const admin = await browser.newPage();
   await installSupabaseMock(admin, {
     role: 'admin',
     maintenance: { enabled: true, message: 'Maintenance test' }
   });
   await admin.goto(adminUrl, { waitUntil: 'domcontentloaded' });
+  await expectText(admin, 'body', 'Tableau de bord');
+  await admin.close();
+}
+
+async function verifyLoginDuringMaintenance(browser) {
+  const student = await browser.newPage();
+  await installSupabaseMock(student, {
+    maintenance: { enabled: true, message: 'Maintenance login test' }
+  });
+  await student.goto(`${baseUrl}/auth.html`, { waitUntil: 'domcontentloaded' });
+  await student.locator('#loginIdentifier').fill('77 000 00 00');
+  await student.locator('#loginPassword').fill('secret12');
+  await student.locator('[data-login-form]').evaluate((form) => form.requestSubmit());
+  await expectText(student, '[data-auth-alert]', 'Maintenance login test');
+  if (student.url().includes('index.html')) throw new Error('Student entered app during maintenance login');
+  const logoutCount = await student.evaluate(() => Number(sessionStorage.getItem('mock_logout_count') || 0));
+  if (logoutCount < 1) throw new Error('Student login during maintenance did not sign out session');
+  await student.close();
+
+  const admin = await browser.newPage();
+  await installSupabaseMock(admin, {
+    role: 'admin',
+    maintenance: { enabled: true, message: 'Maintenance login test' }
+  });
+  await admin.goto(`${baseUrl}/auth.html`, { waitUntil: 'domcontentloaded' });
+  await admin.locator('#loginIdentifier').fill('rah@admin');
+  await admin.locator('#loginPassword').fill('secret12');
+  await admin.locator('[data-login-form]').evaluate((form) => form.requestSubmit());
+  await admin.waitForURL(/admin\.html/);
   await expectText(admin, 'body', 'Tableau de bord');
   await admin.close();
 }
@@ -417,6 +547,8 @@ async function verifyAdmin(browser) {
   await expectText(page, 'body', 'Disponible aux élèves : OFF');
   await page.locator('[data-exam-availability="light"]').check();
   await expectText(page, '#toast-root', 'Poids Léger est maintenant disponible aux élèves.');
+  const statusUpdateCount = await page.evaluate(() => window.__mockState.statusUpdateCount);
+  if (statusUpdateCount !== 1) throw new Error(`Expected one exam status update, got ${statusUpdateCount}`);
   await page.getByPlaceholder('ID ou texte question').fill('PL-001');
   await expectText(page, 'body', 'PL-001');
   await expectText(page, 'body', 'Personnalisée');
@@ -487,6 +619,7 @@ async function verifyResponsive(browser) {
     await verifyAdminExamReturn(browser);
     await verifyStudentExamReturn(browser);
     await verifyMaintenance(browser);
+    await verifyLoginDuringMaintenance(browser);
     await verifyAdmin(browser);
     await verifyResponsive(browser);
     console.log('permanent exam verification passed');
