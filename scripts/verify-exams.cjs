@@ -62,6 +62,20 @@ async function installSupabaseMock(page, options = {}) {
         statusUpdateCount: 0,
         runtimeUpdateCount: 0
       };
+      const nativeSetInterval = window.setInterval.bind(window);
+      const nativeClearInterval = window.clearInterval.bind(window);
+      window.setInterval = (callback, delay, ...args) => {
+        const id = nativeSetInterval(callback, delay, ...args);
+        mockState.intervals = mockState.intervals || [];
+        mockState.intervals.push({ id, delay, active: true });
+        return id;
+      };
+      window.clearInterval = (id) => {
+        mockState.intervals = (mockState.intervals || []).map((item) => (
+          item.id === id ? { ...item, active: false } : item
+        ));
+        return nativeClearInterval(id);
+      };
       const user = mockState.auth === 'none' ? null : {
         id: mockState.role === 'admin' ? 'admin-user' : 'student-user',
         app_metadata: mockState.role === 'admin' ? { role: 'admin' } : {}
@@ -187,9 +201,18 @@ async function installSupabaseMock(page, options = {}) {
       window.sbSubscribe = (channelName, config, callback) => {
         mockState.subscription = { channelName, config, callback };
         mockState.subscriptions.push({ channelName, config });
+        mockState.subscriptionCallbacks = mockState.subscriptionCallbacks || {};
+        mockState.subscriptionCallbacks[config.table] = callback;
         return {};
       };
-      window.sbRemoveChannel = () => {};
+      window.sbRemoveChannel = () => {
+        mockState.removeChannelCount = (mockState.removeChannelCount || 0) + 1;
+      };
+      window.__triggerTable = (table, row = {}) => {
+        const callback = mockState.subscriptionCallbacks?.[table];
+        if (!callback) throw new Error('No subscription for ' + table);
+        callback({ new: row });
+      };
       window.sbGetAllProfiles = async () => mockState.profiles;
       window.sbGetProfilesPage = async ({ page = 1, pageSize = 10, status = 'all', query = '' } = {}) => {
         const q = String(query || '').toLowerCase();
@@ -302,6 +325,137 @@ async function verifyImageOverride(browser) {
   await page.close();
 }
 
+async function verifyExamSettingsLive(browser) {
+  const on = await browser.newPage();
+  await installSupabaseMock(on, { statuses: { light: 'verification', heavy: 'verification' } });
+  await on.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await on.evaluate(() => {
+    window.__liveMarker = 'kept';
+    window.__examSettingsEventCount = 0;
+    window.addEventListener('exam-settings-updated', () => {
+      window.__examSettingsEventCount += 1;
+    });
+  });
+  await expectCount(on, 'button[data-exam-card][data-exam-id="light"]', 0);
+  await on.evaluate(() => {
+    window.__mockState.statuses.light = 'online';
+    window.__triggerTable('exam_settings', { exam_key: 'light', status: 'online' });
+  });
+  await on.waitForSelector('button[data-exam-card][data-exam-id="light"]');
+  await expectText(on, 'body', 'En ligne');
+  const onState = await on.evaluate(() => ({
+    marker: window.__liveMarker,
+    events: window.__examSettingsEventCount
+  }));
+  if (onState.marker !== 'kept') throw new Error('Exam live ON caused a reload');
+  if (onState.events < 1) throw new Error('exam-settings-updated event was not emitted');
+  await on.locator('button[data-exam-card][data-exam-id="light"]').click();
+  await on.waitForURL(/#\/exam\/light/);
+  await on.close();
+
+  const off = await browser.newPage();
+  await installSupabaseMock(off, { statuses: { light: 'online', heavy: 'verification' } });
+  await off.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await off.waitForSelector('button[data-exam-card][data-exam-id="light"]');
+  await off.evaluate(() => {
+    window.__liveMarker = 'kept';
+    window.__mockState.statuses.light = 'verification';
+    window.__triggerTable('exam_settings', { exam_key: 'light', status: 'verification' });
+  });
+  await off.waitForFunction(() => !document.querySelector('button[data-exam-card][data-exam-id="light"]'));
+  await expectText(off, 'body', 'En vérification');
+  const offMarker = await off.evaluate(() => window.__liveMarker);
+  if (offMarker !== 'kept') throw new Error('Exam live OFF caused a reload');
+  await off.close();
+
+  const active = await browser.newPage();
+  await installSupabaseMock(active, { statuses: { light: 'online', heavy: 'verification' } });
+  await active.goto(`${indexUrl}#/exam/light/series/B1`, { waitUntil: 'domcontentloaded' });
+  await expectText(active, 'body', 'Question 1 / 25');
+  await active.evaluate(() => {
+    localStorage.setItem('eautoecole.learningProgress', '{"kept":true}');
+    window.__mockState.statuses.light = 'verification';
+    window.__triggerTable('exam_settings', { exam_key: 'light', status: 'verification' });
+  });
+  await active.waitForURL(/#\/home/);
+  await expectText(active, '#toast-root', "Cet examen n'est plus disponible.");
+  const activeState = await active.evaluate(() => ({
+    logoutCount: window.__mockState.logoutCount,
+    progress: localStorage.getItem('eautoecole.learningProgress')
+  }));
+  if (activeState.logoutCount !== 0) throw new Error(`Exam disable signed out student: ${activeState.logoutCount}`);
+  if (activeState.progress !== '{"kept":true}') throw new Error('Exam disable removed local progress');
+  await active.close();
+
+  const admin = await browser.newPage();
+  await installSupabaseMock(admin, { role: 'admin', statuses: { light: 'online', heavy: 'verification' } });
+  await admin.goto(`${indexUrl}#/exam/light/series/B1`, { waitUntil: 'domcontentloaded' });
+  await expectText(admin, 'body', 'Question 1 / 25');
+  await admin.evaluate(() => {
+    window.__mockState.statuses.light = 'verification';
+    window.__triggerTable('exam_settings', { exam_key: 'light', status: 'verification' });
+  });
+  await admin.waitForTimeout(250);
+  if (!admin.url().includes('#/exam/light/series/B1')) throw new Error('Admin was removed from exam after status change');
+  const adminLogoutCount = await admin.evaluate(() => window.__mockState.logoutCount);
+  if (adminLogoutCount !== 0) throw new Error(`Admin was signed out by exam live guard: ${adminLogoutCount}`);
+  await admin.close();
+
+  const heavy = await browser.newPage();
+  await installSupabaseMock(heavy, { statuses: { light: 'verification', heavy: 'verification' } });
+  await heavy.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await heavy.evaluate(() => {
+    window.__mockState.statuses.heavy = 'online';
+    window.__triggerTable('exam_settings', { exam_key: 'heavy', status: 'online' });
+  });
+  await heavy.waitForSelector('button[data-exam-card][data-exam-id="heavy"]');
+  await expectCount(heavy, 'button[data-exam-card][data-exam-id="light"]', 0);
+  await heavy.close();
+
+  const lifecycle = await browser.newPage();
+  await installSupabaseMock(lifecycle, { statuses: { light: 'verification', heavy: 'verification' } });
+  await lifecycle.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  const beforeLifecycle = await lifecycle.evaluate(() => ({
+    examSubscriptions: window.__mockState.subscriptions.filter((item) => item.config.table === 'exam_settings').length,
+    activeIntervals: window.__mockState.intervals.filter((item) => item.active).length
+  }));
+  if (beforeLifecycle.examSubscriptions !== 1) throw new Error(`Expected one exam_settings subscription, got ${beforeLifecycle.examSubscriptions}`);
+  await lifecycle.evaluate(() => {
+    window.dispatchEvent(new Event('focus'));
+    window.dispatchEvent(new Event('online'));
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  const afterEvents = await lifecycle.evaluate(() => ({
+    examSubscriptions: window.__mockState.subscriptions.filter((item) => item.config.table === 'exam_settings').length,
+    activeIntervals: window.__mockState.intervals.filter((item) => item.active).length
+  }));
+  if (afterEvents.examSubscriptions !== beforeLifecycle.examSubscriptions) throw new Error('Focus/online/visibility created exam subscriptions');
+  if (afterEvents.activeIntervals !== beforeLifecycle.activeIntervals) throw new Error('Focus/online/visibility created polling timers');
+  const afterStop = await lifecycle.evaluate(async () => {
+    const module = await import('/assets/js/services/exam-settings-sync.js');
+    module.stopExamSettingsSync();
+    return {
+      removeChannelCount: window.__mockState.removeChannelCount || 0,
+      activeIntervals: window.__mockState.intervals.filter((item) => item.active).length
+    };
+  });
+  if (afterStop.removeChannelCount < 1) throw new Error('Exam settings cleanup did not remove channel');
+  if (afterStop.activeIntervals !== beforeLifecycle.activeIntervals - 1) throw new Error('Exam settings cleanup did not clear one polling timer');
+  await lifecycle.close();
+
+  const polling = await browser.newPage();
+  await installSupabaseMock(polling, { statuses: { light: 'verification', heavy: 'verification' } });
+  await polling.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await polling.evaluate(async () => {
+    const module = await import('/assets/js/services/exam-settings-sync.js');
+    module.stopExamSettingsSync();
+    window.__mockState.statuses.light = 'online';
+    module.startExamSettingsSync({ pollIntervalMs: 50 });
+  });
+  await polling.waitForSelector('button[data-exam-card][data-exam-id="light"]');
+  await polling.close();
+}
+
 async function verifyAdminQuestionLink(browser) {
   const page = await browser.newPage();
   await installSupabaseMock(page, {
@@ -410,12 +564,10 @@ async function verifyMaintenance(browser) {
   await page.evaluate(() => localStorage.setItem('eautoecole.learningProgress', '{"kept":true}'));
   await page.evaluate(() => {
     window.__mockState.maintenance.enabled = true;
-    window.__mockState.subscription.callback({
-      new: {
-        id: 'global',
-        maintenance_enabled: true,
-        maintenance_message: 'Maintenance test'
-      }
+    window.__triggerTable('runtime_settings', {
+      id: 'global',
+      maintenance_enabled: true,
+      maintenance_message: 'Maintenance test'
     });
   });
   await page.waitForURL(/auth\.html\?maintenance=1/);
@@ -651,6 +803,7 @@ async function verifyResponsive(browser) {
     await verifyAuth(browser);
     await verifyExamStatuses(browser);
     await verifyImageOverride(browser);
+    await verifyExamSettingsLive(browser);
     await verifyAdminQuestionLink(browser);
     await verifyAdminExamReturn(browser);
     await verifyStudentExamReturn(browser);
