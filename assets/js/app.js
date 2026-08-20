@@ -40,6 +40,11 @@ async function initializeApp() {
   currentSettings = authContext.settings || {};
   currentUser = normalizeProfile(authContext.profile);
   window.EAUTO_CURRENT_USER = currentUser;
+  window.EAUTO_RENDER_HOME = () => {
+    renderHomeView();
+    renderBottomNav();
+    updateBottomNav();
+  };
   renderHeader();
   renderBottomNav();
   registerRoutes();

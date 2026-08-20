@@ -477,7 +477,7 @@ function bindExamBack(container, currentUser) {
         returnToAdmin();
         return;
       }
-      navigateTo('/home');
+      returnToStudentHome();
     });
   });
 }
@@ -491,6 +491,15 @@ function returnToAdmin() {
   sessionStorage.removeItem(EXAM_NAV_ORIGIN_KEY);
   sessionStorage.removeItem(EXAM_ADMIN_RETURN_SECTION_KEY);
   window.location.href = `admin.html?view=${encodeURIComponent(view)}`;
+}
+
+function returnToStudentHome() {
+  window.location.hash = '#/home';
+  if (typeof window.EAUTO_RENDER_HOME === 'function') {
+    window.EAUTO_RENDER_HOME();
+    return;
+  }
+  window.location.href = 'index.html#/home';
 }
 
 function isAdminUser(user) {

@@ -330,7 +330,7 @@ async function verifyStudentExamReturn(browser) {
   await page.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
   await page.locator('button[data-exam-card][data-exam-id="light"]').click();
   await page.waitForURL(/#\/exam\/light/);
-  await page.getByRole('button', { name: '← Retour' }).click();
+  await page.locator('[data-exam-back]').click();
   await page.waitForURL(/#\/home/);
   await expectText(page, 'body', 'Bonjour');
   await page.close();
