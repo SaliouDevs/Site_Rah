@@ -1,12 +1,47 @@
 import { requireAuthenticatedUser, logoutCurrentUser, resolveLocalDevUser } from './services/auth-service.js';
 import { loadAdminOverview, renameUser, resetUserPassword, updateUserStatus } from './services/admin-service.js';
+import { EXAM_LIGHT_DATA } from './data/exam-light-data.js';
+import { EXAM_HEAVY_DATA } from './data/exam-heavy-data.js';
+import {
+  getExamImageRules,
+  loadExamImageOverrides,
+  loadExamSettings,
+  restoreQuestionOriginalImage,
+  updateExamStatus,
+  uploadQuestionImage,
+  validateExamImageFile
+} from './services/exam-service.js';
+
+const EXAMS = {
+  light: EXAM_LIGHT_DATA,
+  heavy: EXAM_HEAVY_DATA
+};
+
+const EXAM_LABELS = {
+  light: 'Poids Léger',
+  heavy: 'Poids Lourd'
+};
+
+const EXAM_STATUS_LABELS = {
+  verification: 'En vérification',
+  online: 'En ligne',
+  offline: 'Hors ligne'
+};
 
 const state = {
   currentView: 'dashboard',
   currentUser: null,
   profiles: [],
   filter: 'all',
-  query: ''
+  query: '',
+  examKey: 'light',
+  examQuery: '',
+  examSeries: 'all',
+  examSettings: [],
+  examOverrides: {
+    light: new Map(),
+    heavy: new Map()
+  }
 };
 
 document.addEventListener('DOMContentLoaded', initAdmin);
@@ -49,8 +84,16 @@ function bindShell() {
 }
 
 async function refreshData() {
-  const overview = await loadAdminOverview();
+  const [overview, examSettings, lightOverrides, heavyOverrides] = await Promise.all([
+    loadAdminOverview(),
+    loadExamSettings({ force: true }),
+    loadExamImageOverrides('light', { force: true }),
+    loadExamImageOverrides('heavy', { force: true })
+  ]);
   state.profiles = overview.profiles || [];
+  state.examSettings = examSettings || [];
+  state.examOverrides.light = lightOverrides;
+  state.examOverrides.heavy = heavyOverrides;
 }
 
 function render() {
@@ -59,6 +102,8 @@ function render() {
   });
   if (state.currentView === 'users') {
     renderUsers();
+  } else if (state.currentView === 'exams') {
+    renderExams();
   } else {
     renderDashboard();
   }
@@ -117,6 +162,55 @@ function renderDashboard() {
       }
     });
   });
+}
+
+function renderExams() {
+  const exam = getSelectedExam();
+  const questions = filteredExamQuestions(exam);
+  const setting = getSelectedExamSetting();
+  setView(`
+    <section class="admin-view">
+      <div class="admin-heading">
+        <div>
+          <p class="eyebrow">Gestion des examens</p>
+          <h1>Examens</h1>
+        </div>
+        <button class="admin-secondary" type="button" data-refresh>Actualiser</button>
+      </div>
+      <div class="exam-tabs" role="tablist">
+        ${Object.keys(EXAMS).map((examKey) => `
+          <button class="${state.examKey === examKey ? 'active' : ''}" type="button" data-exam-tab="${examKey}">
+            ${escapeHTML(EXAM_LABELS[examKey])}
+          </button>
+        `).join('')}
+      </div>
+      <section class="admin-card admin-form exam-admin-toolbar">
+        <label>Recherche
+          <input data-exam-search placeholder="ID ou texte question" value="${escapeAttribute(state.examQuery)}">
+        </label>
+        <label>Série
+          <select data-exam-series-filter>
+            <option value="all" ${state.examSeries === 'all' ? 'selected' : ''}>Toutes</option>
+            ${exam.series.map((series) => `<option value="${escapeAttribute(series.id)}" ${state.examSeries === series.id ? 'selected' : ''}>${escapeHTML(series.id)}</option>`).join('')}
+          </select>
+        </label>
+        <label>Statut
+          <select data-exam-status>
+            ${Object.entries(EXAM_STATUS_LABELS).map(([value, label]) => `<option value="${value}" ${setting.status === value ? 'selected' : ''}>${label}</option>`).join('')}
+          </select>
+        </label>
+        <button class="admin-button" type="button" data-save-exam-status>Enregistrer statut</button>
+      </section>
+      <div class="exam-admin-summary">
+        <span>${questions.length} question${questions.length > 1 ? 's' : ''}</span>
+        <span>${countOverrides(state.examKey)} image${countOverrides(state.examKey) > 1 ? 's' : ''} personnalisée${countOverrides(state.examKey) > 1 ? 's' : ''}</span>
+      </div>
+      <div class="exam-question-admin-list">
+        ${questions.map(renderExamQuestionCard).join('') || '<section class="admin-card">Aucune question trouvée.</section>'}
+      </div>
+    </section>
+  `);
+  bindExamActions();
 }
 
 function renderUsers() {
@@ -238,6 +332,165 @@ function bindUserActions() {
   });
 }
 
+function bindExamActions() {
+  document.querySelector('[data-refresh]').addEventListener('click', async () => {
+    await runAction(refreshData, 'Données actualisées', false);
+    renderExams();
+  });
+  document.querySelectorAll('[data-exam-tab]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.examKey = button.dataset.examTab;
+      state.examSeries = 'all';
+      renderExams();
+    });
+  });
+  document.querySelector('[data-exam-search]').addEventListener('input', (event) => {
+    state.examQuery = event.target.value;
+    renderExams();
+  });
+  document.querySelector('[data-exam-series-filter]').addEventListener('change', (event) => {
+    state.examSeries = event.target.value;
+    renderExams();
+  });
+  document.querySelector('[data-save-exam-status]').addEventListener('click', async () => {
+    const status = document.querySelector('[data-exam-status]').value;
+    await runAction(async () => {
+      await updateExamStatus(state.examKey, status);
+      state.examSettings = await loadExamSettings({ force: true });
+    }, 'Statut examen mis à jour');
+  });
+  document.querySelectorAll('[data-upload-question-image]').forEach((button) => {
+    button.addEventListener('click', () => openImagePicker(button.dataset.uploadQuestionImage));
+  });
+  document.querySelectorAll('[data-restore-question-image]').forEach((button) => {
+    button.addEventListener('click', () => confirmRestoreImage(button.dataset.restoreQuestionImage));
+  });
+}
+
+function renderExamQuestionCard(question) {
+  const override = state.examOverrides[state.examKey].get(question.id);
+  const image = override?.publicUrl || question.image || '';
+  const sourceLabel = override ? 'Personnalisée' : 'Originale';
+  return `
+    <article class="admin-card exam-question-admin-card">
+      <div class="exam-question-admin-image">
+        ${image ? `<img src="${escapeAttribute(image)}" alt="">` : '<div class="exam-image-empty">Aucune image</div>'}
+      </div>
+      <div class="exam-question-admin-body">
+        <div class="exam-question-admin-head">
+          <div>
+            <strong>${escapeHTML(question.id)}</strong>
+            <span>${escapeHTML(question.seriesId)} · Question ${Number(question.number) || ''}</span>
+          </div>
+          <span class="badge ${override ? 'custom' : 'original'}">${sourceLabel}</span>
+        </div>
+        <div class="exam-readonly-field">
+          <span>Question</span>
+          <p>${escapeHTML(question.text || 'Question sans texte')}</p>
+        </div>
+        <div class="exam-readonly-field">
+          <span>Image</span>
+          <code>${escapeHTML(override?.storage_path || question.image || 'Aucune image')}</code>
+        </div>
+        <div class="admin-actions">
+          <button class="admin-button" type="button" data-upload-question-image="${escapeAttribute(question.id)}">Remplacer l'image</button>
+          ${override ? `<button class="admin-secondary" type="button" data-restore-question-image="${escapeAttribute(question.id)}">Restaurer l'image originale</button>` : ''}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function openImagePicker(questionId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = getExamImageRules().allowedTypes.join(',');
+  input.addEventListener('change', () => {
+    const file = input.files?.[0];
+    if (file) openUploadPreview(questionId, file);
+  }, { once: true });
+  input.click();
+}
+
+function openUploadPreview(questionId, file) {
+  try {
+    validateExamImageFile(file);
+  } catch (error) {
+    toast(error.message, true);
+    return;
+  }
+  const question = findQuestion(questionId);
+  if (!question) return;
+  const previewUrl = URL.createObjectURL(file);
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop">
+      <form class="admin-modal upload-modal" data-upload-form>
+        <h2>Remplacer l'image</h2>
+        <p>${escapeHTML(question.id)} · ${escapeHTML(question.seriesId)} · Question ${Number(question.number) || ''}</p>
+        <img class="upload-preview" src="${escapeAttribute(previewUrl)}" alt="">
+        <small>${escapeHTML(file.name)} · ${formatFileSize(file.size)}</small>
+        <div class="admin-actions">
+          <button class="admin-secondary" type="button" data-close-modal>Annuler</button>
+          <button class="admin-button" type="submit">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  `;
+  root.querySelector('[data-close-modal]').addEventListener('click', () => {
+    URL.revokeObjectURL(previewUrl);
+    root.innerHTML = '';
+  });
+  root.querySelector('[data-upload-form]').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    try {
+      await uploadQuestionImage({
+        examKey: state.examKey,
+        questionId: question.id,
+        seriesId: question.seriesId,
+        file
+      });
+      state.examOverrides[state.examKey] = await loadExamImageOverrides(state.examKey, { force: true });
+      URL.revokeObjectURL(previewUrl);
+      root.innerHTML = '';
+      toast('Image mise à jour.');
+      renderExams();
+    } catch (error) {
+      toast(error.message || 'Upload refusé', true);
+    }
+  });
+}
+
+function confirmRestoreImage(questionId) {
+  const question = findQuestion(questionId);
+  if (!question) return;
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop">
+      <div class="admin-modal">
+        <h2>Restaurer l'image d'origine ?</h2>
+        <p>${escapeHTML(question.id)} utilisera à nouveau l'image originale du repository.</p>
+        <div class="admin-actions">
+          <button class="admin-secondary" type="button" data-close-modal>Annuler</button>
+          <button class="admin-danger" type="button" data-confirm-restore>Restaurer</button>
+        </div>
+      </div>
+    </div>
+  `;
+  root.querySelector('[data-close-modal]').addEventListener('click', () => root.innerHTML = '');
+  root.querySelector('[data-confirm-restore]').addEventListener('click', async () => {
+    try {
+      await restoreQuestionOriginalImage(state.examKey, question.id);
+      state.examOverrides[state.examKey] = await loadExamImageOverrides(state.examKey, { force: true });
+      root.innerHTML = '';
+      toast('Image originale restaurée.');
+      renderExams();
+    } catch (error) {
+      toast(error.message || 'Restauration refusée', true);
+    }
+  });
+}
+
 async function runAction(fn, successMessage, rerender = true) {
   try {
     await fn();
@@ -298,6 +551,35 @@ function filteredProfiles() {
   });
 }
 
+function getSelectedExam() {
+  return EXAMS[state.examKey] || EXAMS.light;
+}
+
+function getSelectedExamSetting() {
+  return state.examSettings.find((setting) => setting.exam_key === state.examKey) || { exam_key: state.examKey, status: 'verification' };
+}
+
+function getAllExamQuestions(exam) {
+  return exam.series.flatMap((series) => series.questions);
+}
+
+function filteredExamQuestions(exam) {
+  const q = state.examQuery.trim().toLowerCase();
+  return getAllExamQuestions(exam).filter((question) => {
+    const matchesSeries = state.examSeries === 'all' || question.seriesId === state.examSeries;
+    const text = `${question.id} ${question.text || ''}`.toLowerCase();
+    return matchesSeries && (!q || text.includes(q));
+  });
+}
+
+function findQuestion(questionId) {
+  return getAllExamQuestions(getSelectedExam()).find((question) => question.id === questionId);
+}
+
+function countOverrides(examKey) {
+  return state.examOverrides[examKey]?.size || 0;
+}
+
 function setView(html) {
   document.getElementById('admin-view').innerHTML = html;
 }
@@ -319,6 +601,10 @@ function toast(message, isError = false) {
 
 function formatPrice(value) {
   return `${Number(value || 0).toLocaleString('fr-FR')} FCFA`;
+}
+
+function formatFileSize(value) {
+  return `${(Number(value || 0) / 1024 / 1024).toFixed(2)} Mo`;
 }
 
 function escapeHTML(value) {

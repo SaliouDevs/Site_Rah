@@ -12,7 +12,9 @@
   };
 
   function isLocalhost() {
-    const hostname = window.EAUTO_TEST_HOSTNAME || window.location.hostname;
+    const actualHostname = window.location.hostname;
+    const canUseTestHostname = ['localhost', '127.0.0.1', '::1', ''].includes(actualHostname);
+    const hostname = canUseTestHostname ? (window.EAUTO_TEST_HOSTNAME || actualHostname) : actualHostname;
     return ['localhost', '127.0.0.1', '::1', ''].includes(hostname);
   }
 
@@ -32,6 +34,7 @@
     const id = normalizeExamId(examId);
     const config = window.EXAMS_CONFIG || {};
     if (config[id]?.status === 'online') return true;
+    if (config[id]?.status === 'offline' || config[id]?.status === 'verification') return false;
     if (config[id] && typeof config[id].enabled === 'boolean') return config[id].enabled;
     if (id === 'light') return Boolean(config.poidsLegerEnabled);
     if (id === 'heavy') return Boolean(config.poidsLourdEnabled);
@@ -42,6 +45,14 @@
     const id = normalizeExamId(examId);
     const config = window.EXAMS_CONFIG || {};
     return config[id]?.status || (isExamEnabled(id) ? 'online' : 'verification');
+  }
+
+  function getExamStatusLabel(examId) {
+    return {
+      verification: 'En vérification',
+      online: 'En ligne',
+      offline: 'Hors ligne'
+    }[getExamStatus(examId)] || 'En vérification';
   }
 
   function getPreviewConfig() {
@@ -61,12 +72,14 @@
   }
 
   function hasTemporaryExamPreview() {
+    if (!getPreviewConfig().enabled) return false;
     const session = readTemporaryPreviewSession();
     return Boolean(session?.expiresAt && Number(session.expiresAt) > Date.now());
   }
 
   function grantTemporaryExamPreview() {
     const config = getPreviewConfig();
+    if (!config.enabled) return null;
     const grantedAt = Date.now();
     const expiresAt = grantedAt + Number(config.durationMs || 0);
     sessionStorage.setItem(config.storageKey, JSON.stringify({ grantedAt, expiresAt }));
@@ -110,6 +123,7 @@
   window.canAccessExam = canPreviewExam;
   window.isExamEnabled = isExamEnabled;
   window.getExamStatus = getExamStatus;
+  window.getExamStatusLabel = getExamStatusLabel;
   window.hasTemporaryExamPreview = hasTemporaryExamPreview;
   window.grantTemporaryExamPreview = grantTemporaryExamPreview;
   window.readTemporaryPreviewSession = readTemporaryPreviewSession;

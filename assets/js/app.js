@@ -299,12 +299,16 @@ function renderAboutView() {
 }
 
 function renderExamCard(examId, license, title) {
+  const status = window.getExamStatus?.(examId) || 'verification';
+  if (status === 'offline') return '';
+  const icon = status === 'online' ? 'fa-circle-check' : 'fa-screwdriver-wrench';
+  const actionLabel = status === 'online' ? 'Commencer' : 'Accéder';
   return `
-    <button class="nav-card exam-card" type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}">
+    <button class="nav-card exam-card ${escapeAttribute(status)}" type="button" data-exam-card data-exam-id="${escapeAttribute(examId)}">
       <span class="exam-license">${license}</span>
       <strong>${title}</strong>
-      <span class="exam-status-badge"><i class="fas fa-screwdriver-wrench"></i> En vérification</span>
-      <span class="exam-preview-label">Accéder</span>
+      <span class="exam-status-badge ${escapeAttribute(status)}"><i class="fas ${icon}"></i> ${escapeHTML(window.getExamStatusLabel?.(examId) || 'En vérification')}</span>
+      <span class="exam-preview-label">${actionLabel}</span>
     </button>
   `;
 }
