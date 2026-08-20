@@ -231,6 +231,25 @@ async function verifyReview(browser) {
   await page.close();
 }
 
+async function verifyExamReturnNavigation(browser) {
+  const page = await browser.newPage();
+  const routes = ['#/exam/light', '#/exam/heavy', '#/exams'];
+
+  for (const route of routes) {
+    await page.goto(`${indexUrl}?dev=admin${route}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.text-back[data-route="/home"]');
+    await expectText(page, '.text-back[data-route="/home"]', '← Retour');
+    await page.locator('.text-back[data-route="/home"]').first().click();
+    await page.waitForFunction(() => location.hash === '#/home');
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction((expectedRoute) => location.hash === expectedRoute, route);
+    await page.goForward({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => location.hash === '#/home');
+  }
+
+  await page.close();
+}
+
 async function verifyResponsiveScroll(browser) {
   const viewports = [
     { width: 390, height: 844 },
@@ -283,6 +302,7 @@ async function verifyResponsiveScroll(browser) {
     await verifyAdminPanel(browser);
     await verifyExamFlow(browser);
     await verifyReview(browser);
+    await verifyExamReturnNavigation(browser);
     await verifyResponsiveScroll(browser);
     console.log('exam preview verification passed');
   } finally {

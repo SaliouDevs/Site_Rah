@@ -316,7 +316,7 @@ function renderReviewBlocked(container, exam) {
   setBottomNavVisible(true);
   container.innerHTML = `
     <section class="view-stack">
-      <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="empty-state">
         <h1>Outil image review verrouillé</h1>
         <p>Un accès temporaire est nécessaire pour vérifier les images de ${escapeHTML(exam.title)}.</p>

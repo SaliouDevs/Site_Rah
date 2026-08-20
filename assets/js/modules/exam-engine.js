@@ -14,6 +14,7 @@ export function renderExamsView(container, currentUser) {
   activeExam = null;
   container.innerHTML = `
     <section class="view-stack exams-view">
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="view-heading">
         <p class="eyebrow">Préparation examens</p>
         <h1>Examens</h1>
@@ -25,6 +26,7 @@ export function renderExamsView(container, currentUser) {
       </div>
     </section>
   `;
+  bindRouteLinks(container);
   bindExamEntries(container, currentUser);
 }
 
@@ -41,7 +43,7 @@ export function renderExamHome(container, params, currentUser) {
   const canOpenImageReview = typeof window.canPreviewExam === 'function' && window.canPreviewExam(exam.id, currentUser);
   container.innerHTML = `
     <section class="view-stack exam-home-view">
-      <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="view-heading compact">
         <p class="eyebrow">${escapeHTML(exam.license)}</p>
         <h1>${escapeHTML(exam.title)}</h1>
@@ -285,7 +287,7 @@ function renderExamBlocked(container, exam) {
   activeExam = null;
   container.innerHTML = `
     <section class="view-stack">
-      <button class="text-back" type="button" data-route="/exams">← Préparation examens</button>
+      <button class="text-back" type="button" data-route="/home">← Retour</button>
       <div class="empty-state">
         <i class="fas fa-screwdriver-wrench"></i>
         <h1>${escapeHTML(exam.title)} est en vérification</h1>
