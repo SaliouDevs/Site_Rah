@@ -66,6 +66,12 @@ async function sbGetUser() {
     return user;
 }
 
+async function sbRefreshSession() {
+    const { data, error } = await supabaseClient.auth.refreshSession();
+    if (error) throw error;
+    return data.session;
+}
+
 // Vérifier si l'utilisateur connecté est admin (via app_metadata — non modifiable par l'utilisateur)
 function sbIsAdmin(user) {
     return user?.app_metadata?.role === 'admin';
@@ -262,6 +268,7 @@ window.sbLogin = sbLogin;
 window.sbLogout = sbLogout;
 window.sbGetSession = sbGetSession;
 window.sbGetUser = sbGetUser;
+window.sbRefreshSession = sbRefreshSession;
 window.sbIsAdmin = sbIsAdmin;
 window.sbGetProfile = sbGetProfile;
 window.sbUpdateProfile = sbUpdateProfile;

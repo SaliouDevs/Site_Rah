@@ -78,12 +78,32 @@ async function initAdmin() {
   state.currentUser = auth.profile;
   window.EAUTO_CURRENT_USER = state.currentUser;
   bindShell();
-  await Promise.all([
-    refreshUsers(),
+  await loadInitialAdminData();
+  render();
+}
+
+async function loadInitialAdminData() {
+  const users = await settleAdminLoad(refreshUsers, 'Chargement utilisateurs');
+  const secondary = await Promise.allSettled([
     refreshExams({ silent: true }),
     refreshRuntimeSettings()
   ]);
-  render();
+  secondary.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.warn(index === 0 ? 'Chargement examens échoué' : 'Chargement maintenance échoué', result.reason);
+    }
+  });
+  return users;
+}
+
+async function settleAdminLoad(loader, label) {
+  try {
+    return await loader();
+  } catch (error) {
+    console.error(`${label} échoué`, error);
+    toast(`${label} indisponible`, true);
+    return null;
+  }
 }
 
 function bindShell() {
@@ -216,7 +236,7 @@ function renderDashboard() {
     </section>
   `);
   document.querySelector('[data-refresh]').addEventListener('click', async () => {
-    await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false });
+    await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false, button: document.querySelector('[data-refresh]') });
   });
   document.querySelector('[data-open-users]').addEventListener('click', () => {
     state.currentView = 'users';
@@ -226,7 +246,7 @@ function renderDashboard() {
     button.addEventListener('click', () => {
       const examId = button.dataset.openExam;
       if (window.canAccessExam?.(examId, state.currentUser)) {
-        window.location.href = `index.html${window.getExamUrl(examId)}`;
+        openExamInSpa(examId);
       }
     });
   });
@@ -347,7 +367,7 @@ function renderUsers() {
     </section>
   `);
   document.querySelector('[data-refresh]').addEventListener('click', async () => {
-    await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false });
+    await runAction(refreshUsers, 'Données actualisées', false, { refreshAfter: false, button: document.querySelector('[data-refresh]') });
     renderUsers();
   });
   document.querySelector('[data-user-search]').addEventListener('input', (event) => {
@@ -362,9 +382,17 @@ function renderUsers() {
   });
   document.querySelectorAll('[data-user-page]').forEach((button) => {
     button.addEventListener('click', async () => {
+      if (button.disabled) return;
+      setButtonBusy(button, true);
       state.userPage += button.dataset.userPage === 'next' ? 1 : -1;
-      await refreshUsers();
-      renderUsers();
+      try {
+        await refreshUsers();
+        renderUsers();
+      } catch (error) {
+        console.error('Pagination utilisateurs échouée', error);
+        toast(error.message || 'Chargement refusé', true);
+        setButtonBusy(button, false);
+      }
     });
   });
   bindUserActions();
@@ -415,7 +443,7 @@ function bindUserActions() {
   document.querySelectorAll('[data-status]').forEach((button) => {
     button.addEventListener('click', async () => {
       const [userId, status] = button.dataset.status.split(':');
-      await runAction(() => updateUserStatus(userId, status), 'Statut mis à jour');
+      await runAction(() => updateUserStatus(userId, status), 'Statut mis à jour', true, { button });
     });
   });
   document.querySelectorAll('[data-rename]').forEach((button) => {
@@ -426,7 +454,7 @@ function bindUserActions() {
       onSubmit: async (value) => {
         const prenom = value.trim();
         if (!prenom) throw new Error('Prénom requis');
-        await runAction(() => renameUser(button.dataset.rename, prenom), 'Prénom modifié');
+        return runAction(() => renameUser(button.dataset.rename, prenom), 'Prénom modifié');
       }
     }));
   });
@@ -437,7 +465,7 @@ function bindUserActions() {
       type: 'password',
       onSubmit: async (value) => {
         if (value.length < 6) throw new Error('Minimum 6 caractères');
-        await runAction(() => resetUserPassword(button.dataset.resetPassword, value), 'Mot de passe réinitialisé');
+        return runAction(() => resetUserPassword(button.dataset.resetPassword, value), 'Mot de passe réinitialisé');
       }
     }));
   });
@@ -470,7 +498,7 @@ function bindExamActions() {
   });
   document.querySelectorAll('[data-exam-availability]').forEach((input) => {
     input.addEventListener('change', async () => {
-      await updateExamAvailability(input.dataset.examAvailability, input.checked);
+      await updateExamAvailability(input.dataset.examAvailability, input.checked, input);
     });
   });
   document.querySelectorAll('[data-upload-question-image]').forEach((button) => {
@@ -562,12 +590,16 @@ function openUploadPreview(questionId, file) {
   });
   root.querySelector('[data-upload-form]').addEventListener('submit', async (event) => {
     event.preventDefault();
+    const submit = event.currentTarget.querySelector('[type="submit"]');
     try {
-      await uploadQuestionImage({
-        examKey: state.examKey,
-        questionId: question.id,
-        seriesId: question.seriesId,
-        file
+      setButtonBusy(submit, true);
+      await runAdminMutation(async () => {
+        await uploadQuestionImage({
+          examKey: state.examKey,
+          questionId: question.id,
+          seriesId: question.seriesId,
+          file
+        });
       });
       state.examOverrides[state.examKey] = await loadExamImageOverrides(state.examKey, { force: true });
       URL.revokeObjectURL(previewUrl);
@@ -575,7 +607,10 @@ function openUploadPreview(questionId, file) {
       toast('Image mise à jour.');
       renderExams();
     } catch (error) {
+      console.error('Upload image examen refusé', error);
       toast(error.message || 'Upload refusé', true);
+    } finally {
+      setButtonBusy(submit, false);
     }
   });
 }
@@ -598,19 +633,24 @@ function confirmRestoreImage(questionId) {
   `;
   root.querySelector('[data-close-modal]').addEventListener('click', () => root.innerHTML = '');
   root.querySelector('[data-confirm-restore]').addEventListener('click', async () => {
+    const button = root.querySelector('[data-confirm-restore]');
     try {
-      await restoreQuestionOriginalImage(state.examKey, question.id);
+      setButtonBusy(button, true);
+      await runAdminMutation(() => restoreQuestionOriginalImage(state.examKey, question.id));
       state.examOverrides[state.examKey] = await loadExamImageOverrides(state.examKey, { force: true });
       root.innerHTML = '';
       toast('Image originale restaurée.');
       renderExams();
     } catch (error) {
+      console.error('Restauration image examen refusée', error);
       toast(error.message || 'Restauration refusée', true);
+    } finally {
+      setButtonBusy(button, false);
     }
   });
 }
 
-async function updateExamAvailability(examKey, isOnline) {
+async function updateExamAvailability(examKey, isOnline, control = null) {
   if (!state.examBackendConfigured) return;
   const status = isOnline ? 'online' : 'verification';
   const label = EXAM_LABELS[examKey] || 'Examen';
@@ -620,7 +660,7 @@ async function updateExamAvailability(examKey, isOnline) {
   await runAction(async () => {
     await updateExamStatus(examKey, status);
     state.examSettings = await loadExamSettings({ force: true });
-  }, message, true, { refreshAfter: false });
+  }, message, true, { refreshAfter: false, control });
 }
 
 function openExamInSpa(examKey) {
@@ -638,6 +678,7 @@ function openQuestionInExam(questionId) {
 }
 
 async function saveMaintenanceSettings() {
+  const button = document.querySelector('[data-save-maintenance]');
   const enabled = document.querySelector('[data-maintenance-enabled]').checked;
   const wasEnabled = Boolean(state.runtimeSettings?.maintenance_enabled);
   const message = document.querySelector('[data-maintenance-message]').value;
@@ -645,17 +686,17 @@ async function saveMaintenanceSettings() {
     openMaintenanceConfirm({
       enabled,
       message,
-      onConfirm: () => applyMaintenanceSettings(enabled, message)
+      onConfirm: () => applyMaintenanceSettings(enabled, message, button)
     });
     return;
   }
-  await applyMaintenanceSettings(enabled, message);
+  await applyMaintenanceSettings(enabled, message, button);
 }
 
-async function applyMaintenanceSettings(enabled, message) {
+async function applyMaintenanceSettings(enabled, message, button = null) {
   await runAction(async () => {
     state.runtimeSettings = await updateRuntimeMaintenance({ enabled, message });
-  }, enabled ? 'Maintenance activée.' : 'Site remis en ligne.', true, { refreshAfter: false });
+  }, enabled ? 'Maintenance activée.' : 'Site remis en ligne.', true, { refreshAfter: false, button });
 }
 
 function openMaintenanceConfirm({ enabled, message, onConfirm }) {
@@ -684,15 +725,71 @@ function openMaintenanceConfirm({ enabled, message, onConfirm }) {
   });
 }
 
-async function runAction(fn, successMessage, rerender = true, { refreshAfter = true } = {}) {
+async function runAction(fn, successMessage, rerender = true, { refreshAfter = true, button = null, control = null } = {}) {
+  if (button?.disabled) return false;
+  const busyTarget = button || control;
   try {
-    await fn();
+    setButtonBusy(busyTarget, true);
+    await runAdminMutation(fn);
     if (refreshAfter) await refreshCurrentViewData();
     toast(successMessage);
     if (rerender) render();
+    return true;
   } catch (error) {
+    console.error('Action admin refusée', error);
     toast(error.message || 'Action refusée', true);
+    return false;
+  } finally {
+    setButtonBusy(busyTarget, false);
   }
+}
+
+async function runAdminMutation(fn) {
+  await ensureAdminSession();
+  try {
+    return await fn();
+  } catch (error) {
+    if (!isRecoverableSessionError(error) || typeof window.sbRefreshSession !== 'function') {
+      throw error;
+    }
+    await window.sbRefreshSession();
+    await ensureAdminSession();
+    return fn();
+  }
+}
+
+async function ensureAdminSession() {
+  const session = typeof window.sbGetSession === 'function' ? await window.sbGetSession() : null;
+  if (!session?.user) {
+    window.location.href = 'auth.html?reason=session-expired';
+    throw new Error('Session expirée. Reconnectez-vous.');
+  }
+  if (typeof window.sbIsAdmin === 'function' && !window.sbIsAdmin(session.user)) {
+    throw new Error('Accès administrateur refusé.');
+  }
+  return session;
+}
+
+function isRecoverableSessionError(error) {
+  const text = `${error?.message || ''} ${error?.code || ''} ${error?.status || ''}`.toLowerCase();
+  return text.includes('jwt') || text.includes('token') || text.includes('session') || text.includes('expired') || text.includes('401');
+}
+
+function setButtonBusy(target, busy) {
+  if (!target) return;
+  if (busy) {
+    target.dataset.busyLabel = target.textContent || '';
+    target.disabled = true;
+    target.setAttribute('aria-busy', 'true');
+    if (target.tagName === 'BUTTON') target.textContent = 'Traitement...';
+    return;
+  }
+  target.disabled = false;
+  target.removeAttribute('aria-busy');
+  if (target.tagName === 'BUTTON' && target.dataset.busyLabel) {
+    target.textContent = target.dataset.busyLabel;
+  }
+  delete target.dataset.busyLabel;
 }
 
 function openPrompt({ title, label, value = '', onSubmit, type = 'text' }) {
@@ -712,8 +809,14 @@ function openPrompt({ title, label, value = '', onSubmit, type = 'text' }) {
   root.querySelector('[data-close-modal]').addEventListener('click', () => root.innerHTML = '');
   root.querySelector('[data-prompt-form]').addEventListener('submit', async (event) => {
     event.preventDefault();
-    await onSubmit(new FormData(event.currentTarget).get('value'));
-    root.innerHTML = '';
+    const submit = event.currentTarget.querySelector('[type="submit"]');
+    setButtonBusy(submit, true);
+    try {
+      const result = await onSubmit(new FormData(event.currentTarget).get('value'));
+      if (result !== false) root.innerHTML = '';
+    } finally {
+      setButtonBusy(submit, false);
+    }
   });
 }
 
