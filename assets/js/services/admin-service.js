@@ -1,6 +1,12 @@
-export async function loadAdminOverview() {
-  const profiles = await window.sbGetAllProfiles();
-  return { profiles };
+export async function loadAdminOverview({ page = 1, pageSize = 10, status = 'all', query = '' } = {}) {
+  if (typeof window.sbGetProfilesPage === 'function' && typeof window.sbGetProfileCounts === 'function') {
+    const [pageResult, counts] = await Promise.all([
+      window.sbGetProfilesPage({ page, pageSize, status, query }),
+      window.sbGetProfileCounts()
+    ]);
+    return { ...pageResult, counts };
+  }
+  throw new Error('Pagination utilisateurs indisponible');
 }
 
 export async function updateUserStatus(userId, status) {

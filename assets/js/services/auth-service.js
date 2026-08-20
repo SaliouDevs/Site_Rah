@@ -53,6 +53,16 @@ export async function requireAuthenticatedUser({ allowAdmin = false, onMaintenan
     return null;
   }
 
+  if (!isAdmin && settings.maintenance_enabled) {
+    await window.sbLogout();
+    if (typeof onMaintenance === 'function') {
+      onMaintenance(settings);
+    } else {
+      window.location.replace('auth.html?maintenance=1');
+    }
+    return null;
+  }
+
   if (!isAdmin && profile.status === 'blocked') {
     await window.sbLogout();
     window.location.replace('auth.html?status=blocked');
@@ -94,6 +104,11 @@ export function resolveAuthMessage() {
   if (reason === 'session-expired') return { type: 'warning', text: 'Votre session a expiré. Reconnectez-vous pour continuer.' };
   if (reason === 'profile') return { type: 'error', text: 'Profil utilisateur introuvable. Contactez l’auto-école.' };
   if (params.get('admin') === 'denied') return { type: 'error', text: 'Accès administrateur refusé.' };
+  if (params.get('maintenance') === '1') {
+    const text = sessionStorage.getItem('maintenance_message') || 'Nous effectuons actuellement des améliorations sur eAutoecole. Merci de réessayer dans quelques instants.';
+    sessionStorage.removeItem('maintenance_message');
+    return { type: 'warning', text };
+  }
   return null;
 }
 

@@ -1,4 +1,5 @@
 import { registerStudent, resolveAuthMessage, signInWithIdentifier } from './services/auth-service.js';
+import { getMaintenanceMessage, loadRuntimeSettings } from './services/runtime-service.js';
 
 const state = {
   activeTab: 'login'
@@ -18,6 +19,10 @@ async function initAuthPage() {
 
   const message = resolveAuthMessage();
   if (message) showAlert(message.text, message.type);
+  const runtimeSettings = await loadRuntimeSettings();
+  if (runtimeSettings.maintenance_enabled && !message) {
+    showAlert(getMaintenanceMessage(runtimeSettings), 'warning');
+  }
 }
 
 function bindTabs() {
@@ -98,6 +103,12 @@ async function handleLogin(event) {
     if (result.profile?.status === 'blocked') {
       await window.sbLogout();
       showAlert('Votre compte est actuellement bloqué. Veuillez contacter l’auto-école.', 'error');
+      return;
+    }
+    const runtimeSettings = await loadRuntimeSettings({ force: true });
+    if (runtimeSettings.maintenance_enabled) {
+      await window.sbLogout();
+      showAlert(getMaintenanceMessage(runtimeSettings), 'warning');
       return;
     }
     window.location.href = 'index.html';

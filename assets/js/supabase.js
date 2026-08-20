@@ -109,6 +109,43 @@ async function sbGetAllProfiles() {
     return data;
 }
 
+async function sbGetProfilesPage({ page = 1, pageSize = 10, status = 'all', query = '' } = {}) {
+    const from = Math.max(0, (Number(page) || 1) - 1) * pageSize;
+    const to = from + pageSize - 1;
+    let request = supabaseClient
+        .from('profiles')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false });
+    if (status && status !== 'all') {
+        request = request.eq('status', status);
+    }
+    const cleanQuery = String(query || '').trim();
+    if (cleanQuery) {
+        const term = cleanQuery.replace(/[%_,]/g, '');
+        request = request.or(`prenom.ilike.%${term}%,telephone.ilike.%${term}%`);
+    }
+    const { data, error, count } = await request.range(from, to);
+    if (error) throw error;
+    return { profiles: data || [], total: count || 0 };
+}
+
+async function sbGetProfileCounts() {
+    async function count(status) {
+        let request = supabaseClient.from('profiles').select('id', { count: 'exact', head: true });
+        if (status) request = request.eq('status', status);
+        const { error, count: value } = await request;
+        if (error) throw error;
+        return value || 0;
+    }
+    const [total, pending, active, blocked] = await Promise.all([
+        count(),
+        count('pending'),
+        count('active'),
+        count('blocked')
+    ]);
+    return { total, pending, active, blocked };
+}
+
 // Changer le statut d'un utilisateur (pending / active / blocked)
 // Utilise une fonction RPC SECURITY DEFINER côté base de données
 async function sbAdminUpdateStatus(userId, newStatus) {
@@ -229,6 +266,8 @@ window.sbIsAdmin = sbIsAdmin;
 window.sbGetProfile = sbGetProfile;
 window.sbUpdateProfile = sbUpdateProfile;
 window.sbGetAllProfiles = sbGetAllProfiles;
+window.sbGetProfilesPage = sbGetProfilesPage;
+window.sbGetProfileCounts = sbGetProfileCounts;
 window.sbAdminUpdateStatus = sbAdminUpdateStatus;
 window.sbConfirmPayment = sbConfirmPayment;
 window.sbAdminResetPassword = sbAdminResetPassword;

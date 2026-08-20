@@ -95,10 +95,11 @@ export async function renderExamSeries(container, params, currentUser) {
   if (!series) return renderUnknownExam(container);
 
   setBottomNavVisible(false);
+  const initialIndex = getInitialQuestionIndex(series);
   activeExam = {
     exam,
     series,
-    currentIndex: 0,
+    currentIndex: initialIndex,
     answers: {},
     validated: {}
   };
@@ -123,7 +124,7 @@ function renderActiveQuestion(container) {
       <div class="exam-progress-track"><span style="width:${progress}%"></span></div>
       <article class="exam-question-panel">
         ${question.image ? `<img class="exam-question-image" src="${escapeAttribute(question.image)}" alt="" loading="lazy">` : ''}
-        <div class="exam-question-meta"><span>${escapeHTML(question.id)}</span><strong>Question ${currentIndex + 1}</strong></div>
+        <div class="exam-question-meta"><strong>Question ${currentIndex + 1} / ${series.questions.length}</strong></div>
         <h1>${escapeHTML(question.text || '')}</h1>
         <div class="exam-options">
           ${renderQuestionOptions(question, answer, isValidated)}
@@ -235,7 +236,7 @@ function renderCorrections(container) {
       <div class="exam-correction-list">
         ${series.questions.map((question, index) => `
           <article class="exam-correction-card ${isCorrect(question, answers[index]) ? 'correct' : 'wrong'}">
-            <div class="exam-question-meta"><span>${escapeHTML(question.id)}</span><strong>${isCorrect(question, answers[index]) ? 'Correct' : 'À revoir'}</strong></div>
+            <div class="exam-question-meta"><strong>Question ${index + 1} · ${isCorrect(question, answers[index]) ? 'Correct' : 'À revoir'}</strong></div>
             <p>${escapeHTML(question.text || '')}</p>
             <dl>
               <div><dt>Ta réponse</dt><dd>${escapeHTML(formatAnswer(question, answers[index]))}</dd></div>
@@ -260,19 +261,25 @@ function renderCorrections(container) {
 function renderExamEntry(exam, currentUser) {
   const status = getStatus(exam);
   const icon = status === 'online' ? 'fa-circle-check' : 'fa-screwdriver-wrench';
-  const actionLabel = status === 'online' ? 'Commencer' : 'Accéder';
+  const description = status === 'online'
+    ? "Préparation à l'examen"
+    : 'Certaines questions sont encore en cours de contrôle.';
+  const tag = status === 'online' ? 'button' : 'article';
+  const attrs = status === 'online'
+    ? `type="button" data-exam-entry="${escapeAttribute(exam.id)}"`
+    : `data-exam-entry="${escapeAttribute(exam.id)}" aria-disabled="true"`;
   return `
-    <button class="nav-card exam-card ${escapeAttribute(status)}" type="button" data-exam-entry="${exam.id}">
+    <${tag} class="nav-card exam-card ${escapeAttribute(status)}" ${attrs}>
       <span class="exam-license">${escapeHTML(exam.license)}</span>
       <strong>${escapeHTML(exam.title)}</strong>
       <span class="exam-status-badge ${escapeAttribute(status)}"><i class="fas ${icon}"></i> ${escapeHTML(window.getExamStatusLabel?.(exam.id) || 'En vérification')}</span>
-      <span class="exam-action-label">${actionLabel}</span>
-    </button>
+      <small>${escapeHTML(description)}</small>
+    </${tag}>
   `;
 }
 
 function bindExamEntries(container, currentUser) {
-  container.querySelectorAll('[data-exam-entry]').forEach((button) => {
+  container.querySelectorAll('button[data-exam-entry]').forEach((button) => {
     button.addEventListener('click', () => {
       const exam = getExam(button.dataset.examEntry);
       if (exam && canAccess(exam, currentUser)) {
@@ -382,6 +389,14 @@ function canAccess(exam, currentUser) {
 
 function getStatus(exam) {
   return window.getExamStatus?.(exam.id) || 'verification';
+}
+
+function getInitialQuestionIndex(series) {
+  const params = new URLSearchParams((window.location.hash.split('?')[1] || ''));
+  const questionId = params.get('question');
+  if (!questionId) return 0;
+  const index = series.questions.findIndex((question) => question.id === questionId);
+  return index >= 0 ? index : 0;
 }
 
 export function openExamAccessModal(examId) {
