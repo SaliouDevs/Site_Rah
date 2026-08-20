@@ -2,7 +2,8 @@ import { registerStudent, resolveAuthMessage, signInWithIdentifier } from './ser
 import { getMaintenanceMessage, loadRuntimeSettings } from './services/runtime-service.js';
 
 const state = {
-  activeTab: 'login'
+  activeTab: 'login',
+  maintenance: false
 };
 
 document.addEventListener('DOMContentLoaded', initAuthPage);
@@ -21,6 +22,8 @@ async function initAuthPage() {
   if (message) showAlert(message.text, message.type);
   const runtimeSettings = await loadRuntimeSettings();
   if (runtimeSettings.maintenance_enabled && !message) {
+    state.maintenance = true;
+    applyMaintenanceMode(runtimeSettings);
     showAlert(getMaintenanceMessage(runtimeSettings), 'warning');
   }
 }
@@ -32,6 +35,7 @@ function bindTabs() {
 }
 
 function switchTab(tab) {
+  if (state.maintenance && tab !== 'login') return;
   state.activeTab = tab;
   clearFeedback();
   document.querySelectorAll('[data-auth-tab]').forEach((button) => {
@@ -40,6 +44,18 @@ function switchTab(tab) {
   document.querySelectorAll('[data-auth-form]').forEach((form) => {
     form.classList.toggle('active', form.dataset.authForm === tab);
   });
+}
+
+function applyMaintenanceMode(settings) {
+  document.body.classList.add('maintenance-auth');
+  switchTab('login');
+  document.querySelector('[data-auth-tab="register"]').hidden = true;
+  document.querySelector('[data-show-register]').hidden = true;
+  document.querySelector('[data-login-form] h2').textContent = 'Connexion administrateur';
+  document.querySelector('label[for="loginIdentifier"]').textContent = 'Identifiant administrateur';
+  document.getElementById('loginIdentifier').placeholder = window.ADMIN_CONFIG.alias;
+  document.querySelector('[data-login-submit]').textContent = 'Se connecter à l’admin';
+  document.querySelector('[data-auth-alert]').textContent = getMaintenanceMessage(settings);
 }
 
 function bindPasswordToggles() {

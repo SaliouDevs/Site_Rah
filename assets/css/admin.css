@@ -197,9 +197,39 @@ body.admin-page {
 }
 
 .admin-switch input {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  flex: 0 0 auto;
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.admin-switch input::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
   width: 20px;
   height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 160ms ease;
+}
+
+.admin-switch input:checked {
   accent-color: var(--teal-600);
+  border-color: var(--teal-600);
+  background: var(--teal-600);
+}
+
+.admin-switch input:checked::before {
+  transform: translateX(20px);
 }
 
 .admin-pagination {

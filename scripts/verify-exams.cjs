@@ -302,6 +302,40 @@ async function verifyAdminQuestionLink(browser) {
   await page.close();
 }
 
+async function verifyAdminExamReturn(browser) {
+  for (const [examKey, expectedSeries] of [['light', 'B1'], ['heavy', 'C1']]) {
+    const page = await browser.newPage();
+    await installSupabaseMock(page, {
+      role: 'admin',
+      statuses: { light: 'verification', heavy: 'offline' },
+      profiles: []
+    });
+    await page.goto(`${adminUrl}?view=exams`, { waitUntil: 'domcontentloaded' });
+    await expectText(page, 'body', 'Gestion des examens');
+    await page.locator(`[data-open-exam-preview="${examKey}"]`).click();
+    await page.waitForURL(new RegExp(`#\\/exam\\/${examKey}`));
+    await expectText(page, 'body', expectedSeries);
+    await page.getByRole('button', { name: '← Retour' }).click();
+    await page.waitForURL(/admin\.html/);
+    await expectText(page, 'body', 'Gestion des examens');
+    const origin = await page.evaluate(() => sessionStorage.getItem('examNavigationOrigin'));
+    if (origin) throw new Error('Admin exam return origin was not cleaned');
+    await page.close();
+  }
+}
+
+async function verifyStudentExamReturn(browser) {
+  const page = await browser.newPage();
+  await installSupabaseMock(page, { statuses: { light: 'online', heavy: 'verification' } });
+  await page.goto(`${indexUrl}#/home`, { waitUntil: 'domcontentloaded' });
+  await page.locator('button[data-exam-card][data-exam-id="light"]').click();
+  await page.waitForURL(/#\/exam\/light/);
+  await page.getByRole('button', { name: '← Retour' }).click();
+  await page.waitForURL(/#\/home/);
+  await expectText(page, 'body', 'Bonjour');
+  await page.close();
+}
+
 async function verifyMaintenance(browser) {
   const page = await browser.newPage();
   await installSupabaseMock(page, {
@@ -362,7 +396,7 @@ async function verifyAdmin(browser) {
   await page.goto(adminUrl, { waitUntil: 'domcontentloaded' });
   await expectText(page, 'body', 'Utilisateurs total');
   await expectText(page, 'body', '26');
-  await expectText(page, 'body', 'Maintenance du site');
+  await expectText(page, 'body', 'Mode maintenance');
   await page.getByRole('button', { name: 'Utilisateurs', exact: true }).click();
   await expectText(page, 'body', '1–10 sur 26 utilisateurs');
   await expectCount(page, '.admin-table tbody tr', 10);
@@ -402,10 +436,17 @@ async function verifyAdmin(browser) {
   await page.locator('[data-exam-availability="light"]').uncheck();
   await expectText(page, '#toast-root', 'Poids Léger est repassé en vérification.');
   await page.getByRole('button', { name: 'Tableau de bord', exact: true }).click();
-  page.once('dialog', (dialog) => dialog.accept());
   await page.locator('[data-maintenance-enabled]').check();
-  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await page.getByRole('button', { name: 'Activer la maintenance' }).click();
+  await expectText(page, '#modal-root', 'Activer le mode maintenance ?');
+  await page.locator('#modal-root').getByRole('button', { name: 'Activer la maintenance', exact: true }).click();
   await expectText(page, '#toast-root', 'Maintenance activée.');
+  await expectText(page, 'body', 'Maintenance active');
+  await page.locator('[data-maintenance-enabled]').uncheck();
+  await page.getByRole('button', { name: 'Désactiver la maintenance' }).click();
+  await expectText(page, '#modal-root', 'Remettre le site en ligne ?');
+  await page.locator('#modal-root').getByRole('button', { name: 'Remettre en ligne' }).click();
+  await expectText(page, '#toast-root', 'Site remis en ligne.');
   await page.close();
 }
 
@@ -413,6 +454,7 @@ async function verifyResponsive(browser) {
   const viewports = [
     { width: 390, height: 844 },
     { width: 430, height: 932 },
+    { width: 768, height: 1024 },
     { width: 1366, height: 768 }
   ];
   for (const viewport of viewports) {
@@ -442,6 +484,8 @@ async function verifyResponsive(browser) {
     await verifyExamStatuses(browser);
     await verifyImageOverride(browser);
     await verifyAdminQuestionLink(browser);
+    await verifyAdminExamReturn(browser);
+    await verifyStudentExamReturn(browser);
     await verifyMaintenance(browser);
     await verifyAdmin(browser);
     await verifyResponsive(browser);

@@ -23,6 +23,9 @@ const EXAM_LABELS = {
   heavy: 'Poids Lourd'
 };
 
+const EXAM_NAV_ORIGIN_KEY = 'examNavigationOrigin';
+const EXAM_ADMIN_RETURN_SECTION_KEY = 'examAdminReturnSection';
+
 const state = {
   currentView: 'dashboard',
   currentUser: null,
@@ -53,6 +56,7 @@ document.addEventListener('DOMContentLoaded', initAdmin);
 
 async function initAdmin() {
   setView('<section class="admin-card">Chargement admin...</section>');
+  state.currentView = resolveInitialView();
 
   const dev = resolveLocalDevUser();
   if (dev?.isAdmin) {
@@ -177,18 +181,18 @@ function renderDashboard() {
       </div>
       <section class="admin-card admin-form maintenance-card">
         <div class="card-heading">
-          <h2>Maintenance du site</h2>
-          <span class="badge ${maintenance ? 'pending' : 'active'}">${maintenance ? 'Maintenance activée' : 'Site disponible'}</span>
+          <h2>Mode maintenance</h2>
+          <span class="badge ${maintenance ? 'pending' : 'active'}">${maintenance ? 'Maintenance active' : 'Site en ligne'}</span>
         </div>
         <label class="admin-switch">
           <input type="checkbox" data-maintenance-enabled ${maintenance ? 'checked' : ''}>
-          <span>${maintenance ? 'Maintenance activée' : 'Site disponible'}</span>
+          <span>Activer le mode maintenance</span>
         </label>
         <label>Message
           <textarea data-maintenance-message>${escapeHTML(state.runtimeSettings?.maintenance_message || '')}</textarea>
         </label>
         <div class="admin-actions">
-          <button class="admin-button" type="button" data-save-maintenance>Enregistrer</button>
+          <button class="admin-button" type="button" data-save-maintenance>${maintenance ? 'Désactiver la maintenance' : 'Activer la maintenance'}</button>
         </div>
       </section>
       <section class="admin-card">
@@ -620,26 +624,64 @@ async function updateExamAvailability(examKey, isOnline) {
 }
 
 function openExamInSpa(examKey) {
+  sessionStorage.setItem(EXAM_NAV_ORIGIN_KEY, 'admin');
+  sessionStorage.setItem(EXAM_ADMIN_RETURN_SECTION_KEY, 'exams');
   window.location.href = `index.html${window.getExamUrl(examKey)}`;
 }
 
 function openQuestionInExam(questionId) {
   const question = findQuestion(questionId);
   if (!question) return;
+  sessionStorage.setItem(EXAM_NAV_ORIGIN_KEY, 'admin');
+  sessionStorage.setItem(EXAM_ADMIN_RETURN_SECTION_KEY, 'exams');
   window.location.href = `index.html#/exam/${state.examKey}/series/${encodeURIComponent(question.seriesId)}?question=${encodeURIComponent(question.id)}`;
 }
 
 async function saveMaintenanceSettings() {
   const enabled = document.querySelector('[data-maintenance-enabled]').checked;
   const wasEnabled = Boolean(state.runtimeSettings?.maintenance_enabled);
-  if (enabled && !wasEnabled) {
-    const confirmed = window.confirm('Activer la maintenance déconnectera les élèves actuellement connectés. Continuer ?');
-    if (!confirmed) return;
-  }
   const message = document.querySelector('[data-maintenance-message]').value;
+  if (enabled !== wasEnabled) {
+    openMaintenanceConfirm({
+      enabled,
+      message,
+      onConfirm: () => applyMaintenanceSettings(enabled, message)
+    });
+    return;
+  }
+  await applyMaintenanceSettings(enabled, message);
+}
+
+async function applyMaintenanceSettings(enabled, message) {
   await runAction(async () => {
     state.runtimeSettings = await updateRuntimeMaintenance({ enabled, message });
-  }, enabled ? 'Maintenance activée.' : 'Site disponible.', true, { refreshAfter: false });
+  }, enabled ? 'Maintenance activée.' : 'Site remis en ligne.', true, { refreshAfter: false });
+}
+
+function openMaintenanceConfirm({ enabled, message, onConfirm }) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop">
+      <div class="admin-modal">
+        <h2>${enabled ? 'Activer le mode maintenance ?' : 'Remettre le site en ligne ?'}</h2>
+        <p>${enabled
+          ? 'Les élèves actuellement connectés seront déconnectés et ne pourront pas se reconnecter tant que la maintenance restera active.'
+          : 'Les utilisateurs pourront à nouveau se connecter et utiliser eAutoecole.'}</p>
+        <div class="admin-actions">
+          <button class="admin-secondary" type="button" data-close-modal>Annuler</button>
+          <button class="admin-button" type="button" data-confirm-maintenance>${enabled ? 'Activer la maintenance' : 'Remettre en ligne'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  root.querySelector('[data-close-modal]').addEventListener('click', () => {
+    root.innerHTML = '';
+    renderDashboard();
+  });
+  root.querySelector('[data-confirm-maintenance]').addEventListener('click', async () => {
+    root.innerHTML = '';
+    await onConfirm(message);
+  });
 }
 
 async function runAction(fn, successMessage, rerender = true, { refreshAfter = true } = {}) {
@@ -728,6 +770,21 @@ function countOverrides(examKey) {
 
 function setView(html) {
   document.getElementById('admin-view').innerHTML = html;
+}
+
+function resolveInitialView() {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get('view') || sessionStorage.getItem(EXAM_ADMIN_RETURN_SECTION_KEY);
+  sessionStorage.removeItem(EXAM_NAV_ORIGIN_KEY);
+  sessionStorage.removeItem(EXAM_ADMIN_RETURN_SECTION_KEY);
+  if (view === 'users' || view === 'exams' || view === 'dashboard') {
+    if (params.has('view')) {
+      const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+      window.history.replaceState(null, '', cleanUrl);
+    }
+    return view;
+  }
+  return 'dashboard';
 }
 
 function metric(label, value) {

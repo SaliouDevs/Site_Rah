@@ -9,6 +9,8 @@ export const EXAM_DATA = {
 };
 
 let activeExam = null;
+const EXAM_NAV_ORIGIN_KEY = 'examNavigationOrigin';
+const EXAM_ADMIN_RETURN_SECTION_KEY = 'examAdminReturnSection';
 
 export function renderExamsView(container, currentUser) {
   setBottomNavVisible(true);
@@ -16,7 +18,7 @@ export function renderExamsView(container, currentUser) {
   const visibleExams = [EXAM_LIGHT_DATA, EXAM_HEAVY_DATA].filter((exam) => getStatus(exam) !== 'offline');
   container.innerHTML = `
     <section class="view-stack exams-view">
-      <button class="text-back" type="button" data-route="/home">← Retour</button>
+      <button class="text-back" type="button" data-exam-back>← Retour</button>
       <div class="view-heading">
         <p class="eyebrow">Préparation examens</p>
         <h1>Examens</h1>
@@ -27,7 +29,7 @@ export function renderExamsView(container, currentUser) {
       </div>
     </section>
   `;
-  bindRouteLinks(container);
+  bindExamBack(container, currentUser);
   bindExamEntries(container, currentUser);
 }
 
@@ -45,7 +47,7 @@ export async function renderExamHome(container, params, currentUser) {
   const totalQuestions = getAllQuestions(exam).length;
   container.innerHTML = `
     <section class="view-stack exam-home-view">
-      <button class="text-back" type="button" data-route="/home">← Retour</button>
+      <button class="text-back" type="button" data-exam-back>← Retour</button>
       <div class="view-heading compact">
         <p class="eyebrow">${escapeHTML(exam.license)}</p>
         <h1>${escapeHTML(exam.title)}</h1>
@@ -79,7 +81,7 @@ export async function renderExamHome(container, params, currentUser) {
       </section>
     </section>
   `;
-  bindRouteLinks(container);
+  bindExamBack(container, currentUser);
   container.querySelectorAll('[data-start-exam-series]').forEach((button) => {
     button.addEventListener('click', () => navigateTo(`/exam/${exam.id}/series/${button.dataset.startExamSeries}`));
   });
@@ -115,7 +117,7 @@ function renderActiveQuestion(container) {
   container.innerHTML = `
     <section class="exam-active-view immersive-view">
       <div class="exam-active-topbar">
-        <button class="text-back" type="button" data-quit-exam>← Quitter</button>
+      <button class="text-back" type="button" data-quit-exam>← Quitter</button>
         <div>
           <strong>${escapeHTML(exam.title)} · ${escapeHTML(series.id)}</strong>
           <span>Question ${currentIndex + 1} / ${series.questions.length}</span>
@@ -152,7 +154,11 @@ function bindActiveQuestion(container) {
       onConfirm: () => {
         activeExam = null;
         setBottomNavVisible(true);
-        navigateTo(`/exam/${exam.id}`);
+        if (hasAdminExamOrigin()) {
+          returnToAdmin();
+        } else {
+          navigateTo(`/exam/${exam.id}`);
+        }
       }
     });
   });
@@ -298,7 +304,7 @@ function renderExamBlocked(container, exam) {
   activeExam = null;
   container.innerHTML = `
     <section class="view-stack">
-      <button class="text-back" type="button" data-route="/home">← Retour</button>
+      <button class="text-back" type="button" data-exam-back>← Retour</button>
       <div class="empty-state">
         <i class="fas ${isOffline ? 'fa-ban' : 'fa-screwdriver-wrench'}"></i>
         <h1>${escapeHTML(exam.title)} est ${isOffline ? 'hors ligne' : 'en vérification'}</h1>
@@ -306,7 +312,7 @@ function renderExamBlocked(container, exam) {
       </div>
     </section>
   `;
-  bindRouteLinks(container);
+  bindExamBack(container, window.EAUTO_CURRENT_USER);
   if (!isOffline) window.setTimeout(() => openExamAccessModal(exam.id), 0);
 }
 
@@ -462,6 +468,33 @@ function bindRouteLinks(root) {
   root.querySelectorAll('[data-route]').forEach((button) => {
     button.addEventListener('click', () => navigateTo(button.dataset.route));
   });
+}
+
+function bindExamBack(container, currentUser) {
+  container.querySelectorAll('[data-exam-back]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (isAdminUser(currentUser) && hasAdminExamOrigin()) {
+        returnToAdmin();
+        return;
+      }
+      navigateTo('/home');
+    });
+  });
+}
+
+function hasAdminExamOrigin() {
+  return sessionStorage.getItem(EXAM_NAV_ORIGIN_KEY) === 'admin';
+}
+
+function returnToAdmin() {
+  const view = sessionStorage.getItem(EXAM_ADMIN_RETURN_SECTION_KEY) || 'exams';
+  sessionStorage.removeItem(EXAM_NAV_ORIGIN_KEY);
+  sessionStorage.removeItem(EXAM_ADMIN_RETURN_SECTION_KEY);
+  window.location.href = `admin.html?view=${encodeURIComponent(view)}`;
+}
+
+function isAdminUser(user) {
+  return Boolean(user?.isAdmin || user?.app_metadata?.role === 'admin');
 }
 
 function setBottomNavVisible(isVisible) {

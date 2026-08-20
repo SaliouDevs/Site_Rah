@@ -48,8 +48,7 @@
     if (!EXAM_ROUTES[id]) return false;
     const status = getExamStatus(id);
     if (status === 'online') return true;
-    if (status !== 'verification') return false;
-    return isAdminContext(context);
+    return isAdminContext(context) && (status === 'verification' || status === 'offline');
   }
 
   function getExamUrl(examId) {
