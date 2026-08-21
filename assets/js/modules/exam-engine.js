@@ -2,6 +2,7 @@ import { EXAM_LIGHT_DATA } from '../data/exam-light-data.js';
 import { EXAM_HEAVY_DATA } from '../data/exam-heavy-data.js';
 import { navigateTo } from '../router.js';
 import { getExamWithImageOverrides } from '../services/exam-service.js';
+import { loadStudentExamData } from '../services/exam-cms-service.js';
 
 export const EXAM_DATA = {
   light: EXAM_LIGHT_DATA,
@@ -34,7 +35,7 @@ export function renderExamsView(container, currentUser) {
 }
 
 export async function renderExamHome(container, params, currentUser) {
-  let exam = getExam(params.type);
+  let exam = await getStudentExam(params.type);
   if (!exam) return renderUnknownExam(container);
   setBottomNavVisible(true);
   activeExam = null;
@@ -88,7 +89,7 @@ export async function renderExamHome(container, params, currentUser) {
 }
 
 export async function renderExamSeries(container, params, currentUser) {
-  let exam = getExam(params.type);
+  let exam = await getStudentExam(params.type);
   if (!exam) return renderUnknownExam(container);
   if (!canAccess(exam, currentUser)) return renderExamBlocked(container, exam);
   container.innerHTML = '<section class="loading-screen"><span class="spinner"></span><p>Chargement série...</p></section>';
@@ -379,6 +380,35 @@ function isCorrect(question, answer) {
 
 export function getExam(type) {
   return EXAM_DATA[window.normalizeExamId?.(type) || type] || null;
+}
+
+async function getStudentExam(type) {
+  const examKey = window.normalizeExamId?.(type) || type;
+  const fallback = getExam(examKey);
+  try {
+    const { data, source } = await loadStudentExamData(examKey);
+    if (data?.series?.length) {
+      EXAM_DATA[examKey] = normalizeRuntimeExam(data, fallback, source);
+      return EXAM_DATA[examKey];
+    }
+  } catch (error) {
+    console.warn('Chargement CMS examen échoué, fallback legacy', error);
+  }
+  EXAM_DATA[examKey] = fallback;
+  return fallback;
+}
+
+function normalizeRuntimeExam(data, fallback, source) {
+  return {
+    ...(fallback || {}),
+    ...data,
+    id: fallback?.id || data.id,
+    title: fallback?.title || data.title,
+    license: fallback?.license || data.license,
+    passingScore: fallback?.passingScore || data.passingScore,
+    historyKey: fallback?.historyKey || data.historyKey,
+    source
+  };
 }
 
 export function getAllQuestions(exam) {

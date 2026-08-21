@@ -1,6 +1,7 @@
 import { requireAuthenticatedUser, logoutCurrentUser, resolveLocalDevUser } from './services/auth-service.js';
 import { loadAdminOverview, renameUser, resetUserPassword, updateUserStatus } from './services/admin-service.js';
 import { loadRuntimeSettings, updateRuntimeMaintenance } from './services/runtime-service.js';
+import { CMS_UNAVAILABLE_MESSAGE, loadCmsOverview } from './services/content-service.js';
 import { EXAM_LIGHT_DATA } from './data/exam-light-data.js';
 import { EXAM_HEAVY_DATA } from './data/exam-heavy-data.js';
 import {
@@ -12,6 +13,7 @@ import {
   uploadQuestionImage,
   validateExamImageFile
 } from './services/exam-service.js';
+import { initCMSExams, renderCMSExamsSection } from './admin/admin-cms-exams.js';
 
 const EXAMS = {
   light: EXAM_LIGHT_DATA,
@@ -49,7 +51,9 @@ const state = {
   runtimeSettings: {
     maintenance_enabled: false,
     maintenance_message: ''
-  }
+  },
+  cmsOverview: null,
+  cmsLoading: false
 };
 
 document.addEventListener('DOMContentLoaded', initAdmin);
@@ -164,6 +168,10 @@ async function refreshCurrentViewData() {
     await refreshExams();
     return;
   }
+  if (isCmsView(state.currentView)) {
+    await refreshCmsOverview();
+    return;
+  }
   await refreshUsers();
 }
 
@@ -175,9 +183,31 @@ function render() {
     renderUsers();
   } else if (state.currentView === 'exams') {
     renderExams();
+  } else if (isCmsView(state.currentView)) {
+    renderCmsSection(state.currentView);
   } else {
     renderDashboard();
   }
+}
+
+async function refreshCmsOverview({ force = true } = {}) {
+  state.cmsLoading = true;
+  try {
+    state.cmsOverview = await loadCmsOverview({ force });
+  } catch (error) {
+    console.warn('Chargement CMS échoué', error);
+    state.cmsOverview = {
+      available: false,
+      examSeriesCount: 0,
+      lessonsCount: 0,
+      panelsCount: 0,
+      mediaCount: 0,
+      error: error.message || 'Tables CMS indisponibles'
+    };
+  } finally {
+    state.cmsLoading = false;
+  }
+  return state.cmsOverview;
 }
 
 function renderDashboard() {
@@ -300,9 +330,15 @@ function renderExams() {
       <div class="exam-question-admin-list">
         ${questions.map(renderExamQuestionCard).join('') || '<section class="admin-card">Aucune question trouvée.</section>'}
       </div>
+      ${renderCMSExamsSection(state.examKey)}
     </section>
   `);
   bindExamActions();
+  initCMSExams(state.examKey).catch((error) => {
+    console.warn('Chargement CMS examens échoué', error);
+    const container = document.querySelector('.cms-exams-section .cms-exams-list');
+    if (container) container.innerHTML = `<p class="error">${escapeHTML(error.message || 'CMS examens indisponible')}</p>`;
+  });
 }
 
 function renderExamPublishCard(examKey) {
@@ -396,6 +432,54 @@ function renderUsers() {
     });
   });
   bindUserActions();
+}
+
+function renderCmsSection(view) {
+  const meta = getCmsViewMeta(view);
+  const overview = state.cmsOverview;
+  setView(`
+    <section class="admin-view">
+      <div class="admin-heading">
+        <div>
+          <p class="eyebrow">CMS Admin</p>
+          <h1>${escapeHTML(meta.title)}</h1>
+        </div>
+        <button class="admin-secondary" type="button" data-refresh-cms ${state.cmsLoading ? 'disabled' : ''}>Actualiser</button>
+      </div>
+      <section class="admin-card">
+        <div class="card-heading">
+          <h2>${escapeHTML(meta.heading)}</h2>
+          <span class="badge ${overview?.available ? 'active' : 'pending'}">${overview?.available ? 'Backend détecté' : 'Backend non installé'}</span>
+        </div>
+        <p>${escapeHTML(overview?.available ? meta.readyText : CMS_UNAVAILABLE_MESSAGE)}</p>
+        <p>${escapeHTML(meta.fallbackText)}</p>
+      </section>
+      <div class="admin-grid metrics">
+        ${metric('Séries (publiées / total)', `${overview?.examSeriesPublished || 0} / ${overview?.examSeriesCount || 0}`)}
+        ${metric('Leçons (publiées / total)', `${overview?.lessonsPublished || 0} / ${overview?.lessonsCount || 0}`)}
+        ${metric('Panneaux (publiés / total)', `${overview?.panelsPublished || 0} / ${overview?.panelsCount || 0}`)}
+        ${metric('Médias CMS', overview?.mediaCount || 0)}
+      </div>
+      <section class="admin-card">
+        <div class="card-heading">
+          <h2>Phase A</h2>
+        </div>
+        <div class="latest-list">
+          ${meta.items.map((item) => `<div class="latest-item"><div><strong>${escapeHTML(item.title)}</strong><span>${escapeHTML(item.text)}</span></div></div>`).join('')}
+        </div>
+      </section>
+    </section>
+  `);
+  document.querySelector('[data-refresh-cms]').addEventListener('click', async (event) => {
+    setButtonBusy(event.currentTarget, true);
+    await refreshCmsOverview({ force: true });
+    renderCmsSection(view);
+  });
+  if (!overview && !state.cmsLoading) {
+    refreshCmsOverview().then(() => {
+      if (state.currentView === view) renderCmsSection(view);
+    });
+  }
 }
 
 function userRow(profile) {
@@ -871,6 +955,49 @@ function countOverrides(examKey) {
   return state.examOverrides[examKey]?.size || 0;
 }
 
+function isCmsView(view) {
+  return view === 'lessons' || view === 'panels' || view === 'media';
+}
+
+function getCmsViewMeta(view) {
+  const metas = {
+    lessons: {
+      title: 'Leçons',
+      heading: 'Gestion des leçons',
+      readyText: 'Le backend CMS est détecté. L’édition complète des leçons sera activée en Phase B.',
+      fallbackText: 'Fallback actuel : assets/js/data/lessons-data.js reste la source utilisée par les élèves.',
+      items: [
+        { title: 'Brouillons', text: 'Prévu : édition en brouillon avant publication.' },
+        { title: 'Étapes', text: 'Prévu : titre, contenu, ordre, questions et corrections.' },
+        { title: 'Publication', text: 'Prévu : contenu publié visible aux élèves, legacy conservé en secours.' }
+      ]
+    },
+    panels: {
+      title: 'Panneaux',
+      heading: 'Gestion des panneaux',
+      readyText: 'Le backend CMS est détecté. L’édition complète des panneaux sera activée en Phase B.',
+      fallbackText: 'Fallback actuel : assets/js/data/panels-data.js et les images Images/ restent utilisés.',
+      items: [
+        { title: 'Fiches panneaux', text: 'Prévu : catégorie, titre, description, image et ordre.' },
+        { title: 'Audio Français', text: 'Prévu : fichier admin si présent, fallback TTS navigateur ensuite.' },
+        { title: 'Audio Wolof', text: 'Prévu : fichier audio admin uniquement, sans TTS automatique supposé.' }
+      ]
+    },
+    media: {
+      title: 'Médias',
+      heading: 'Bibliothèque médias',
+      readyText: 'Le backend CMS est détecté. La gestion des médias sera activée en Phase B.',
+      fallbackText: 'Stockage prévu : content-audio/panels/<panel-id>/fr/ et content-audio/panels/<panel-id>/wo/.',
+      items: [
+        { title: 'Images', text: 'Prévu : référencement des images de contenu sans supprimer les fichiers Git.' },
+        { title: 'Audios', text: 'Formats prévus : MP3, MP4 audio, WebM audio, Ogg.' },
+        { title: 'Sécurité', text: 'Écriture admin uniquement via public.is_admin().' }
+      ]
+    }
+  };
+  return metas[view] || metas.lessons;
+}
+
 function setView(html) {
   document.getElementById('admin-view').innerHTML = html;
 }
@@ -880,7 +1007,7 @@ function resolveInitialView() {
   const view = params.get('view') || sessionStorage.getItem(EXAM_ADMIN_RETURN_SECTION_KEY);
   sessionStorage.removeItem(EXAM_NAV_ORIGIN_KEY);
   sessionStorage.removeItem(EXAM_ADMIN_RETURN_SECTION_KEY);
-  if (view === 'users' || view === 'exams' || view === 'dashboard') {
+  if (view === 'users' || view === 'exams' || view === 'dashboard' || isCmsView(view)) {
     if (params.has('view')) {
       const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
       window.history.replaceState(null, '', cleanUrl);
@@ -891,7 +1018,7 @@ function resolveInitialView() {
 }
 
 function metric(label, value) {
-  return `<section class="admin-card metric"><span>${escapeHTML(label)}</span><strong>${Number(value) || 0}</strong></section>`;
+  return `<section class="admin-card metric"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong></section>`;
 }
 
 function statusLabel(status) {
