@@ -13,6 +13,7 @@ import {
   uploadQuestionImage,
   validateExamImageFile
 } from './services/exam-service.js';
+import { initCMSExams, renderCMSExamsSection } from './admin/admin-cms-exams.js';
 
 const EXAMS = {
   light: EXAM_LIGHT_DATA,
@@ -329,9 +330,15 @@ function renderExams() {
       <div class="exam-question-admin-list">
         ${questions.map(renderExamQuestionCard).join('') || '<section class="admin-card">Aucune question trouvée.</section>'}
       </div>
+      ${renderCMSExamsSection(state.examKey)}
     </section>
   `);
   bindExamActions();
+  initCMSExams(state.examKey).catch((error) => {
+    console.warn('Chargement CMS examens échoué', error);
+    const container = document.querySelector('.cms-exams-section .cms-exams-list');
+    if (container) container.innerHTML = `<p class="error">${escapeHTML(error.message || 'CMS examens indisponible')}</p>`;
+  });
 }
 
 function renderExamPublishCard(examKey) {

@@ -11,7 +11,7 @@ const root = process.cwd();
 function genDeterministicId(namespace, name) {
   const hash = crypto.createHash('sha256').update(`${namespace}:${name}`).digest('hex');
   // Format as UUID: 8-4-4-4-12
-  // We use bits from the hash. To be "proper", we should set version 4 bits, 
+  // We use bits from the hash. To be "proper", we should set version 4 bits,
   // but for deterministic internal IDs, a simple slice of the hash is sufficient and unique enough.
   return [
     hash.slice(0, 8),
@@ -125,14 +125,15 @@ function buildQuestionChoices(question) {
     ].filter((choice) => choice.label);
   }
 
-  if (question.optionType === 'type4') {
+  if (question.optionType === 'type4' || question.optionType === 'type4_multiple') {
+    const correctAnswers = new Set(Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer]);
     return ['type4Text1', 'type4Text2', 'type4Text3', 'type4Text4']
       .map((field, index) => {
         const key = String.fromCharCode(65 + index);
         return {
           choice_key: key,
           label: question[field] || '',
-          is_correct: question.correctAnswer === key,
+          is_correct: correctAnswers.has(key),
           sort_order: index + 1
         };
       })
@@ -255,7 +256,7 @@ function assertContent({ light, heavy, lessons, panels }) {
   console.log(`heavy: ${heavy.masterSeries.length} series, ${heavy.masterQuestions.length} questions, ${heavy.choices.length} choices`);
   console.log(`lessons: ${lessons.masterLessons.length} lessons, ${lessons.steps.length} steps`);
   console.log(`panels: ${panels.masterPanels.length} panels`);
-  
+
   // Show a few IDs for visual verification of determinism
   console.log(`Determinism check (PL-001): ${light.masterQuestions[0].id}`);
 })().catch((error) => {
