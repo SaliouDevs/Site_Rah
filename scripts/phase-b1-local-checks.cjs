@@ -111,7 +111,13 @@ async function createLocalUser(config, role) {
     email: `${role || 'student'}-${token}@local.test`,
     password: `Local-${token}-password`,
     email_confirm: true,
-    app_metadata: role ? { role } : {}
+    app_metadata: role ? { role } : {},
+    user_metadata: {
+      prenom: role === 'admin' ? 'Admin B1' : 'Student B1',
+      telephone: `98${Date.now().toString().slice(-7)}`,
+      formule: 'Formule Illimitee',
+      prix: 2000
+    }
   });
   if (res.status >= 400) throw new Error(`Auth user create failed ${res.status}: ${res.raw}`);
   return res.json.id;

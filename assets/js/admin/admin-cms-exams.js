@@ -61,7 +61,13 @@ export async function initCMSExams(examKey, containerSelector = '.cms-exams-sect
   }
 
   // Render series list
-  let html = `<div class="cms-series-selector">`;
+  let html = `
+    <label class="cms-question-search">
+      Rechercher une question
+      <input type="search" data-cms-question-search placeholder="PL-001, texte...">
+    </label>
+    <div class="cms-series-selector">
+  `;
 
   for (const s of series) {
     const seriesId = s.id;
@@ -80,12 +86,11 @@ export async function initCMSExams(examKey, containerSelector = '.cms-exams-sect
     if (questions && questions.length > 0) {
       html += `
         <div class="questions-compact">
-          ${questions.slice(0, 5).map((q, idx) => `
-            <button class="q-link" type="button" data-question-id="${escapeAttribute(q.id)}" title="${escapeAttribute(q.legacy_id || 'Sans ID')}">
-              Q${idx + 1}
+          ${questions.map((q) => `
+            <button class="q-link" type="button" data-question-id="${escapeAttribute(q.id)}" data-question-search="${escapeAttribute(String(q.legacy_id || '').toLowerCase())}" title="${escapeAttribute(q.legacy_id || 'Sans ID')}">
+              ${escapeHTML(q.legacy_id || 'Question')}
             </button>
           `).join('')}
-          ${questions.length > 5 ? `<span class="q-more">+${questions.length - 5}</span>` : ''}
         </div>
       `;
     }
@@ -98,6 +103,20 @@ export async function initCMSExams(examKey, containerSelector = '.cms-exams-sect
 
   html += `</div>`;
   listContainer.innerHTML = html;
+
+  const searchInput = container.querySelector('[data-cms-question-search]');
+  searchInput?.addEventListener('input', () => {
+    const term = searchInput.value.trim().toLowerCase();
+    container.querySelectorAll('.cms-series-card').forEach((card) => {
+      let visibleCount = 0;
+      card.querySelectorAll('.q-link').forEach((link) => {
+        const visible = !term || link.dataset.questionSearch.includes(term) || link.textContent.toLowerCase().includes(term);
+        link.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+      card.hidden = visibleCount === 0;
+    });
+  });
 
   // Bind series card events
   container.querySelectorAll('.cms-series-card').forEach((card) => {
@@ -190,7 +209,7 @@ function renderQuestionEditor(questionId, currentData, draftData, editorContaine
           <h3>Brouillon</h3>
           ${draftVersion ? `
             <div class="version-badge draft">Brouillon</div>
-            <form class="draft-form" data-question-id="${escapeAttribute(questionId)}" data-version-id="${escapeAttribute(draftVersion.id)}">
+            <form class="draft-form" data-question-id="${escapeAttribute(questionId)}" data-version-id="${escapeAttribute(draftVersion.id)}" data-version-metadata="${escapeAttribute(JSON.stringify(draftVersion.metadata || {}))}">
               <label>Texte de la question
                 <textarea name="question_text" class="question-text">${escapeHTML(draftVersion.question_text || '')}</textarea>
               </label>
@@ -314,6 +333,7 @@ async function saveDraftForm(questionId, versionId, form, container) {
     question_text: questionText,
     explanation,
     image_path: imagePath,
+    metadata: parseFormMetadata(form),
     choices
   });
 
@@ -338,6 +358,7 @@ function previewDraft(form) {
     label: item.querySelector('.choice-label').value,
     is_correct: item.querySelector('.is-correct').checked
   }));
+  const usesMultipleCorrect = choices.filter((choice) => choice.is_correct).length > 1;
 
   // Open preview modal or panel
   let html = `
@@ -350,7 +371,7 @@ function previewDraft(form) {
           <div class="choices-preview">
             ${choices.map((c) => `
               <div class="choice-item ${c.is_correct ? 'correct' : ''}">
-                <input type="radio" name="preview-answer" value="${escapeAttribute(c.choice_key)}" ${c.is_correct ? 'checked' : ''}>
+                <input type="${usesMultipleCorrect ? 'checkbox' : 'radio'}" name="preview-answer" value="${escapeAttribute(c.choice_key)}" ${c.is_correct ? 'checked' : ''}>
                 <label>${escapeHTML(c.choice_key)}</label>
                 <span>${escapeHTML(c.label)}</span>
               </div>
@@ -368,6 +389,14 @@ function previewDraft(form) {
   modal.innerHTML = html;
   document.body.appendChild(modal);
   modal.querySelector('[data-close-preview]').addEventListener('click', () => modal.remove());
+}
+
+function parseFormMetadata(form) {
+  try {
+    return JSON.parse(form.dataset.versionMetadata || '{}');
+  } catch (_) {
+    return {};
+  }
 }
 
 /**
