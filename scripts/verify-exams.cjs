@@ -43,6 +43,7 @@ async function installSupabaseMock(page, options = {}) {
     statuses = { light: 'verification', heavy: 'verification' },
     overrides = [],
     profiles = [],
+    cmsAvailable = false,
     maintenance = { enabled: false, message: 'Maintenance test' }
   } = options;
   await page.route('**/assets/js/supabase.js', (route) => route.fulfill({
@@ -54,6 +55,7 @@ async function installSupabaseMock(page, options = {}) {
         statuses: ${JSON.stringify(statuses)},
         overrides: ${JSON.stringify(overrides)},
         profiles: ${JSON.stringify(profiles)},
+        cmsAvailable: ${JSON.stringify(cmsAvailable)},
         maintenance: ${JSON.stringify(maintenance)},
         logoutCount: 0,
         deleted: [],
@@ -119,6 +121,9 @@ async function installSupabaseMock(page, options = {}) {
               return { exam_key: examKey, status: this.updatePayload?.status || mockState.statuses[examKey] || 'verification' };
             }
             if (table === 'exam_question_images') return this.upsertPayload || mockState.overrides[0] || null;
+            if (['exam_series', 'cms_lessons', 'cms_panels', 'cms_media_assets'].includes(table) && !mockState.cmsAvailable) {
+              return null;
+            }
             return null;
           },
           _result() {
@@ -160,6 +165,12 @@ async function installSupabaseMock(page, options = {}) {
                 && (!this.filters?.question_id || row.question_id === this.filters.question_id)
               ));
               return { data: rows, error: null };
+            }
+            if (['exam_series', 'cms_lessons', 'cms_panels', 'cms_media_assets'].includes(table)) {
+              if (!mockState.cmsAvailable) {
+                return { data: null, error: { message: "Could not find the table '" + table + "' in the schema cache" } };
+              }
+              return { data: [], error: null, count: 0 };
             }
             return { data: [], error: null };
           }
@@ -715,6 +726,12 @@ async function verifyAdmin(browser) {
   await expectText(page, 'body', 'Utilisateurs total');
   await expectText(page, 'body', '26');
   await expectText(page, 'body', 'Mode maintenance');
+  await page.getByRole('button', { name: 'Leçons', exact: true }).click();
+  await expectText(page, 'body', "Le backend CMS n'est pas encore installé");
+  await page.getByRole('button', { name: 'Panneaux', exact: true }).click();
+  await expectText(page, 'body', "Le backend CMS n'est pas encore installé");
+  await page.getByRole('button', { name: 'Médias', exact: true }).click();
+  await expectText(page, 'body', "Le backend CMS n'est pas encore installé");
   await page.getByRole('button', { name: 'Utilisateurs', exact: true }).click();
   await expectText(page, 'body', '1–10 sur 26 utilisateurs');
   await expectCount(page, '.admin-table tbody tr', 10);
