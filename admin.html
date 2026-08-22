@@ -15,21 +15,11 @@
     <link rel="stylesheet" href="./assets/css/admin-platform.css">
     <link rel="stylesheet" href="./assets/css/admin-product-suite.css">
     <link rel="stylesheet" href="./assets/css/admin-experience-polish.css">
+    <link rel="stylesheet" href="./assets/css/admin-payment.css">
 </head>
 <body class="admin-page">
     <div class="admin-shell">
-        <header class="admin-topbar">
-            <div class="admin-topbar-inner">
-                <div class="admin-brand">
-                    <span><i class="fas fa-car-side"></i></span>
-                    <div><strong data-brand-app>eAutoecole</strong><small data-brand-school>Auto-école · Pilotage</small></div>
-                </div>
-                <div class="admin-actions">
-                    <span class="admin-live-pill"><i class="fas fa-circle"></i> Administration</span>
-                    <button class="admin-secondary" type="button" data-admin-logout>Déconnexion</button>
-                </div>
-            </div>
-        </header>
+        <header class="admin-topbar"><div class="admin-topbar-inner"><div class="admin-brand"><span><i class="fas fa-car-side"></i></span><div><strong data-brand-app>eAutoecole</strong><small data-brand-school>Auto-école · Pilotage</small></div></div><div class="admin-actions"><span class="admin-live-pill"><i class="fas fa-circle"></i> Administration</span><button class="admin-secondary" type="button" data-admin-logout>Déconnexion</button></div></div></header>
         <main class="admin-main">
             <nav class="admin-nav" aria-label="Navigation admin">
                 <button class="active" type="button" data-admin-view="dashboard"><i class="fas fa-chart-pie"></i><span>Tableau de bord</span></button>
@@ -47,13 +37,12 @@
     <div id="modal-root" class="modal-root"></div>
     <div id="toast-root" class="toast-root"></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
-    <script src="./assets/js/config.js"></script>
-    <script src="./assets/js/supabase.js"></script>
-    <script src="./assets/js/exam-access.js"></script>
+    <script src="./assets/js/config.js"></script><script src="./assets/js/supabase.js"></script><script src="./assets/js/exam-access.js"></script>
     <script type="module" src="./assets/js/brand-runtime.js"></script>
     <script type="module" src="./assets/js/admin-page.js"></script>
     <script type="module" src="./assets/js/admin/admin-enhancements.js"></script>
     <script type="module" src="./assets/js/admin/admin-product-suite.js"></script>
     <script type="module" src="./assets/js/admin/admin-dashboard-insights.js"></script>
+    <script type="module" src="./assets/js/admin/admin-payment-enhancements.js"></script>
 </body>
 </html>
