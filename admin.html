@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="./assets/css/admin.css">
     <link rel="stylesheet" href="./assets/css/admin-exams.css">
     <link rel="stylesheet" href="./assets/css/admin-platform.css">
+    <link rel="stylesheet" href="./assets/css/admin-product-suite.css">
 </head>
 <body class="admin-page">
     <div class="admin-shell">
@@ -19,19 +20,24 @@
             <div class="admin-topbar-inner">
                 <div class="admin-brand">
                     <span><i class="fas fa-car-side"></i></span>
-                    <div><strong>eAutoecole</strong><small>Admin</small></div>
+                    <div><strong data-brand-app>eAutoecole</strong><small data-brand-school>Auto-école · Pilotage</small></div>
                 </div>
-                <div class="admin-actions"><button class="admin-secondary" type="button" data-admin-logout>Déconnexion</button></div>
+                <div class="admin-actions">
+                    <span class="admin-live-pill"><i class="fas fa-circle"></i> Administration</span>
+                    <button class="admin-secondary" type="button" data-admin-logout>Déconnexion</button>
+                </div>
             </div>
         </header>
         <main class="admin-main">
             <nav class="admin-nav" aria-label="Navigation admin">
-                <button class="active" type="button" data-admin-view="dashboard">Tableau de bord</button>
-                <button type="button" data-admin-view="users">Utilisateurs</button>
-                <button type="button" data-admin-view="exams">Examens</button>
-                <button type="button" data-admin-view="lessons">Leçons</button>
-                <button type="button" data-admin-view="panels">Panneaux</button>
-                <button type="button" data-admin-view="media">Médias</button>
+                <button class="active" type="button" data-admin-view="dashboard"><i class="fas fa-chart-pie"></i><span>Tableau de bord</span></button>
+                <button type="button" data-admin-view="users"><i class="fas fa-users"></i><span>Utilisateurs</span></button>
+                <button type="button" data-admin-view="instructors"><i class="fas fa-chalkboard-user"></i><span>Moniteurs</span></button>
+                <button type="button" data-admin-view="exams"><i class="fas fa-clipboard-check"></i><span>Examens</span></button>
+                <button type="button" data-admin-view="lessons"><i class="fas fa-book-open"></i><span>Leçons</span></button>
+                <button type="button" data-admin-view="panels"><i class="fas fa-traffic-light"></i><span>Panneaux</span></button>
+                <button type="button" data-admin-view="media"><i class="fas fa-photo-film"></i><span>Médias</span></button>
+                <button type="button" data-admin-view="branding"><i class="fas fa-wand-magic-sparkles"></i><span>Identité</span></button>
             </nav>
             <section id="admin-view"></section>
         </main>
@@ -42,7 +48,9 @@
     <script src="./assets/js/config.js"></script>
     <script src="./assets/js/supabase.js"></script>
     <script src="./assets/js/exam-access.js"></script>
+    <script type="module" src="./assets/js/brand-runtime.js"></script>
     <script type="module" src="./assets/js/admin-page.js"></script>
     <script type="module" src="./assets/js/admin/admin-enhancements.js"></script>
+    <script type="module" src="./assets/js/admin/admin-product-suite.js"></script>
 </body>
 </html>
