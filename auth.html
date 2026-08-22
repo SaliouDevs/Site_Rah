@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./assets/css/tokens.css">
     <link rel="stylesheet" href="./assets/css/auth.css">
+    <link rel="stylesheet" href="./assets/css/brand-theme.css">
 </head>
 <body class="auth-page">
     <main class="auth-shell">
@@ -18,35 +19,17 @@
             <div class="auth-brand">
                 <div class="auth-logo">
                     <span data-school-logo><i class="fas fa-car-side"></i></span>
-                    <div>
-                        <strong data-app-name>eAutoecole</strong>
-                        <small data-school-name>Auto-école</small>
-                    </div>
+                    <div><strong data-app-name>eAutoecole</strong><small data-school-name>Auto-école</small></div>
                 </div>
-                <div class="auth-copy">
-                    <h1 id="auth-title" data-school-hero-title>Apprends. Entraîne-toi. Maîtrise la route.</h1>
-                    <p data-school-hero-message>Un espace sérieux pour suivre tes leçons, tes tests et ta progression.</p>
-                </div>
+                <div class="auth-copy"><h1 id="auth-title" data-school-hero-title>Apprends. Entraîne-toi. Maîtrise la route.</h1><p data-school-hero-message>Un espace sérieux pour suivre tes leçons, tes tests et ta progression.</p></div>
             </div>
-
             <div class="auth-card">
-                <div class="auth-tabs" role="tablist">
-                    <button class="active" type="button" data-auth-tab="login">Connexion</button>
-                    <button type="button" data-auth-tab="register">Inscription</button>
-                </div>
+                <div class="auth-tabs" role="tablist"><button class="active" type="button" data-auth-tab="login">Connexion</button><button type="button" data-auth-tab="register">Inscription</button></div>
                 <div class="auth-alert" data-auth-alert role="status"></div>
                 <form class="auth-form active" data-auth-form="login" data-login-form>
                     <h2>Connexion</h2>
-                    <div class="form-field">
-                        <label for="loginIdentifier">Numéro de téléphone</label>
-                        <div class="input-row"><span>+221</span><input id="loginIdentifier" autocomplete="username" inputmode="numeric" maxlength="12" placeholder="77 123 45 67"></div>
-                        <div class="field-error" id="loginIdentifierError"></div>
-                    </div>
-                    <div class="form-field">
-                        <label for="loginPassword">Mot de passe</label>
-                        <div class="input-row"><input id="loginPassword" type="password" autocomplete="current-password"><button type="button" data-toggle-password="loginPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button></div>
-                        <div class="field-error" id="loginPasswordError"></div>
-                    </div>
+                    <div class="form-field"><label for="loginIdentifier">Numéro de téléphone</label><div class="input-row"><span>+221</span><input id="loginIdentifier" autocomplete="username" inputmode="numeric" maxlength="12" placeholder="77 123 45 67"></div><div class="field-error" id="loginIdentifierError"></div></div>
+                    <div class="form-field"><label for="loginPassword">Mot de passe</label><div class="input-row"><input id="loginPassword" type="password" autocomplete="current-password"><button type="button" data-toggle-password="loginPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button></div><div class="field-error" id="loginPasswordError"></div></div>
                     <button class="primary-action" type="submit" data-login-submit>Se connecter</button>
                     <div class="auth-links"><button class="text-action" type="button" data-forgot>Mot de passe oublié</button><button class="text-action" type="button" data-show-register>Créer un compte</button></div>
                 </form>
