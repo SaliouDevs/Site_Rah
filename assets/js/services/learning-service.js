@@ -11,6 +11,15 @@ export async function recordLearningAttempt(payload) {
 export async function awardLearningPoints({ sourceKey, kind, points, metadata = {} }) {
   if (typeof window.sbAwardLearningPoints !== 'function') return null;
   try {
+    if (kind === 'exam' && metadata.exam && metadata.series) {
+      await recordLearningAttempt({
+        activityType: 'exam',
+        activityKey: `${sourceKey}:result`,
+        topic: `Examen ${metadata.exam} · ${metadata.series}`,
+        isCorrect: true,
+        metadata
+      });
+    }
     const total = await window.sbAwardLearningPoints({ sourceKey, kind, points, metadata });
     window.dispatchEvent(new CustomEvent('learning-points-updated', { detail: { total } }));
     return total;
