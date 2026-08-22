@@ -1,5 +1,6 @@
 import { TEST_SERIES_DATA } from '../data/tests-data.js';
 import { navigateTo } from '../router.js';
+import { awardLearningPoints, getDailyKey, inferTopic, recordLearningAttempt } from '../services/learning-service.js';
 
 let activeTest = null;
 
@@ -11,14 +12,14 @@ export function renderTestsView(container) {
       <div class="view-heading">
         <p class="eyebrow">Entraînement</p>
         <h1>Tests</h1>
-        <p>Conserve les séries existantes et réponds question par question avec feedback clair.</p>
+        <p>Réponds question par question. Tes erreurs alimentent automatiquement la révision intelligente.</p>
       </div>
       <div class="test-series-grid">
         ${Object.entries(TEST_SERIES_DATA).map(([key, serie]) => `
           <button class="test-series-card" type="button" data-start-series="${key}">
             <strong>Niveau ${key.replace('T', '')}</strong>
             <span>${serie.questions.length} questions</span>
-            <small>Réussite : 7 / 10</small>
+            <small>Réussite : 7 / 10 · +20 pts</small>
           </button>
         `).join('')}
       </div>
@@ -42,7 +43,8 @@ function startSeries(container, seriesKey) {
     questions: series.questions,
     currentIndex: 0,
     answers: {},
-    validated: false
+    validated: {},
+    attemptId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   };
   renderQuestion(container);
 }
@@ -63,8 +65,7 @@ function renderQuestion(container) {
         <div class="test-options">
           ${Object.entries(question.options).map(([key, value]) => `
             <button type="button" data-test-answer="${key}" class="${selected === key ? 'selected' : ''}">
-              <span>${key}</span>
-              <strong>${value}</strong>
+              <span>${key}</span><strong>${value}</strong>
             </button>
           `).join('')}
         </div>
@@ -75,7 +76,6 @@ function renderQuestion(container) {
       </div>
     </section>
   `;
-
   bindQuestionControls(container, question);
 }
 
@@ -86,15 +86,13 @@ function bindQuestionControls(container, question) {
       message: 'Ta progression actuelle dans cette série sera perdue.',
       confirmLabel: 'Quitter',
       cancelLabel: 'Continuer le test',
-      onConfirm: () => {
-        setBottomNavVisible(true);
-        navigateTo('/tests');
-      }
+      onConfirm: () => { setBottomNavVisible(true); navigateTo('/tests'); }
     });
   });
 
   container.querySelectorAll('[data-test-answer]').forEach((button) => {
     button.addEventListener('click', () => {
+      if (activeTest.validated[activeTest.currentIndex]) return;
       activeTest.answers[activeTest.currentIndex] = button.dataset.testAnswer;
       container.querySelectorAll('[data-test-answer]').forEach((item) => item.classList.remove('selected'));
       button.classList.add('selected');
@@ -103,45 +101,65 @@ function bindQuestionControls(container, question) {
   });
 
   container.querySelector('[data-validate-answer]').addEventListener('click', () => {
-    const answer = activeTest.answers[activeTest.currentIndex];
+    const index = activeTest.currentIndex;
+    if (activeTest.validated[index]) return;
+    activeTest.validated[index] = true;
+    const answer = activeTest.answers[index];
     const correct = answer === question.correctAnswer;
+    recordLearningAttempt({
+      activityType: 'test',
+      activityKey: `test:${activeTest.seriesKey}:${activeTest.attemptId}`,
+      questionId: `${activeTest.seriesKey}-${index + 1}`,
+      topic: inferTopic(question),
+      isCorrect: correct,
+      metadata: { answer, correctAnswer: question.correctAnswer, index: index + 1 }
+    });
+
     const feedback = container.querySelector('[data-feedback]');
     feedback.className = `quiz-feedback ${correct ? 'correct' : 'wrong'}`;
     feedback.innerHTML = `<strong>${correct ? 'Correct' : 'À revoir'}</strong><span>${question.explanation || `La bonne réponse est ${question.correctAnswer}.`}</span>`;
     container.querySelectorAll('[data-test-answer]').forEach((button) => {
       button.disabled = true;
-      if (button.dataset.testAnswer === question.correctAnswer) {
-        button.classList.add('correct');
-      } else if (button.dataset.testAnswer === answer) {
-        button.classList.add('wrong');
-      }
+      if (button.dataset.testAnswer === question.correctAnswer) button.classList.add('correct');
+      else if (button.dataset.testAnswer === answer) button.classList.add('wrong');
     });
-    container.querySelector('[data-validate-answer]').outerHTML = `<button class="primary-action" type="button" data-next-question>${activeTest.currentIndex === activeTest.questions.length - 1 ? 'Voir les résultats' : 'Question suivante →'}</button>`;
+    container.querySelector('[data-validate-answer]').outerHTML = `<button class="primary-action" type="button" data-next-question>${index === activeTest.questions.length - 1 ? 'Voir les résultats' : 'Question suivante →'}</button>`;
     container.querySelector('[data-next-question]').addEventListener('click', () => {
-      if (activeTest.currentIndex === activeTest.questions.length - 1) {
-        renderResults(container);
-      } else {
-        activeTest.currentIndex += 1;
-        renderQuestion(container);
-      }
+      if (index === activeTest.questions.length - 1) renderResults(container);
+      else { activeTest.currentIndex += 1; renderQuestion(container); }
     });
   });
 }
 
 function renderResults(container) {
-  const score = activeTest.questions.reduce((sum, question, index) => {
-    return sum + (activeTest.answers[index] === question.correctAnswer ? 1 : 0);
-  }, 0);
+  const score = activeTest.questions.reduce((sum, question, index) => sum + (activeTest.answers[index] === question.correctAnswer ? 1 : 0), 0);
   const percentage = Math.round((score / activeTest.questions.length) * 100);
+  const passed = score >= 7;
   saveRecentTest(activeTest.seriesKey, score, percentage);
+  recordLearningAttempt({
+    activityType: 'test',
+    activityKey: `test:${activeTest.seriesKey}:${activeTest.attemptId}:result`,
+    topic: `Test ${activeTest.seriesKey}`,
+    score: percentage,
+    isCorrect: passed,
+    metadata: { seriesKey: activeTest.seriesKey, score, total: activeTest.questions.length }
+  });
+  if (passed) {
+    awardLearningPoints({
+      sourceKey: `test:${activeTest.seriesKey}:${getDailyKey()}`,
+      kind: 'test',
+      points: 20,
+      metadata: { seriesKey: activeTest.seriesKey, score, percentage }
+    });
+  }
 
   container.innerHTML = `
     <section class="test-result-view immersive-view">
-      <div class="reader-panel result-panel ${score >= 7 ? 'passed' : 'failed'}">
-        <div class="result-check">${score >= 7 ? '✓' : '!'}</div>
+      <div class="reader-panel result-panel ${passed ? 'passed' : 'failed'}">
+        <div class="result-check">${passed ? '✓' : '!'}</div>
         <p class="eyebrow">Résultat</p>
         <h1>${score} / ${activeTest.questions.length}</h1>
-        <p>${percentage} % · ${score >= 7 ? 'Série réussie' : 'Encore un peu de révision'}</p>
+        <p>${percentage} % · ${passed ? 'Série réussie · +20 points (1 fois/jour par série)' : 'Encore un peu de révision'}</p>
         <div class="reader-actions">
           <button class="primary-action" type="button" data-retry-test>Recommencer</button>
           <button class="secondary-action" type="button" data-tests-home>Retour aux tests</button>
@@ -151,17 +169,12 @@ function renderResults(container) {
   `;
   const seriesKey = activeTest.seriesKey;
   container.querySelector('[data-retry-test]').addEventListener('click', () => startSeries(container, seriesKey));
-  container.querySelector('[data-tests-home]').addEventListener('click', () => {
-    setBottomNavVisible(true);
-    navigateTo('/tests');
-  });
+  container.querySelector('[data-tests-home]').addEventListener('click', () => { setBottomNavVisible(true); navigateTo('/tests'); });
 }
 
 function setBottomNavVisible(isVisible) {
   const nav = document.getElementById('bottom-nav');
-  if (nav) {
-    nav.style.display = isVisible ? 'flex' : 'none';
-  }
+  if (nav) nav.style.display = isVisible ? 'flex' : 'none';
 }
 
 function saveRecentTest(seriesKey, score, percentage) {
@@ -173,9 +186,7 @@ function saveRecentTest(seriesKey, score, percentage) {
 
 function getRecentTestsLabel() {
   const history = JSON.parse(localStorage.getItem('eautoecole.testHistory') || '[]');
-  if (!history.length) {
-    return 'Aucun test récent';
-  }
+  if (!history.length) return 'Aucun test récent';
   const last = history[0];
   return `${last.seriesKey} · ${last.score}/10 · ${last.percentage}%`;
 }
