@@ -6,6 +6,7 @@
  */
 
 import {
+  EXAM_CMS_UNAVAILABLE_MESSAGE,
   listExamSeries,
   listSeriesQuestions,
   getCurrentQuestionVersion,
@@ -48,10 +49,11 @@ export async function initCMSExams(examKey, containerSelector = '.cms-exams-sect
   const editorContainer = container.querySelector('#cms-question-editor');
 
   // Load series
-  const { data: series, error: seriesError } = await listExamSeries(examKey);
+  const { data: series, error: seriesError, unavailable } = await listExamSeries(examKey);
 
   if (seriesError) {
-    listContainer.innerHTML = `<p class="error">Erreur: ${escapeHTML(seriesError)}</p>`;
+    const message = unavailable ? EXAM_CMS_UNAVAILABLE_MESSAGE : 'Gestion de contenu indisponible pour le moment.';
+    listContainer.innerHTML = `<p class="info">${escapeHTML(message)}</p>`;
     return;
   }
 

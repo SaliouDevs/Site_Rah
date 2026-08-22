@@ -15,6 +15,9 @@ const EXPECTED_EXAM_COUNTS = {
   heavy: { series: 5, questions: 50, choices: 120 }
 };
 
+export const EXAM_CMS_UNAVAILABLE_MESSAGE = 'Gestion de contenu indisponible pour le moment. Les contenus historiques restent utilisés.';
+export const EXAM_CMS_UNAVAILABLE_REASON = 'CMS backend unavailable';
+
 function getSupabaseClient() {
   if (!window.sb) throw new Error('Client Supabase indisponible');
   return window.sb;
@@ -34,7 +37,7 @@ export async function listExamSeries(examKey) {
     if (error) throw error;
     return { data: data || [], error: null };
   } catch (error) {
-    return { data: [], error: error.message };
+    return normalizeServiceError(error);
   }
 }
 
@@ -52,7 +55,7 @@ export async function getSeriesVersion(seriesVersionId) {
     if (error) throw error;
     return { data, error: null };
   } catch (error) {
-    return { data: null, error: error.message };
+    return normalizeServiceError(error, null);
   }
 }
 
@@ -70,7 +73,7 @@ export async function listSeriesQuestions(seriesId) {
     if (error) throw error;
     return { data: data || [], error: null };
   } catch (error) {
-    return { data: [], error: error.message };
+    return normalizeServiceError(error);
   }
 }
 
@@ -118,7 +121,7 @@ export async function getCurrentQuestionVersion(questionId) {
       error: null
     };
   } catch (error) {
-    return { data: null, error: error.message };
+    return normalizeServiceError(error, null);
   }
 }
 
@@ -159,7 +162,7 @@ export async function getDraftQuestionVersion(questionId) {
       error: null
     };
   } catch (error) {
-    return { data: null, error: error.message };
+    return normalizeServiceError(error, null);
   }
 }
 
@@ -176,7 +179,7 @@ export async function createOrGetDraft(questionId) {
     // Return the draft details
     return getDraftQuestionVersion(questionId);
   } catch (error) {
-    return { data: null, error: error.message };
+    return normalizeServiceError(error, null);
   }
 }
 
@@ -216,7 +219,8 @@ export async function saveDraft(versionId, updates) {
 
     return { error: null };
   } catch (error) {
-    return { error: error.message };
+    const normalized = normalizeServiceError(error, null);
+    return { error: normalized.error };
   }
 }
 
@@ -235,7 +239,8 @@ export async function publishDraft(questionId, versionId) {
 
     return { error: null, published: data };
   } catch (error) {
-    return { error: error.message, published: false };
+    const normalized = normalizeServiceError(error, null);
+    return { error: normalized.error, published: false };
   }
 }
 
@@ -253,7 +258,7 @@ export async function getQuestionHistory(questionId) {
     if (error) throw error;
     return { data: data || [], error: null };
   } catch (error) {
-    return { data: [], error: error.message };
+    return normalizeServiceError(error);
   }
 }
 
@@ -273,7 +278,7 @@ export async function restoreVersionAsDraft(questionId, sourceVersionId) {
     // Return new draft details
     return getDraftQuestionVersion(questionId);
   } catch (error) {
-    return { data: null, error: error.message };
+    return normalizeServiceError(error, null);
   }
 }
 
@@ -341,7 +346,7 @@ export async function checkCMSCompleteness(examKey) {
 
     return { isComplete: true };
   } catch (error) {
-    return { isComplete: false, reason: error.message };
+    return { isComplete: false, reason: formatCmsError(error) };
   }
 }
 
@@ -360,7 +365,7 @@ export async function getExamDataSource(examKey) {
 
     return { source: 'cms', reason: 'CMS complete and published' };
   } catch (error) {
-    return { source: 'legacy', reason: `Fallback due to error: ${error.message}` };
+    return { source: 'legacy', reason: `Fallback due to error: ${formatCmsError(error)}` };
   }
 }
 
@@ -435,8 +440,31 @@ async function loadFromCMS(examKey) {
       source: 'cms'
     };
   } catch (error) {
-    return { data: null, source: 'cms', error: error.message };
+    return { data: null, source: 'cms', error: formatCmsError(error) };
   }
+}
+
+export function isCmsBackendUnavailableError(error) {
+  const text = `${error?.message || error || ''} ${error?.code || ''} ${error?.details || ''} ${error?.hint || ''}`.toLowerCase();
+  return text.includes('pgrst')
+    || text.includes('schema cache')
+    || text.includes('relation') && text.includes('does not exist')
+    || text.includes('table') && text.includes('does not exist')
+    || text.includes('table') && text.includes('not found')
+    || text.includes('could not find the table');
+}
+
+function formatCmsError(error) {
+  return isCmsBackendUnavailableError(error) ? EXAM_CMS_UNAVAILABLE_REASON : (error?.message || String(error || 'Erreur CMS'));
+}
+
+function normalizeServiceError(error, emptyData = []) {
+  const unavailable = isCmsBackendUnavailableError(error);
+  return {
+    data: emptyData,
+    error: unavailable ? EXAM_CMS_UNAVAILABLE_MESSAGE : (error?.message || String(error || 'Erreur CMS')),
+    unavailable
+  };
 }
 
 async function selectInChunks(sb, table, columns, column, values, orderColumn, chunkSize = 50) {
