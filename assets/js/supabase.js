@@ -4,7 +4,7 @@
 // ================================================================
 
 const SUPABASE_PRODUCTION_URL = 'https://mhoxpqskssbxuuyzjsqx.supabase.co';
-const SUPABASE_PRODUCTION_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtaG94cHFza3NzYnh1dXl6anNxeCIsInJlZiI6Im1ob3hwcXNrc3NieHV1eXpqc3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDc3NzksImV4cCI6MjEwMjI4Mzc3OX0.psB1yyyAjzPNPsymyxUGiki3mS6CiZd8NKHlnGC0b78';
+const SUPABASE_PRODUCTION_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ob3hwcXNrc3NieHV1eXpqc3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDc3NzksImV4cCI6MjEwMjI4Mzc3OX0.psB1yyyAjzPNPsymyxUGiki3mS6CiZd8NKHlnGC0b78';
 const SUPABASE_LOCAL_URL = 'http://127.0.0.1:54321';
 const SUPABASE_LOCAL_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
 const isLocalFrontendHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -20,21 +20,16 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     }
 });
 
-// ── Utilitaire téléphone ─────────────────────────────────────────
 function phoneToEmail(telephone) {
     return telephone.replace(/\s/g, '') + '@siterah.sn';
 }
 
 function identifierToEmail(identifier) {
     const value = String(identifier || '').trim();
-    if (value.toLowerCase() === window.ADMIN_CONFIG?.alias) {
-        return window.ADMIN_CONFIG.aliasEmail;
-    }
+    if (value.toLowerCase() === window.ADMIN_CONFIG?.alias) return window.ADMIN_CONFIG.aliasEmail;
     if (value.includes('@')) return value;
     return phoneToEmail(value);
 }
-
-// ── Auth ─────────────────────────────────────────────────────────
 
 async function sbRegister({ prenom = 'Élève', telephone, password, formule = 'Formule Illimitée', prix = 2000 }) {
     const cleanPhone = telephone.replace(/\s/g, '');
@@ -42,14 +37,7 @@ async function sbRegister({ prenom = 'Élève', telephone, password, formule = '
     const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
-        options: {
-            data: {
-                prenom: prenom || 'Élève',
-                telephone: cleanPhone,
-                formule,
-                prix
-            }
-        }
+        options: { data: { prenom: prenom || 'Élève', telephone: cleanPhone, formule, prix } }
     });
     if (error) throw error;
     return data;
@@ -90,16 +78,10 @@ function sbIsAdmin(user) {
     return user?.app_metadata?.role === 'admin';
 }
 
-// ── Profil ───────────────────────────────────────────────────────
-
 async function sbGetProfile() {
     const user = await sbGetUser();
     if (!user) return null;
-    const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+    const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
     if (error) throw error;
     return data;
 }
@@ -107,17 +89,10 @@ async function sbGetProfile() {
 async function sbUpdateProfile(updates) {
     const user = await sbGetUser();
     if (!user) throw new Error('Non connecté');
-    const { data, error } = await supabaseClient
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
+    const { data, error } = await supabaseClient.from('profiles').update(updates).eq('id', user.id).select().single();
     if (error) throw error;
     return data;
 }
-
-// ── Admin ─────────────────────────────────────────────────────────
 
 async function sbGetAllProfiles() {
     const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
@@ -180,7 +155,6 @@ async function sbAdminDeleteUser(userId) {
     return data;
 }
 
-// ── Session unique par compte ─────────────────────────────────────
 async function sbClaimUserSession(deviceId) {
     const { data, error } = await supabaseClient.rpc('claim_user_session', { p_device_id: deviceId });
     if (error) throw error;
@@ -188,41 +162,32 @@ async function sbClaimUserSession(deviceId) {
 }
 
 async function sbValidateUserSession(deviceId, sessionToken) {
-    const { data, error } = await supabaseClient.rpc('validate_user_session', {
-        p_device_id: deviceId,
-        p_session_token: sessionToken
-    });
+    const { data, error } = await supabaseClient.rpc('validate_user_session', { p_device_id: deviceId, p_session_token: sessionToken });
     if (error) throw error;
     return Boolean(data);
 }
 
 async function sbTouchUserSession(deviceId, sessionToken) {
-    const { data, error } = await supabaseClient.rpc('touch_user_session', {
-        p_device_id: deviceId,
-        p_session_token: sessionToken
-    });
+    const { data, error } = await supabaseClient.rpc('touch_user_session', { p_device_id: deviceId, p_session_token: sessionToken });
     if (error) throw error;
     return Boolean(data);
 }
 
 async function sbReleaseUserSession(deviceId, sessionToken) {
-    const { data, error } = await supabaseClient.rpc('release_user_session', {
-        p_device_id: deviceId,
-        p_session_token: sessionToken
-    });
+    const { data, error } = await supabaseClient.rpc('release_user_session', { p_device_id: deviceId, p_session_token: sessionToken });
     if (error) throw error;
     return Boolean(data);
 }
 
-// ── Apprentissage / progression ───────────────────────────────────
 async function sbRecordLearningAttempt(payload = {}) {
+    const scoreValue = payload.score === null || payload.score === undefined || payload.score === '' ? null : Number(payload.score);
     const { data, error } = await supabaseClient.rpc('record_learning_attempt', {
         p_activity_type: payload.activityType,
         p_activity_key: payload.activityKey,
         p_question_id: payload.questionId || null,
         p_topic: payload.topic || null,
         p_is_correct: typeof payload.isCorrect === 'boolean' ? payload.isCorrect : null,
-        p_score: Number.isFinite(Number(payload.score)) ? Number(payload.score) : null,
+        p_score: Number.isFinite(scoreValue) ? scoreValue : null,
         p_metadata: payload.metadata || {}
     });
     if (error) throw error;
@@ -263,8 +228,6 @@ async function sbUpsertLearningProfile(updates = {}) {
     return data;
 }
 
-// ── Storage (photos de profil) ────────────────────────────────────
-
 async function sbUploadPhoto(file) {
     const user = await sbGetUser();
     if (!user) throw new Error('Non connecté');
@@ -284,17 +247,9 @@ async function sbInvokeAdminAction(action, payload = {}) {
     return data;
 }
 
-function sbOnAuthStateChange(callback) {
-    return supabaseClient.auth.onAuthStateChange(callback);
-}
-
-function sbSubscribe(channelName, config, callback) {
-    return supabaseClient.channel(channelName).on('postgres_changes', config, callback).subscribe();
-}
-
-function sbRemoveChannel(channel) {
-    return supabaseClient.removeChannel(channel);
-}
+function sbOnAuthStateChange(callback) { return supabaseClient.auth.onAuthStateChange(callback); }
+function sbSubscribe(channelName, config, callback) { return supabaseClient.channel(channelName).on('postgres_changes', config, callback).subscribe(); }
+function sbRemoveChannel(channel) { return supabaseClient.removeChannel(channel); }
 
 async function requireAuth() {
     const session = await sbGetSession();
