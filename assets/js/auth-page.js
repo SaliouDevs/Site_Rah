@@ -1,7 +1,8 @@
 import { registerStudent, resolveAuthMessage, signInWithIdentifier } from './services/auth-service.js';
 import { getMaintenanceMessage, loadRuntimeSettings } from './services/runtime-service.js';
+import { loadSchoolSettings } from './services/school-service.js';
 
-const state = { activeTab: 'login', maintenance: false };
+const state = { activeTab: 'login', maintenance: false, school: null };
 
 document.addEventListener('DOMContentLoaded', initAuthPage);
 
@@ -15,6 +16,8 @@ async function initAuthPage() {
   document.querySelector('[data-show-register]').addEventListener('click', () => switchTab('register'));
   document.querySelector('[data-show-login]').addEventListener('click', () => switchTab('login'));
 
+  state.school = await loadSchoolSettings().catch(() => window.EAUTO_SCHOOL_SETTINGS || null);
+  applyOffer();
   const message = resolveAuthMessage();
   if (message) showAlert(message.text, message.type);
   const runtimeSettings = await loadRuntimeSettings();
@@ -23,6 +26,16 @@ async function initAuthPage() {
     applyMaintenanceMode(runtimeSettings);
     showAlert(getMaintenanceMessage(runtimeSettings), 'warning');
   }
+}
+
+function applyOffer() {
+  const plan = document.querySelector('.plan-card');
+  if (!plan || !state.school) return;
+  plan.querySelector('strong').textContent = state.school.plan_name || 'Formule Illimitée';
+  plan.querySelector('span').textContent = formatMoney(state.school.registration_price);
+  plan.querySelector('small').textContent = state.school.payments_enabled === false
+    ? 'Inscription soumise à validation par l’auto-école.'
+    : 'Accès aux leçons, panneaux, tests, examens blancs et suivi de progression.';
 }
 
 function bindTabs() {
@@ -93,10 +106,7 @@ async function handleLogin(event) {
   setBusy('[data-login-submit]', true, 'Connexion...');
   try {
     const result = await signInWithIdentifier(identifier, password);
-    if (result.isAdmin) {
-      window.location.href = 'admin.html';
-      return;
-    }
+    if (result.isAdmin) { window.location.href = 'admin.html'; return; }
     if (result.isInstructor) {
       if (result.profile?.status === 'blocked') {
         await window.sbLogout();
@@ -126,7 +136,7 @@ async function handleLogin(event) {
   } catch (error) {
     showAlert(normalizeAuthError(error), 'error');
   } finally {
-    setBusy('[data-login-submit]', false, state.maintenance ? 'Se connecter' : 'Se connecter');
+    setBusy('[data-login-submit]', false, 'Se connecter');
   }
 }
 
@@ -140,12 +150,15 @@ async function handleRegister(event) {
   if (password.length < 6) return setFieldError('registerPasswordError', 'Minimum 6 caractères.');
   if (password !== confirm) return setFieldError('registerConfirmError', 'Les mots de passe ne correspondent pas.');
 
+  const school = state.school || window.EAUTO_SCHOOL_SETTINGS || {};
+  const formule = school.plan_name || 'Formule Illimitée';
+  const prix = Math.max(0, Number(school.registration_price ?? 2000));
   setBusy('[data-register-submit]', true, 'Création...');
   try {
-    await registerStudent({ telephone, password, formule: 'Formule Illimitée', prix: 2000 });
+    await registerStudent({ telephone, password, formule, prix });
     sessionStorage.setItem('pending_phone', telephone);
-    sessionStorage.setItem('pending_formule', 'Formule Illimitée');
-    sessionStorage.setItem('pending_prix', '2000');
+    sessionStorage.setItem('pending_formule', formule);
+    sessionStorage.setItem('pending_prix', String(prix));
     window.location.href = 'payment.html';
   } catch (error) {
     showAlert(normalizeAuthError(error), 'error');
@@ -157,16 +170,11 @@ async function handleRegister(event) {
 function showForgot() {
   showAlert(`Mot de passe oublié ? Contactez l’auto-école au ${window.CONTACT_CONFIG.phone} pour réinitialiser votre accès.`, 'info');
 }
-
-function clearFeedback() {
-  document.querySelectorAll('.field-error').forEach((item) => item.textContent = '');
-  const alert = document.querySelector('[data-auth-alert]');
-  alert.className = 'auth-alert';
-  alert.textContent = '';
-}
+function clearFeedback() { document.querySelectorAll('.field-error').forEach((item) => item.textContent = ''); const alert = document.querySelector('[data-auth-alert]'); alert.className = 'auth-alert'; alert.textContent = ''; }
 function setFieldError(id, text) { document.getElementById(id).textContent = text; }
 function showAlert(text, type = 'error') { const alert = document.querySelector('[data-auth-alert]'); alert.className = `auth-alert visible ${type}`; alert.textContent = text; }
 function setBusy(selector, busy, label) { const button = document.querySelector(selector); button.disabled = busy; button.textContent = label; }
+function formatMoney(value) { return `${Number(value || 0).toLocaleString('fr-FR')} FCFA`; }
 function normalizeAuthError(error) {
   const message = error?.message || 'Erreur de connexion.';
   if (message.includes('Invalid login')) return 'Numéro ou mot de passe incorrect.';
