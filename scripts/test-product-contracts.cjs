@@ -35,8 +35,14 @@ has('assets/js/services/admin-product-service.js', 'video/quicktime', 'import vi
 has('assets/js/services/admin-product-service.js', '50 * 1024 * 1024', 'limite média 50 Mo côté client');
 has('assets/js/admin/admin-mobile-media-polish.js', 'Google Drive', 'sélecteur média documente Drive/iCloud');
 has('assets/js/admin/admin-mobile-media-polish.js', 'video controls playsinline', 'vidéos prévisualisées avec contrôles et son');
+has('assets/js/admin/admin-mobile-media-polish.js', "kind: ['audio', 'video']", 'panneaux acceptent audio ou vidéo par langue');
 has('assets/js/admin/admin-media-edge.js', "functions.invoke('admin-media-upload'", 'frontend utilise edge function admin média');
 has('assets/js/admin/admin-media-edge.js', 'uploadToSignedUrl', 'frontend utilise URL signée pour le fichier');
+has('assets/js/modules/panels.js', 'sign.audioWo', 'vue élève consomme audio Wolof CMS');
+has('assets/js/modules/panels.js', 'sign.audioFr', 'vue élève consomme audio français CMS');
+has('assets/js/modules/panels.js', '<audio controls', 'vue élève expose lecteur audio natif');
+has('assets/js/modules/panels.js', '<video controls playsinline', 'vue élève expose vidéo avec son');
+has('assets/js/app-bootstrap.js', "new HashChangeEvent('hashchange')", 'vue CMS active se rafraîchit après hydratation');
 has('supabase/functions/admin-media-upload/index.ts', 'createSignedUploadUrl', 'edge function crée les URLs signées');
 has('supabase/functions/admin-media-upload/index.ts', 'app_metadata?.role', 'edge function vérifie le rôle admin');
 has('supabase/migrations/20260822135954_cms_media_video_support.sql', "'video'", 'migration vidéo CMS versionnée');
