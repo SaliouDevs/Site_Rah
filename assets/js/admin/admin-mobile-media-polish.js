@@ -182,8 +182,8 @@ function decoratePanelMediaFields() {
   const form = document.querySelector('[data-panel-form]');
   if (!form) return;
   addMediaPicker(form.elements.imagePath, { kind: 'image', label: 'Choisir une image' });
-  addMediaPicker(form.elements.audioFrPath, { kind: 'audio', language: 'fr', label: 'Choisir un son FR' });
-  addMediaPicker(form.elements.audioWoPath, { kind: 'audio', language: 'wo', label: 'Choisir un son Wolof / SN' });
+  addMediaPicker(form.elements.audioFrPath, { kind: ['audio', 'video'], language: 'fr', label: 'Choisir un son ou une vidéo FR' });
+  addMediaPicker(form.elements.audioWoPath, { kind: ['audio', 'video'], language: 'wo', label: 'Choisir un son ou une vidéo Wolof / SN' });
 }
 
 function addMediaPicker(input, options) {
@@ -199,6 +199,7 @@ function addMediaPicker(input, options) {
 
 async function openMediaPicker(target, { kind, language, label }) {
   if (!window.sb) return toastLocal('Supabase indisponible.', true);
+  const kinds = Array.isArray(kind) ? kind : [kind];
   const backdrop = document.createElement('div');
   backdrop.className = 'product-modal-backdrop media-picker-backdrop';
   backdrop.innerHTML = `<div class="product-modal media-picker-modal"><div class="media-picker-head"><div><p class="eyebrow">Bibliothèque</p><h2>${escapeHTML(label)}</h2></div><button type="button" class="secondary-product" data-close-picker>Fermer</button></div><input class="product-search" type="search" data-picker-search placeholder="Rechercher un fichier"><div class="media-picker-grid" data-picker-grid><div class="product-loader"><span class="spinner"></span><span>Chargement...</span></div></div></div>`;
@@ -206,25 +207,33 @@ async function openMediaPicker(target, { kind, language, label }) {
   backdrop.querySelector('[data-close-picker]').addEventListener('click', () => backdrop.remove());
   backdrop.addEventListener('click', (event) => { if (event.target === backdrop) backdrop.remove(); });
   try {
-    let query = window.sb.from('cms_media_assets').select('*').eq('status', 'published').eq('media_kind', kind).order('created_at', { ascending: false }).limit(150);
+    let query = window.sb.from('cms_media_assets').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(150);
+    query = kinds.length === 1 ? query.eq('media_kind', kinds[0]) : query.in('media_kind', kinds);
     if (language === 'fr') query = query.eq('language', 'fr');
     if (language === 'wo') query = query.in('language', ['wo', 'sn']);
     const { data, error } = await query;
     if (error) throw error;
-    renderPickerItems(backdrop, target, data || [], kind);
+    renderPickerItems(backdrop, target, data || []);
   } catch (error) {
     backdrop.querySelector('[data-picker-grid]').innerHTML = `<div class="empty-product"><strong>Bibliothèque indisponible</strong><span>${escapeHTML(error.message || '')}</span></div>`;
   }
 }
 
-function renderPickerItems(backdrop, target, assets, kind) {
+function renderPickerItems(backdrop, target, assets) {
   const grid = backdrop.querySelector('[data-picker-grid]');
   const render = (term = '') => {
     const q = term.trim().toLowerCase();
     const shown = assets.filter((asset) => !q || `${asset.title || ''} ${asset.storage_path || ''}`.toLowerCase().includes(q));
     grid.innerHTML = shown.length ? shown.map((asset) => {
       const url = window.sb.storage.from(asset.bucket || 'cms-media').getPublicUrl(asset.storage_path).data.publicUrl;
-      return `<article class="media-picker-card">${kind === 'image' ? `<img src="${escapeHTML(url)}" alt="" loading="lazy">` : `<audio controls preload="none" src="${escapeHTML(url)}"></audio>`}<div><strong>${escapeHTML(asset.title || asset.storage_path)}</strong><small>${escapeHTML(asset.language ? asset.language.toUpperCase().replace('WO','WO / SN') : 'Neutre')}</small></div><button type="button" class="primary-product" data-select-media="${escapeHTML(url)}">Utiliser</button></article>`;
+      const preview = asset.media_kind === 'image'
+        ? `<img src="${escapeHTML(url)}" alt="" loading="lazy">`
+        : asset.media_kind === 'video'
+          ? `<video controls playsinline preload="metadata" src="${escapeHTML(url)}"></video>`
+          : `<audio controls preload="none" src="${escapeHTML(url)}"></audio>`;
+      const typeLabel = asset.media_kind === 'video' ? 'Vidéo avec son' : asset.media_kind === 'audio' ? 'Audio' : 'Image';
+      const languageLabel = asset.language ? asset.language.toUpperCase().replace('WO','WO / SN') : 'Neutre';
+      return `<article class="media-picker-card">${preview}<div><strong>${escapeHTML(asset.title || asset.storage_path)}</strong><small>${escapeHTML(typeLabel)} · ${escapeHTML(languageLabel)}</small></div><button type="button" class="primary-product" data-select-media="${escapeHTML(url)}">Utiliser</button></article>`;
     }).join('') : '<div class="empty-product"><strong>Aucun média correspondant</strong></div>';
     grid.querySelectorAll('[data-select-media]').forEach((button) => button.addEventListener('click', () => {
       target.value = button.dataset.selectMedia;
