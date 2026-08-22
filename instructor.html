@@ -3,38 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eAutoecole - Moniteur</title>
+  <meta name="theme-color" content="#0b1d35">
+  <meta name="app-version" content="v3.4-instructor-payments">
+  <title>eAutoecole - Espace Moniteur</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="./assets/css/tokens.css">
   <link rel="stylesheet" href="./assets/css/instructor.css">
+  <link rel="stylesheet" href="./assets/css/instructor-v34.css">
 </head>
 <body class="instructor-page">
-  <div class="instructor-shell">
-    <header class="instructor-topbar">
-      <a class="instructor-brand" href="instructor.html" aria-label="Accueil moniteur">
+  <div class="iv-shell">
+    <header class="iv-topbar">
+      <a class="iv-brand" href="instructor.html" aria-label="Accueil moniteur">
         <span class="brand-icon"><i class="fas fa-car-side"></i></span>
-        <span><strong data-brand-app>eAutoecole</strong><small data-brand-school>Auto-école · Espace Moniteur</small></span>
+        <span class="iv-brand-copy"><strong data-brand-app>eAutoecole</strong><small data-brand-school>Auto-école · Espace Moniteur</small></span>
       </a>
-      <div class="instructor-top-actions">
-        <span class="team-pill"><i class="fas fa-id-badge"></i> Moniteur</span>
+      <div class="iv-top-actions">
+        <button class="iv-bell" type="button" data-notification-bell aria-label="Notifications"><i class="fas fa-bell"></i><span class="iv-bell-count" data-notification-count hidden>0</span></button>
+        <div class="iv-user-chip"><span><i class="fas fa-id-badge"></i></span><div><strong data-instructor-name>Moniteur</strong><small>Moniteur</small></div></div>
         <button class="ghost-button" type="button" data-instructor-logout>Déconnexion</button>
       </div>
     </header>
-    <main class="instructor-layout">
-      <aside class="student-rail">
-        <div class="rail-heading">
-          <div><p class="eyebrow">Mes élèves</p><h1>Suivi</h1></div>
-          <span class="student-count" data-student-count>0</span>
-        </div>
-        <label class="student-search"><i class="fas fa-search"></i><input data-student-search placeholder="Rechercher un élève"></label>
-        <div class="student-list" data-student-list></div>
-      </aside>
-      <section class="instructor-content" id="instructor-view">
-        <div class="instructor-loading"><span class="spinner"></span><p>Chargement du suivi...</p></div>
-      </section>
+    <main class="iv-layout">
+      <nav class="iv-nav" aria-label="Navigation Moniteur">
+        <button class="active" type="button" data-instructor-view="home"><i class="fas fa-house"></i><span>Accueil</span></button>
+        <button type="button" data-instructor-view="students"><i class="fas fa-users"></i><span>Mes élèves</span></button>
+        <button type="button" data-instructor-view="messages"><i class="fas fa-comments"></i><span>Messages</span></button>
+        <button type="button" data-instructor-view="planning"><i class="fas fa-calendar-days"></i><span>Planning</span></button>
+        <button type="button" data-instructor-view="exams"><i class="fas fa-file-signature"></i><span>Examens</span></button>
+        <button type="button" data-instructor-view="driving"><i class="fas fa-car"></i><span>Carnet de conduite</span></button>
+        <button type="button" data-instructor-view="progress"><i class="fas fa-chart-line"></i><span>Progression</span></button>
+        <button type="button" data-instructor-view="notifications"><i class="fas fa-bell"></i><span>Notifications</span></button>
+        <button type="button" data-instructor-view="profile"><i class="fas fa-user-circle"></i><span>Mon profil</span></button>
+      </nav>
+      <section class="iv-content" id="instructor-view"><div class="iv-loading"><span class="spinner"></span><span>Chargement de l’espace Moniteur…</span></div></section>
     </main>
   </div>
   <div id="instructor-modal-root"></div>
@@ -43,6 +48,6 @@
   <script src="./assets/js/config.js"></script>
   <script src="./assets/js/supabase.js"></script>
   <script type="module" src="./assets/js/brand-runtime.js"></script>
-  <script type="module" src="./assets/js/instructor-page.js"></script>
+  <script type="module" src="./assets/js/instructor-v34.js"></script>
 </body>
 </html>
