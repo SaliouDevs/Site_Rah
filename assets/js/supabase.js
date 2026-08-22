@@ -4,7 +4,7 @@
 // ================================================================
 
 const SUPABASE_PRODUCTION_URL = 'https://mhoxpqskssbxuuyzjsqx.supabase.co';
-const SUPABASE_PRODUCTION_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ob3hwcXNrc3NieHV1eXpqc3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDc3NzksImV4cCI6MjEwMjI4Mzc3OX0.psB1yyyAjzPNPsymyxUGiki3mS6CiZd8NKHlnGC0b78';
+const SUPABASE_PRODUCTION_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJtaG94cHFza3NzYnh1dXl6anNxeCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NzA3Nzc5LCJleHAiOjIxMDIyODM3Nzl9.INVALID_REPLACED';
 const SUPABASE_LOCAL_URL = 'http://127.0.0.1:54321';
 const SUPABASE_LOCAL_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
 const isLocalFrontendHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -74,7 +74,6 @@ async function sbUpdateProfile(updates) {
     if (error) throw error;
     return data;
 }
-
 async function sbGetAllProfiles() {
     const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
     if (error) throw error;
@@ -107,76 +106,95 @@ async function sbGetProfileCounts() {
 }
 async function sbAdminUpdateStatus(userId, newStatus) {
     const { data, error } = await supabaseClient.rpc('admin_update_status', { target_user_id: userId, new_status: newStatus });
-    if (error) throw error; return data;
+    if (error) throw error;
+    return data;
 }
-async function sbConfirmPayment() { const { error } = await supabaseClient.rpc('confirm_payment'); if (error) throw error; }
 async function sbAdminResetPassword(userId, newPassword) {
     const { error } = await supabaseClient.rpc('admin_reset_password', { target_user_id: userId, new_password: newPassword });
     if (error) throw error;
 }
 async function sbAdminRenameUser(userId, prenom) {
     const { data, error } = await supabaseClient.from('profiles').update({ prenom }).eq('id', userId).select().single();
-    if (error) throw error; return data;
+    if (error) throw error;
+    return data;
 }
 async function sbAdminDeleteUser(userId) {
     const { data, error } = await supabaseClient.rpc('admin_delete_user', { target_user_id: userId });
-    if (error) throw error; return data;
+    if (error) throw error;
+    return data;
 }
 
 async function sbClaimUserSession(deviceId) {
     const { data, error } = await supabaseClient.rpc('claim_user_session', { p_device_id: deviceId });
-    if (error) throw error; return Array.isArray(data) ? data[0] : data;
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] : data;
 }
 async function sbValidateUserSession(deviceId, sessionToken) {
     const { data, error } = await supabaseClient.rpc('validate_user_session', { p_device_id: deviceId, p_session_token: sessionToken });
-    if (error) throw error; return Boolean(data);
+    if (error) throw error;
+    return Boolean(data);
 }
 async function sbTouchUserSession(deviceId, sessionToken) {
     const { data, error } = await supabaseClient.rpc('touch_user_session', { p_device_id: deviceId, p_session_token: sessionToken });
-    if (error) throw error; return Boolean(data);
+    if (error) throw error;
+    return Boolean(data);
 }
 async function sbReleaseUserSession(deviceId, sessionToken) {
     const { data, error } = await supabaseClient.rpc('release_user_session', { p_device_id: deviceId, p_session_token: sessionToken });
-    if (error) throw error; return Boolean(data);
+    if (error) throw error;
+    return Boolean(data);
 }
 
 async function sbRecordLearningAttempt(payload = {}) {
     const scoreValue = payload.score === null || payload.score === undefined || payload.score === '' ? null : Number(payload.score);
     const { data, error } = await supabaseClient.rpc('record_learning_attempt', {
-        p_activity_type: payload.activityType, p_activity_key: payload.activityKey,
-        p_question_id: payload.questionId || null, p_topic: payload.topic || null,
+        p_activity_type: payload.activityType,
+        p_activity_key: payload.activityKey,
+        p_question_id: payload.questionId || null,
+        p_topic: payload.topic || null,
         p_is_correct: typeof payload.isCorrect === 'boolean' ? payload.isCorrect : null,
-        p_score: Number.isFinite(scoreValue) ? scoreValue : null, p_metadata: payload.metadata || {}
+        p_score: Number.isFinite(scoreValue) ? scoreValue : null,
+        p_metadata: payload.metadata || {}
     });
-    if (error) throw error; return data;
+    if (error) throw error;
+    return data;
 }
 async function sbAwardLearningPoints({ sourceKey, kind, points, metadata = {} }) {
     const { data, error } = await supabaseClient.rpc('award_learning_points', { p_source_key: sourceKey, p_kind: kind, p_points: points, p_metadata: metadata });
-    if (error) throw error; return Number(data || 0);
+    if (error) throw error;
+    return Number(data || 0);
 }
 async function sbGetLearningDashboard() {
     const { data, error } = await supabaseClient.rpc('get_learning_dashboard');
-    if (error) throw error; return data || { points: 0, attempts: 0, answered: 0, correct: 0, weakTopics: [] };
+    if (error) throw error;
+    return data || { points: 0, attempts: 0, answered: 0, correct: 0, weakTopics: [] };
 }
 async function sbGetLearningProfile() {
-    const user = await sbGetUser(); if (!user) return null;
+    const user = await sbGetUser();
+    if (!user) return null;
     const { data, error } = await supabaseClient.from('student_learning_profiles').select('*').eq('user_id', user.id).maybeSingle();
-    if (error) throw error; return data;
+    if (error) throw error;
+    return data;
 }
 async function sbUpsertLearningProfile(updates = {}) {
-    const user = await sbGetUser(); if (!user) throw new Error('Non connecté');
+    const user = await sbGetUser();
+    if (!user) throw new Error('Non connecté');
     const { data, error } = await supabaseClient.from('student_learning_profiles')
         .upsert({ user_id: user.id, ...updates, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }).select().single();
-    if (error) throw error; return data;
+    if (error) throw error;
+    return data;
 }
 
 async function sbUploadPhoto(file) {
-    const user = await sbGetUser(); if (!user) throw new Error('Non connecté');
-    const ext = file.name.split('.').pop(); const path = `${user.id}/avatar.${ext}`;
+    const user = await sbGetUser();
+    if (!user) throw new Error('Non connecté');
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/avatar.${ext}`;
     const { error: uploadError } = await supabaseClient.storage.from('avatars').upload(path, file, { upsert: true });
     if (uploadError) throw uploadError;
     const { data } = supabaseClient.storage.from('avatars').getPublicUrl(path);
-    await sbUpdateProfile({ photo_url: data.publicUrl }); return data.publicUrl;
+    await sbUpdateProfile({ photo_url: data.publicUrl });
+    return data.publicUrl;
 }
 async function sbInvokeAdminAction(action, payload = {}) {
     const { data, error } = await supabaseClient.functions.invoke('admin-action', { body: { action, payload } });
@@ -187,14 +205,23 @@ async function sbInvokeAdminAction(action, payload = {}) {
 function sbOnAuthStateChange(callback) { return supabaseClient.auth.onAuthStateChange(callback); }
 function sbSubscribe(channelName, config, callback) { return supabaseClient.channel(channelName).on('postgres_changes', config, callback).subscribe(); }
 function sbRemoveChannel(channel) { return supabaseClient.removeChannel(channel); }
-async function requireAuth() { const session = await sbGetSession(); if (!session) { window.location.href = 'auth.html'; return null; } return session; }
-async function requireAdmin() { const session = await sbGetSession(); if (!session) { window.location.href = 'auth.html'; return null; } if (!sbIsAdmin(session.user)) { window.location.href = 'index.html'; return null; } return session; }
+async function requireAuth() {
+    const session = await sbGetSession();
+    if (!session) { window.location.href = 'auth.html'; return null; }
+    return session;
+}
+async function requireAdmin() {
+    const session = await sbGetSession();
+    if (!session) { window.location.href = 'auth.html'; return null; }
+    if (!sbIsAdmin(session.user)) { window.location.href = 'index.html'; return null; }
+    return session;
+}
 
 Object.assign(window, {
     sb: supabaseClient, phoneToEmail, identifierToEmail, sbRegister, sbLogin, sbLogout,
     sbGetSession, sbGetUser, sbRefreshSession, sbIsAdmin, sbGetProfile, sbUpdateProfile,
     sbGetAllProfiles, sbGetProfilesPage, sbGetProfileCounts, sbAdminUpdateStatus,
-    sbConfirmPayment, sbAdminResetPassword, sbAdminRenameUser, sbAdminDeleteUser,
+    sbAdminResetPassword, sbAdminRenameUser, sbAdminDeleteUser,
     sbClaimUserSession, sbValidateUserSession, sbTouchUserSession, sbReleaseUserSession,
     sbRecordLearningAttempt, sbAwardLearningPoints, sbGetLearningDashboard,
     sbGetLearningProfile, sbUpsertLearningProfile, sbUploadPhoto, sbInvokeAdminAction,
