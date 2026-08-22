@@ -40,5 +40,8 @@ jobs:
       - name: Verify CMS fallback safety
         run: node scripts/test-exam-cms-absent.mjs
 
+      - name: Verify product contracts
+        run: node scripts/test-product-contracts.cjs
+
       - name: Check whitespace
         run: git diff --check HEAD^
