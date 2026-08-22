@@ -25,6 +25,7 @@ has('admin.html', 'data-admin-view="lessons"', 'cockpit admin expose les leçons
 has('admin.html', 'data-admin-view="panels"', 'cockpit admin expose les panneaux');
 has('admin.html', 'data-admin-view="media"', 'cockpit admin expose les médias');
 has('admin.html', 'admin-mobile-media-polish.js', 'polish mobile admin chargé');
+has('admin.html', 'admin-media-edge.js', 'pipeline média signé chargé');
 has('index.html', 'app-bootstrap.js', 'bootstrap SPA conservé');
 has('index.html', 'student-experience-suite.js', 'expérience élève enrichie chargée');
 has('index.html', 'home-stability.js', 'composition Home stabilisée');
@@ -34,8 +35,13 @@ has('assets/js/services/admin-product-service.js', 'video/quicktime', 'import vi
 has('assets/js/services/admin-product-service.js', '50 * 1024 * 1024', 'limite média 50 Mo côté client');
 has('assets/js/admin/admin-mobile-media-polish.js', 'Google Drive', 'sélecteur média documente Drive/iCloud');
 has('assets/js/admin/admin-mobile-media-polish.js', 'video controls playsinline', 'vidéos prévisualisées avec contrôles et son');
+has('assets/js/admin/admin-media-edge.js', "functions.invoke('admin-media-upload'", 'frontend utilise edge function admin média');
+has('assets/js/admin/admin-media-edge.js', 'uploadToSignedUrl', 'frontend utilise URL signée pour le fichier');
+has('supabase/functions/admin-media-upload/index.ts', 'createSignedUploadUrl', 'edge function crée les URLs signées');
+has('supabase/functions/admin-media-upload/index.ts', 'app_metadata?.role', 'edge function vérifie le rôle admin');
 has('supabase/migrations/20260822135954_cms_media_video_support.sql', "'video'", 'migration vidéo CMS versionnée');
 has('supabase/migrations/20260822135954_cms_media_video_support.sql', '52428800', 'bucket média élargi à 50 Mo');
+has('supabase/migrations/20260822142825_lock_cms_media_to_signed_uploads.sql', 'drop policy if exists cms_media_admin_insert', 'écriture directe storage média verrouillée');
 has('supabase/migrations/20260822061328_secure_payment_claims.sql', 'student_submit_payment_claim', 'migration paiement vérifié versionnée');
 has('supabase/migrations/20260822061328_secure_payment_claims.sql', 'confirm_payment', 'migration neutralise le flux historique');
 has('supabase/migrations/20260822055342_school_branding_instructor_platform.sql', 'admin_set_account_role', 'migration rôles moniteur versionnée');
