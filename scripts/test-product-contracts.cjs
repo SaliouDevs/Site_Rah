@@ -48,9 +48,13 @@ has('supabase/functions/admin-media-upload/index.ts', 'app_metadata?.role', 'edg
 has('supabase/migrations/20260822135954_cms_media_video_support.sql', "'video'", 'migration vidéo CMS versionnée');
 has('supabase/migrations/20260822135954_cms_media_video_support.sql', '52428800', 'bucket média élargi à 50 Mo');
 has('supabase/migrations/20260822142825_lock_cms_media_to_signed_uploads.sql', 'drop policy if exists cms_media_admin_insert', 'écriture directe storage média verrouillée');
+has('supabase/migrations/20260822145417_rc_security_hardening.sql', "revoke execute on function public.is_admin() from public, anon", 'RC ferme is_admin aux visiteurs');
+has('supabase/migrations/20260822145417_rc_security_hardening.sql', "set search_path = ''", 'RC fixe les search_path de triggers');
+has('supabase/migrations/20260822145620_rc_performance_hardening.sql', 'idx_cms_panels_current_version', 'RC indexe les pointeurs de version CMS');
+has('supabase/migrations/20260822145620_rc_performance_hardening.sql', '(select public.is_admin())', 'RC optimise les policies admin examens');
 has('supabase/migrations/20260822061328_secure_payment_claims.sql', 'student_submit_payment_claim', 'migration paiement vérifié versionnée');
 has('supabase/migrations/20260822061328_secure_payment_claims.sql', 'confirm_payment', 'migration neutralise le flux historique');
 has('supabase/migrations/20260822055342_school_branding_instructor_platform.sql', 'admin_set_account_role', 'migration rôles moniteur versionnée');
 has('supabase/migrations/20260822055342_school_branding_instructor_platform.sql', 'enable row level security', 'RLS plateforme moniteur versionnée');
 
-console.log('PASS product contracts');
+console.log('PASS V3.3.1 release candidate contracts');
