@@ -27,3 +27,10 @@ export async function renameUser(userId, prenom) {
 export async function resetUserPassword(userId, password) {
   return window.sbAdminResetPassword(userId, password);
 }
+
+export async function deleteUser(userId) {
+  if (typeof window.sbAdminDeleteUser !== 'function') {
+    throw new Error('Suppression utilisateur indisponible');
+  }
+  return window.sbAdminDeleteUser(userId);
+}

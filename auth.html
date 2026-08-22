@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b2444">
     <title>eAutoecole - Connexion</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,98 +11,44 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./assets/css/tokens.css">
     <link rel="stylesheet" href="./assets/css/auth.css">
+    <link rel="stylesheet" href="./assets/css/brand-theme.css">
 </head>
 <body class="auth-page">
     <main class="auth-shell">
         <section class="auth-panel" aria-labelledby="auth-title">
             <div class="auth-brand">
                 <div class="auth-logo">
-                    <span><i class="fas fa-car-side"></i></span>
-                    <div>
-                        <strong>eAutoecole</strong>
-                        <small>Auto-école</small>
-                    </div>
+                    <span data-school-logo><i class="fas fa-car-side"></i></span>
+                    <div><strong data-app-name>eAutoecole</strong><small data-school-name>Auto-école</small></div>
                 </div>
-                <div class="auth-copy">
-                    <h1 id="auth-title">Apprends. Entraîne-toi. Maîtrise la route.</h1>
-                    <p>Un espace sérieux pour suivre tes leçons, tes tests et ta progression.</p>
-                </div>
+                <div class="auth-copy"><h1 id="auth-title" data-school-hero-title>Apprends. Entraîne-toi. Maîtrise la route.</h1><p data-school-hero-message>Un espace sérieux pour suivre tes leçons, tes tests et ta progression.</p></div>
             </div>
-
             <div class="auth-card">
-                <div class="auth-tabs" role="tablist">
-                    <button class="active" type="button" data-auth-tab="login">Connexion</button>
-                    <button type="button" data-auth-tab="register">Inscription</button>
-                </div>
-
+                <div class="auth-tabs" role="tablist"><button class="active" type="button" data-auth-tab="login">Connexion</button><button type="button" data-auth-tab="register">Inscription</button></div>
                 <div class="auth-alert" data-auth-alert role="status"></div>
-
                 <form class="auth-form active" data-auth-form="login" data-login-form>
                     <h2>Connexion</h2>
-                    <div class="form-field">
-                        <label for="loginIdentifier">Numéro de téléphone</label>
-                        <div class="input-row">
-                            <span>+221</span>
-                            <input id="loginIdentifier" autocomplete="username" inputmode="numeric" maxlength="12" placeholder="77 123 45 67">
-                        </div>
-                        <div class="field-error" id="loginIdentifierError"></div>
-                    </div>
-                    <div class="form-field">
-                        <label for="loginPassword">Mot de passe</label>
-                        <div class="input-row">
-                            <input id="loginPassword" type="password" autocomplete="current-password">
-                            <button type="button" data-toggle-password="loginPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="field-error" id="loginPasswordError"></div>
-                    </div>
+                    <div class="form-field"><label for="loginIdentifier">Numéro de téléphone</label><div class="input-row"><span>+221</span><input id="loginIdentifier" autocomplete="username" inputmode="numeric" maxlength="12" placeholder="77 123 45 67"></div><div class="field-error" id="loginIdentifierError"></div></div>
+                    <div class="form-field"><label for="loginPassword">Mot de passe</label><div class="input-row"><input id="loginPassword" type="password" autocomplete="current-password"><button type="button" data-toggle-password="loginPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button></div><div class="field-error" id="loginPasswordError"></div></div>
                     <button class="primary-action" type="submit" data-login-submit>Se connecter</button>
-                    <div class="auth-links">
-                        <button class="text-action" type="button" data-forgot>Mot de passe oublié</button>
-                        <button class="text-action" type="button" data-show-register>Créer un compte</button>
-                    </div>
+                    <div class="auth-links"><button class="text-action" type="button" data-forgot>Mot de passe oublié</button><button class="text-action" type="button" data-show-register>Créer un compte</button></div>
                 </form>
-
                 <form class="auth-form" data-auth-form="register" data-register-form>
                     <h2>Créer votre compte</h2>
-                    <div class="form-field">
-                        <label for="registerPhone">Téléphone</label>
-                        <div class="input-row">
-                            <span>+221</span>
-                            <input id="registerPhone" data-phone autocomplete="tel" inputmode="numeric" maxlength="12" placeholder="77 123 45 67">
-                        </div>
-                        <div class="field-error" id="registerPhoneError"></div>
-                    </div>
-                    <div class="form-field">
-                        <label for="registerPassword">Mot de passe</label>
-                        <div class="input-row">
-                            <input id="registerPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 caractères">
-                            <button type="button" data-toggle-password="registerPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="field-error" id="registerPasswordError"></div>
-                    </div>
-                    <div class="form-field">
-                        <label for="registerConfirm">Confirmation</label>
-                        <div class="input-row">
-                            <input id="registerConfirm" type="password" autocomplete="new-password">
-                            <button type="button" data-toggle-password="registerConfirm" aria-label="Afficher la confirmation" title="Afficher la confirmation"><i class="fas fa-eye" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="field-error" id="registerConfirmError"></div>
-                    </div>
-                    <div class="plan-card">
-                        <strong>Formule Illimitée</strong>
-                        <span>2 000 FCFA</span>
-                        <small>Accès aux leçons, panneaux, tests et vidéos.</small>
-                    </div>
+                    <div class="form-field"><label for="registerPhone">Téléphone</label><div class="input-row"><span>+221</span><input id="registerPhone" data-phone autocomplete="tel" inputmode="numeric" maxlength="12" placeholder="77 123 45 67"></div><div class="field-error" id="registerPhoneError"></div></div>
+                    <div class="form-field"><label for="registerPassword">Mot de passe</label><div class="input-row"><input id="registerPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 caractères"><button type="button" data-toggle-password="registerPassword" aria-label="Afficher le mot de passe" title="Afficher le mot de passe"><i class="fas fa-eye" aria-hidden="true"></i></button></div><div class="field-error" id="registerPasswordError"></div></div>
+                    <div class="form-field"><label for="registerConfirm">Confirmation</label><div class="input-row"><input id="registerConfirm" type="password" autocomplete="new-password"><button type="button" data-toggle-password="registerConfirm" aria-label="Afficher la confirmation" title="Afficher la confirmation"><i class="fas fa-eye" aria-hidden="true"></i></button></div><div class="field-error" id="registerConfirmError"></div></div>
+                    <div class="plan-card"><strong>Formule Illimitée</strong><span>2 000 FCFA</span><small>Accès aux leçons, panneaux, tests, examens blancs et suivi de progression.</small></div>
                     <button class="primary-action" type="submit" data-register-submit>Créer mon compte</button>
                     <button class="text-action" type="button" data-show-login>Déjà un compte ? Se connecter</button>
                 </form>
             </div>
         </section>
     </main>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
     <script src="./assets/js/config.js"></script>
     <script src="./assets/js/supabase.js"></script>
+    <script type="module" src="./assets/js/brand-runtime.js"></script>
     <script type="module" src="./assets/js/auth-page.js"></script>
 </body>
 </html>

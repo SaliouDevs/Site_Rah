@@ -1,10 +1,8 @@
 import { registerStudent, resolveAuthMessage, signInWithIdentifier } from './services/auth-service.js';
 import { getMaintenanceMessage, loadRuntimeSettings } from './services/runtime-service.js';
+import { loadSchoolSettings } from './services/school-service.js';
 
-const state = {
-  activeTab: 'login',
-  maintenance: false
-};
+const state = { activeTab: 'login', maintenance: false, school: null };
 
 document.addEventListener('DOMContentLoaded', initAuthPage);
 
@@ -18,6 +16,8 @@ async function initAuthPage() {
   document.querySelector('[data-show-register]').addEventListener('click', () => switchTab('register'));
   document.querySelector('[data-show-login]').addEventListener('click', () => switchTab('login'));
 
+  state.school = await loadSchoolSettings().catch(() => window.EAUTO_SCHOOL_SETTINGS || null);
+  applyOffer();
   const message = resolveAuthMessage();
   if (message) showAlert(message.text, message.type);
   const runtimeSettings = await loadRuntimeSettings();
@@ -28,22 +28,26 @@ async function initAuthPage() {
   }
 }
 
+function applyOffer() {
+  const plan = document.querySelector('.plan-card');
+  if (!plan || !state.school) return;
+  plan.querySelector('strong').textContent = state.school.plan_name || 'Formule Illimitée';
+  plan.querySelector('span').textContent = formatMoney(state.school.registration_price);
+  plan.querySelector('small').textContent = state.school.payments_enabled === false
+    ? 'Inscription soumise à validation par l’auto-école.'
+    : 'Accès aux leçons, panneaux, tests, examens blancs et suivi de progression.';
+}
+
 function bindTabs() {
-  document.querySelectorAll('[data-auth-tab]').forEach((button) => {
-    button.addEventListener('click', () => switchTab(button.dataset.authTab));
-  });
+  document.querySelectorAll('[data-auth-tab]').forEach((button) => button.addEventListener('click', () => switchTab(button.dataset.authTab)));
 }
 
 function switchTab(tab) {
   if (state.maintenance && tab !== 'login') return;
   state.activeTab = tab;
   clearFeedback();
-  document.querySelectorAll('[data-auth-tab]').forEach((button) => {
-    button.classList.toggle('active', button.dataset.authTab === tab);
-  });
-  document.querySelectorAll('[data-auth-form]').forEach((form) => {
-    form.classList.toggle('active', form.dataset.authForm === tab);
-  });
+  document.querySelectorAll('[data-auth-tab]').forEach((button) => button.classList.toggle('active', button.dataset.authTab === tab));
+  document.querySelectorAll('[data-auth-form]').forEach((form) => form.classList.toggle('active', form.dataset.authForm === tab));
 }
 
 function applyMaintenanceMode(settings) {
@@ -51,10 +55,10 @@ function applyMaintenanceMode(settings) {
   switchTab('login');
   document.querySelector('[data-auth-tab="register"]').hidden = true;
   document.querySelector('[data-show-register]').hidden = true;
-  document.querySelector('[data-login-form] h2').textContent = 'Connexion administrateur';
-  document.querySelector('label[for="loginIdentifier"]').textContent = 'Identifiant administrateur';
+  document.querySelector('[data-login-form] h2').textContent = 'Connexion équipe';
+  document.querySelector('label[for="loginIdentifier"]').textContent = 'Identifiant';
   document.getElementById('loginIdentifier').placeholder = 'Votre identifiant';
-  document.querySelector('[data-login-submit]').textContent = 'Se connecter à l’admin';
+  document.querySelector('[data-login-submit]').textContent = 'Se connecter';
   document.querySelector('[data-auth-alert]').textContent = getMaintenanceMessage(settings);
 }
 
@@ -72,10 +76,7 @@ function bindPasswordToggles() {
 }
 
 function bindPhoneFormatters() {
-  document.querySelectorAll('input[data-phone]').forEach((input) => {
-    input.addEventListener('input', () => formatPhoneInput(input));
-  });
-
+  document.querySelectorAll('input[data-phone]').forEach((input) => input.addEventListener('input', () => formatPhoneInput(input)));
   const loginIdentifier = document.getElementById('loginIdentifier');
   loginIdentifier.addEventListener('input', () => {
     if (/[a-z@]/i.test(loginIdentifier.value)) return;
@@ -99,16 +100,20 @@ async function handleLogin(event) {
   if (!identifier) return setFieldError('loginIdentifierError', 'Identifiant requis.');
   const isAdminAlias = identifier.toLowerCase() === window.ADMIN_CONFIG.alias;
   const phone = identifier.replace(/\s/g, '');
-  if (!isAdminAlias && !/^\d{9}$/.test(phone)) {
-    return setFieldError('loginIdentifierError', 'Numéro au format 77 554 58 42 requis.');
-  }
+  if (!isAdminAlias && !/^\d{9}$/.test(phone)) return setFieldError('loginIdentifierError', 'Numéro au format 77 554 58 42 requis.');
   if (!password) return setFieldError('loginPasswordError', 'Mot de passe requis.');
 
   setBusy('[data-login-submit]', true, 'Connexion...');
   try {
     const result = await signInWithIdentifier(identifier, password);
-    if (result.isAdmin) {
-      window.location.href = 'admin.html';
+    if (result.isAdmin) { window.location.href = 'admin.html'; return; }
+    if (result.isInstructor) {
+      if (result.profile?.status === 'blocked') {
+        await window.sbLogout();
+        showAlert('Votre accès moniteur est bloqué. Contactez l’administrateur.', 'error');
+        return;
+      }
+      window.location.href = 'instructor.html';
       return;
     }
     if (result.profile?.status === 'pending') {
@@ -131,7 +136,7 @@ async function handleLogin(event) {
   } catch (error) {
     showAlert(normalizeAuthError(error), 'error');
   } finally {
-    setBusy('[data-login-submit]', false, state.maintenance ? 'Se connecter à l’admin' : 'Se connecter');
+    setBusy('[data-login-submit]', false, 'Se connecter');
   }
 }
 
@@ -145,12 +150,15 @@ async function handleRegister(event) {
   if (password.length < 6) return setFieldError('registerPasswordError', 'Minimum 6 caractères.');
   if (password !== confirm) return setFieldError('registerConfirmError', 'Les mots de passe ne correspondent pas.');
 
+  const school = state.school || window.EAUTO_SCHOOL_SETTINGS || {};
+  const formule = school.plan_name || 'Formule Illimitée';
+  const prix = Math.max(0, Number(school.registration_price ?? 2000));
   setBusy('[data-register-submit]', true, 'Création...');
   try {
-    await registerStudent({ telephone, password, formule: 'Formule Illimitée', prix: 2000 });
+    await registerStudent({ telephone, password, formule, prix });
     sessionStorage.setItem('pending_phone', telephone);
-    sessionStorage.setItem('pending_formule', 'Formule Illimitée');
-    sessionStorage.setItem('pending_prix', '2000');
+    sessionStorage.setItem('pending_formule', formule);
+    sessionStorage.setItem('pending_prix', String(prix));
     window.location.href = 'payment.html';
   } catch (error) {
     showAlert(normalizeAuthError(error), 'error');
@@ -162,30 +170,11 @@ async function handleRegister(event) {
 function showForgot() {
   showAlert(`Mot de passe oublié ? Contactez l’auto-école au ${window.CONTACT_CONFIG.phone} pour réinitialiser votre accès.`, 'info');
 }
-
-function clearFeedback() {
-  document.querySelectorAll('.field-error').forEach((item) => item.textContent = '');
-  const alert = document.querySelector('[data-auth-alert]');
-  alert.className = 'auth-alert';
-  alert.textContent = '';
-}
-
-function setFieldError(id, text) {
-  document.getElementById(id).textContent = text;
-}
-
-function showAlert(text, type = 'error') {
-  const alert = document.querySelector('[data-auth-alert]');
-  alert.className = `auth-alert visible ${type}`;
-  alert.textContent = text;
-}
-
-function setBusy(selector, busy, label) {
-  const button = document.querySelector(selector);
-  button.disabled = busy;
-  button.textContent = label;
-}
-
+function clearFeedback() { document.querySelectorAll('.field-error').forEach((item) => item.textContent = ''); const alert = document.querySelector('[data-auth-alert]'); alert.className = 'auth-alert'; alert.textContent = ''; }
+function setFieldError(id, text) { document.getElementById(id).textContent = text; }
+function showAlert(text, type = 'error') { const alert = document.querySelector('[data-auth-alert]'); alert.className = `auth-alert visible ${type}`; alert.textContent = text; }
+function setBusy(selector, busy, label) { const button = document.querySelector(selector); button.disabled = busy; button.textContent = label; }
+function formatMoney(value) { return `${Number(value || 0).toLocaleString('fr-FR')} FCFA`; }
 function normalizeAuthError(error) {
   const message = error?.message || 'Erreur de connexion.';
   if (message.includes('Invalid login')) return 'Numéro ou mot de passe incorrect.';
