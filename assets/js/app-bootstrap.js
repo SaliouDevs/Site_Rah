@@ -11,9 +11,19 @@ hydrateStudentCmsContent()
     window.EAUTO_CONTENT_SOURCE = source || window.EAUTO_CONTENT_SOURCE;
     window.dispatchEvent(new CustomEvent('cms-content-updated', { detail: window.EAUTO_CONTENT_SOURCE }));
 
-    // Si l'élève est encore sur l'accueil, rafraîchir sans casser sa navigation.
     const currentPath = window.location.hash.replace(/^#/, '') || '/home';
-    if (currentPath === '/home') window.EAUTO_RENDER_HOME?.();
+    if (currentPath === '/home') {
+      window.EAUTO_RENDER_HOME?.();
+      return;
+    }
+
+    // Les vues Leçons/Panneaux peuvent avoir été rendues avec le fallback local
+    // pendant que le CMS se chargeait. Une fois le contenu publié disponible,
+    // on rejoue la route courante pour afficher immédiatement les versions CMS
+    // (textes, images et médias audio/vidéo) sans demander un rechargement manuel.
+    if (/^\/(lessons|lesson|panels)(\/|$)/.test(currentPath)) {
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    }
   })
   .catch((error) => {
     console.warn('Hydratation CMS différée, fallback historique conservé', error);
