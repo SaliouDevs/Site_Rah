@@ -1,4 +1,5 @@
 import { loadAppSettings } from './settings-service.js';
+import { claimAccountSession, ensureAccountSession, releaseAccountSession } from './session-service.js';
 
 const DEV_AUTO_LOGIN_DISABLED_KEY = 'devAutoLoginDisabled';
 
@@ -55,11 +56,8 @@ export async function requireAuthenticatedUser({ allowAdmin = false, onMaintenan
 
   if (!isAdmin && settings.maintenance_enabled) {
     await window.sbLogout();
-    if (typeof onMaintenance === 'function') {
-      onMaintenance(settings);
-    } else {
-      window.location.replace('auth.html?maintenance=1');
-    }
+    if (typeof onMaintenance === 'function') onMaintenance(settings);
+    else window.location.replace('auth.html?maintenance=1');
     return null;
   }
 
@@ -67,6 +65,16 @@ export async function requireAuthenticatedUser({ allowAdmin = false, onMaintenan
     await window.sbLogout();
     window.location.replace('auth.html?status=blocked');
     return null;
+  }
+
+  if (!isAdmin) {
+    try {
+      await ensureAccountSession(session.user);
+    } catch (error) {
+      await window.sbLogout().catch(() => {});
+      window.location.replace('auth.html?reason=session-replaced');
+      return null;
+    }
   }
 
   return {
@@ -88,6 +96,11 @@ export async function signInWithIdentifier(identifier, password) {
     if (!isAdmin) throw error;
   }
   const settings = await loadAppSettings();
+
+  if (!isAdmin && profile?.status === 'active' && !settings.maintenance_enabled) {
+    await claimAccountSession(user);
+  }
+
   return { ...result, user, profile, settings, isAdmin };
 }
 
@@ -102,6 +115,7 @@ export function resolveAuthMessage() {
   if (status === 'pending') return { type: 'warning', text: 'Votre inscription est en attente de validation par l’auto-école.' };
   if (status === 'blocked') return { type: 'error', text: 'Votre compte est actuellement bloqué. Veuillez contacter l’auto-école.' };
   if (reason === 'session-expired') return { type: 'warning', text: 'Votre session a expiré. Reconnectez-vous pour continuer.' };
+  if (reason === 'session-replaced') return { type: 'warning', text: 'Ce compte vient d’être connecté sur un autre appareil. Cette session a été fermée automatiquement.' };
   if (reason === 'profile') return { type: 'error', text: 'Profil utilisateur introuvable. Contactez l’auto-école.' };
   if (params.get('admin') === 'denied') return { type: 'error', text: 'Accès administrateur refusé.' };
   if (params.get('maintenance') === '1') {
@@ -120,9 +134,7 @@ export function resolveLocalDevUser() {
   const role = params.get('dev') || window.DEV_CONFIG.role;
   const disabled = sessionStorage.getItem(DEV_AUTO_LOGIN_DISABLED_KEY) === 'true';
   if (disabled || role === 'normal') return null;
-  if (role === 'admin') {
-    return { ...devStudent, prenom: 'Administrateur DEV', isAdmin: true, isDevUser: true };
-  }
+  if (role === 'admin') return { ...devStudent, prenom: 'Administrateur DEV', isAdmin: true, isDevUser: true };
   if (role === 'student') return { ...devStudent };
   return null;
 }
@@ -133,6 +145,7 @@ export async function logoutCurrentUser(currentUser) {
     window.location.href = 'auth.html';
     return;
   }
+  if (!currentUser?.isAdmin) await releaseAccountSession().catch(() => {});
   if (window.sbLogout) await window.sbLogout();
   window.location.href = 'auth.html';
 }
