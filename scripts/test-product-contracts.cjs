@@ -40,8 +40,14 @@ has('assets/js/admin/admin-media-edge.js', "functions.invoke('admin-media-upload
 has('assets/js/admin/admin-media-edge.js', 'uploadToSignedUrl', 'frontend utilise URL signée pour le fichier');
 has('assets/js/modules/panels.js', 'sign.audioWo', 'vue élève consomme audio Wolof CMS');
 has('assets/js/modules/panels.js', 'sign.audioFr', 'vue élève consomme audio français CMS');
-has('assets/js/modules/panels.js', '<audio controls', 'vue élève expose lecteur audio natif');
-has('assets/js/modules/panels.js', '<video controls playsinline', 'vue élève expose vidéo avec son');
+has('assets/js/modules/panels.js', 'data-panel-audio', 'audios panneau utilisent le contrôle unifié');
+has('assets/js/modules/panels.js', 'stopPanelPlayback()', 'lecture panneau possède un arrêt global');
+has('assets/js/modules/panels.js', "currentPlayback?.kind === 'speech'", 'deuxième clic français arrête la lecture');
+has('assets/js/modules/panels.js', "currentPlayback?.kind === 'audio'", 'deuxième clic audio arrête la lecture');
+has('assets/js/modules/panels.js', "active.element.pause()", 'changer de langue coupe le média précédent');
+lacks('assets/js/modules/panels.js', '<audio controls', 'ancien lecteur audio natif gris supprimé des panneaux');
+has('assets/js/modules/panels.js', '<video controls playsinline', 'vue élève conserve vidéo avec son');
+has('assets/css/panels.css', '.panel-play-card.playing', 'état visuel lecture/stop unifié');
 has('assets/js/app-bootstrap.js', "new HashChangeEvent('hashchange')", 'vue CMS active se rafraîchit après hydratation');
 has('supabase/functions/admin-media-upload/index.ts', 'createSignedUploadUrl', 'edge function crée les URLs signées');
 has('supabase/functions/admin-media-upload/index.ts', 'app_metadata?.role', 'edge function vérifie le rôle admin');
