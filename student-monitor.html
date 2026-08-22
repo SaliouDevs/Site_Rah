@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#0b2444">
+  <meta name="app-version" content="v3.4-student-monitor">
+  <title>eAutoecole - Mon Moniteur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/student-monitor-v34.css">
+</head>
+<body class="student-monitor-page">
+  <header class="sm-topbar">
+    <button class="sm-back" type="button" data-monitor-back>← Accueil</button>
+    <div class="sm-brand"><span>🚗</span><div><strong>eAutoecole</strong><small>Mon Moniteur</small></div></div>
+    <div style="display:flex;gap:8px"><button class="sm-bell" type="button" data-monitor-bell>🔔<span class="sm-count" data-monitor-count hidden>0</span></button><button class="sm-logout" type="button" data-monitor-logout>Déconnexion</button></div>
+  </header>
+  <main class="sm-layout">
+    <nav class="sm-nav" aria-label="Mon Moniteur">
+      <button class="active" type="button" data-monitor-tab="home">🏠 Accueil</button>
+      <button type="button" data-monitor-tab="messages">💬 Messages</button>
+      <button type="button" data-monitor-tab="appointments">📅 Rendez-vous</button>
+      <button type="button" data-monitor-tab="recommendations">📚 Recommandations</button>
+      <button type="button" data-monitor-tab="progress">📊 Progression</button>
+      <button type="button" data-monitor-tab="notifications">🔔 Notifications</button>
+    </nav>
+    <section class="sm-content" id="student-monitor-view"><div class="sm-loading">Chargement de votre espace Moniteur…</div></section>
+  </main>
+  <div id="student-monitor-toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
+  <script src="./assets/js/config.js"></script>
+  <script src="./assets/js/supabase.js"></script>
+  <script type="module" src="./assets/js/student-monitor-v34.js"></script>
+</body>
+</html>
