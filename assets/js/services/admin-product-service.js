@@ -3,6 +3,17 @@ import { LESSONS_DATA } from '../data/lessons-data.js';
 import { PANELS_DATA } from '../data/panels-data.js';
 
 const MEDIA_BUCKET = 'cms-media';
+const MEDIA_MAX_BYTES = 50 * 1024 * 1024;
+const EXTENSION_KIND = {
+  jpg:'image',jpeg:'image',png:'image',webp:'image',gif:'image',heic:'image',heif:'image',
+  mp3:'audio',m4a:'audio',wav:'audio',ogg:'audio',aac:'audio',
+  mp4:'video',mov:'video',m4v:'video',webm:'video',mpeg:'video',mpg:'video'
+};
+const EXTENSION_MIME = {
+  jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',heic:'image/heic',heif:'image/heif',
+  mp3:'audio/mpeg',m4a:'audio/x-m4a',wav:'audio/wav',ogg:'audio/ogg',aac:'audio/aac',
+  mp4:'video/mp4',mov:'video/quicktime',m4v:'video/x-m4v',webm:'video/webm',mpeg:'video/mpeg',mpg:'video/mpeg'
+};
 
 export { loadSchoolSettings, saveSchoolSettings };
 
@@ -152,26 +163,28 @@ export async function loadMediaAssets() {
 
 export async function uploadMediaAsset(file, { title = '', altText = '', language = null } = {}) {
   ensureClient();
-  validateMedia(file);
-  const kind = file.type.startsWith('audio/') ? 'audio' : file.type.startsWith('image/') ? 'image' : 'other';
-  const ext = (file.name.split('.').pop() || 'bin').replace(/[^a-z0-9]/gi, '').toLowerCase();
+  const metadata = validateMedia(file);
   const safeBase = slug(file.name.replace(/\.[^.]+$/, '')).slice(0, 60) || 'media';
-  const storagePath = `library/${new Date().toISOString().slice(0, 10)}/${Date.now()}-${safeBase}.${ext}`;
-  const { error: uploadError } = await window.sb.storage.from(MEDIA_BUCKET).upload(storagePath, file, { upsert: false, contentType: file.type });
+  const storagePath = `library/${new Date().toISOString().slice(0, 10)}/${Date.now()}-${safeBase}.${metadata.ext}`;
+  const { error: uploadError } = await window.sb.storage.from(MEDIA_BUCKET).upload(storagePath, file, {
+    upsert: false,
+    contentType: metadata.mime,
+    cacheControl: '3600'
+  });
   if (uploadError) throw uploadError;
   const { data: publicData } = window.sb.storage.from(MEDIA_BUCKET).getPublicUrl(storagePath);
   const { data, error } = await window.sb.from('cms_media_assets').insert({
     bucket: MEDIA_BUCKET,
     storage_path: storagePath,
-    media_kind: kind,
-    mime_type: file.type || 'application/octet-stream',
-    language: language || null,
+    media_kind: metadata.kind,
+    mime_type: metadata.mime,
+    language: normalizeMediaLanguage(language),
     title: title || file.name,
     alt_text: altText || null,
     status: 'published'
   }).select().single();
   if (error) {
-    await window.sb.storage.from(MEDIA_BUCKET).remove([storagePath]).catch(() => {});
+    try { await window.sb.storage.from(MEDIA_BUCKET).remove([storagePath]); } catch {}
     throw error;
   }
   return { ...data, publicUrl: publicData.publicUrl };
@@ -197,6 +210,27 @@ export function legacyLessonCount() { return LESSONS_DATA.length; }
 export function legacyPanelCount() { return PANELS_DATA.reduce((sum, category) => sum + category.signs.length, 0); }
 
 async function callBoolean(name, args) { const { data, error } = await window.sb.rpc(name, args); if (error) throw error; return Boolean(data); }
-function validateMedia(file) { if (!file) throw new Error('Fichier requis'); if (file.size > 15 * 1024 * 1024) throw new Error('Fichier trop lourd (15 Mo max).'); if (!/^(image\/(jpeg|png|webp|gif)|audio\/(mpeg|mp4|wav|ogg|webm))$/.test(file.type)) throw new Error('Format non accepté.'); }
+function validateMedia(file) {
+  if (!file) throw new Error('Fichier requis.');
+  if (file.size > MEDIA_MAX_BYTES) throw new Error('Fichier trop lourd (50 Mo max).');
+  const ext = (file.name.split('.').pop() || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+  const typedKind = file.type.startsWith('image/') ? 'image' : file.type.startsWith('audio/') ? 'audio' : file.type.startsWith('video/') ? 'video' : null;
+  const kind = typedKind || EXTENSION_KIND[ext] || null;
+  const mime = file.type || EXTENSION_MIME[ext] || '';
+  if (!kind || !mime) throw new Error('Format non accepté. Utilise une image, un son ou une vidéo standard.');
+  return { kind, mime, ext: ext || extensionForMime(mime) };
+}
+function extensionForMime(mime) {
+  const found = Object.entries(EXTENSION_MIME).find(([, value]) => value === mime);
+  return found?.[0] || 'bin';
+}
+function normalizeMediaLanguage(value) {
+  const lang = String(value || '').toLowerCase();
+  if (!lang) return null;
+  if (lang === 'sn') return 'sn';
+  if (lang === 'wo') return 'wo';
+  if (lang === 'fr') return 'fr';
+  return null;
+}
 function slug(value) { return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
 function ensureClient() { if (!window.sb) throw new Error('Supabase indisponible'); }
