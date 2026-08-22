@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - v3.3.1-admin-cms-ux
+      - v3.4-instructor-payments
   pull_request:
     branches:
       - main
