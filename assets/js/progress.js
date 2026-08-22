@@ -1,4 +1,5 @@
 import { LESSONS_DATA } from './data/lessons-data.js';
+import { awardLearningPoints, recordLearningAttempt } from './services/learning-service.js';
 
 const config = window.LEARNING_CONFIG || { masteryThreshold: 80, storageKey: 'eautoecole.learningProgress' };
 
@@ -28,9 +29,7 @@ export function saveLearningProgress(progress) {
 
 export function canOpenLesson(lessonId) {
   const lessonNumber = Number(lessonId);
-  if (lessonNumber === 1) {
-    return true;
-  }
+  if (lessonNumber === 1) return true;
   const progress = getLearningProgress();
   return progress.masteredLessons.includes(lessonNumber - 1);
 }
@@ -38,18 +37,10 @@ export function canOpenLesson(lessonId) {
 export function getLessonState(lessonId) {
   const lessonNumber = Number(lessonId);
   const progress = getLearningProgress();
-  if (progress.masteredLessons.includes(lessonNumber)) {
-    return 'MASTERED';
-  }
-  if (!canOpenLesson(lessonNumber)) {
-    return 'LOCKED';
-  }
-  if (progress.lessonScores[lessonNumber] && progress.lessonScores[lessonNumber] < config.masteryThreshold) {
-    return 'MASTERY_REQUIRED';
-  }
-  if (progress.currentLesson === lessonNumber || progress.currentStep[lessonNumber]) {
-    return 'IN_PROGRESS';
-  }
+  if (progress.masteredLessons.includes(lessonNumber)) return 'MASTERED';
+  if (!canOpenLesson(lessonNumber)) return 'LOCKED';
+  if (progress.lessonScores[lessonNumber] && progress.lessonScores[lessonNumber] < config.masteryThreshold) return 'MASTERY_REQUIRED';
+  if (progress.currentLesson === lessonNumber || progress.currentStep[lessonNumber]) return 'IN_PROGRESS';
   return 'AVAILABLE';
 }
 
@@ -75,9 +66,10 @@ export function completeLessonMastery(lessonId, score) {
   const lessonNumber = Number(lessonId);
   const numericScore = Number(score);
   const progress = getLearningProgress();
+  const wasMastered = progress.masteredLessons.includes(lessonNumber);
   progress.lessonScores[lessonNumber] = numericScore;
 
-  if (numericScore >= config.masteryThreshold && !progress.masteredLessons.includes(lessonNumber)) {
+  if (numericScore >= config.masteryThreshold && !wasMastered) {
     progress.masteredLessons.push(lessonNumber);
     progress.masteredLessons.sort((a, b) => a - b);
     progress.currentLesson = Math.min(lessonNumber + 1, LESSONS_DATA.length);
@@ -85,18 +77,31 @@ export function completeLessonMastery(lessonId, score) {
     progress.currentLesson = lessonNumber;
   }
 
-  return saveLearningProgress(progress);
+  const saved = saveLearningProgress(progress);
+  recordLearningAttempt({
+    activityType: 'lesson',
+    activityKey: `lesson:${lessonNumber}:${Date.now()}`,
+    topic: LESSONS_DATA.find((lesson) => lesson.id === lessonNumber)?.title || `Leçon ${lessonNumber}`,
+    score: numericScore,
+    isCorrect: numericScore >= config.masteryThreshold,
+    metadata: { lessonId: lessonNumber }
+  });
+  if (numericScore >= config.masteryThreshold && !wasMastered) {
+    awardLearningPoints({
+      sourceKey: `lesson:${lessonNumber}`,
+      kind: 'lesson',
+      points: 10,
+      metadata: { lessonId: lessonNumber, score: numericScore }
+    });
+  }
+  return saved;
 }
 
 export function saveMistake(lessonId, topic) {
   const lessonNumber = Number(lessonId);
   const progress = getLearningProgress();
-  if (!progress.mistakes[lessonNumber]) {
-    progress.mistakes[lessonNumber] = [];
-  }
-  if (topic && !progress.mistakes[lessonNumber].includes(topic)) {
-    progress.mistakes[lessonNumber].push(topic);
-  }
+  if (!progress.mistakes[lessonNumber]) progress.mistakes[lessonNumber] = [];
+  if (topic && !progress.mistakes[lessonNumber].includes(topic)) progress.mistakes[lessonNumber].push(topic);
   return saveLearningProgress(progress);
 }
 
@@ -115,9 +120,7 @@ export function getResumeTarget() {
 function normalizeProgress(progress) {
   const source = progress && typeof progress === 'object' ? progress : {};
   return {
-    masteredLessons: Array.isArray(source.masteredLessons)
-      ? source.masteredLessons.map(Number).filter(Number.isFinite)
-      : [],
+    masteredLessons: Array.isArray(source.masteredLessons) ? source.masteredLessons.map(Number).filter(Number.isFinite) : [],
     lessonScores: source.lessonScores && typeof source.lessonScores === 'object' ? source.lessonScores : {},
     currentLesson: Number.isFinite(Number(source.currentLesson)) ? Number(source.currentLesson) : 1,
     currentStep: source.currentStep && typeof source.currentStep === 'object' ? source.currentStep : {},
