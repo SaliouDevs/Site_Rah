@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eAutoecole - Moniteur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./assets/css/tokens.css">
+  <link rel="stylesheet" href="./assets/css/instructor.css">
+</head>
+<body class="instructor-page">
+  <div class="instructor-shell">
+    <header class="instructor-topbar">
+      <a class="instructor-brand" href="instructor.html" aria-label="Accueil moniteur">
+        <span class="brand-icon"><i class="fas fa-car-side"></i></span>
+        <span><strong data-brand-app>eAutoecole</strong><small data-brand-school>Auto-école · Espace Moniteur</small></span>
+      </a>
+      <div class="instructor-top-actions">
+        <span class="team-pill"><i class="fas fa-id-badge"></i> Moniteur</span>
+        <button class="ghost-button" type="button" data-instructor-logout>Déconnexion</button>
+      </div>
+    </header>
+    <main class="instructor-layout">
+      <aside class="student-rail">
+        <div class="rail-heading">
+          <div><p class="eyebrow">Mes élèves</p><h1>Suivi</h1></div>
+          <span class="student-count" data-student-count>0</span>
+        </div>
+        <label class="student-search"><i class="fas fa-search"></i><input data-student-search placeholder="Rechercher un élève"></label>
+        <div class="student-list" data-student-list></div>
+      </aside>
+      <section class="instructor-content" id="instructor-view">
+        <div class="instructor-loading"><span class="spinner"></span><p>Chargement du suivi...</p></div>
+      </section>
+    </main>
+  </div>
+  <div id="instructor-modal-root"></div>
+  <div id="instructor-toast-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js" integrity="sha384-K0oxqktRvaThvYgGL4G+OK2Ih6VS6Uyu7j3+7WJgp/uWM0Yv6Xi4YEiw0BB+mPfi" crossorigin="anonymous"></script>
+  <script src="./assets/js/config.js"></script>
+  <script src="./assets/js/supabase.js"></script>
+  <script type="module" src="./assets/js/brand-runtime.js"></script>
+  <script type="module" src="./assets/js/instructor-page.js"></script>
+</body>
+</html>
