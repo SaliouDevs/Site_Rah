@@ -4,7 +4,8 @@ import { navigateTo } from '../router.js';
 let currentCategoryKey = null;
 let currentIndex = 0;
 let revisionScore = { correct: 0, total: 0 };
-let currentSpeech = null;
+let currentPlayback = null;
+let playbackSequence = 0;
 
 export function renderPanelsView(container, params = {}) {
   const categoryId = params.category;
@@ -13,6 +14,7 @@ export function renderPanelsView(container, params = {}) {
     return;
   }
 
+  stopPanelPlayback();
   container.innerHTML = `
     <section class="view-stack">
       <div class="view-heading">
@@ -38,7 +40,7 @@ export function renderPanelsView(container, params = {}) {
   renderPanelCategories(root);
   container.querySelectorAll('[data-panel-mode]').forEach((button) => {
     button.addEventListener('click', () => {
-      stopPanelSpeech();
+      stopPanelPlayback();
       container.querySelectorAll('[data-panel-mode]').forEach((item) => item.classList.remove('active'));
       button.classList.add('active');
       if (button.dataset.panelMode === 'review') renderPanelReview(root);
@@ -73,7 +75,7 @@ function renderPanelCategory(container, categoryId) {
 }
 
 function renderCurrentPanel(container, category) {
-  stopPanelSpeech();
+  stopPanelPlayback();
   const sign = category.signs[currentIndex];
   container.innerHTML = `
     <section class="panel-study immersive-view">
@@ -103,7 +105,7 @@ function renderCurrentPanel(container, category) {
 
   bindPanelMedia(container, sign);
   container.querySelector('[data-back-panels]').addEventListener('click', () => {
-    stopPanelSpeech();
+    stopPanelPlayback();
     currentIndex = 0;
     navigateTo('/panels');
   });
@@ -115,7 +117,10 @@ function renderCurrentPanel(container, category) {
     currentIndex = Math.min(category.signs.length - 1, currentIndex + 1);
     renderCurrentPanel(container, category);
   });
-  container.querySelector('[data-panel-details]').addEventListener('click', () => showPanelDetails(category, sign));
+  container.querySelector('[data-panel-details]').addEventListener('click', () => {
+    stopPanelPlayback();
+    showPanelDetails(category, sign);
+  });
 }
 
 function renderPanelMedia(sign) {
@@ -128,68 +133,176 @@ function renderPanelMedia(sign) {
         ${(hasFr || hasWo) ? '<span class="panel-media-live">Contenu auto-école</span>' : '<span class="panel-media-fallback">Lecture vocale</span>'}
       </div>
       <div class="panel-media-grid">
-        ${hasFr ? renderMediaPlayer(sign.audioFr, 'Français', 'fr') : `
-          <button class="panel-tts-card" type="button" data-panel-tts>
-            <span class="panel-language-badge">FR</span>
-            <span><strong>Français</strong><small>Lecture vocale du texte</small></span>
-            <i class="fas fa-volume-high" aria-hidden="true"></i>
-          </button>`}
+        ${hasFr ? renderMediaPlayer(sign.audioFr, 'Français', 'fr') : renderSpeechButton()}
         ${hasWo ? renderMediaPlayer(sign.audioWo, 'Wolof / SN', 'wo') : `
           <div class="panel-media-empty">
             <span class="panel-language-badge wo">SN</span>
-            <span><strong>Wolof</strong><small>Audio non publié pour ce panneau</small></span>
+            <span><strong>Wolof / SN</strong><small>Audio non publié pour ce panneau</small></span>
           </div>`}
       </div>
     </section>
   `;
 }
 
+function renderSpeechButton() {
+  return `
+    <button class="panel-play-card" type="button" data-panel-tts aria-pressed="false">
+      <span class="panel-language-badge">FR</span>
+      <span class="panel-play-copy"><strong>Français</strong><small>Lecture vocale du texte</small></span>
+      <span class="panel-play-action" aria-hidden="true"><i class="fas fa-play"></i></span>
+    </button>`;
+}
+
 function renderMediaPlayer(src, label, language) {
   const isVideo = isVideoSource(src);
+  const languageClass = language === 'wo' ? 'wo' : '';
+  const languageCode = language === 'wo' ? 'SN' : 'FR';
   if (isVideo) {
     return `
       <div class="panel-media-card panel-media-video">
-        <div class="panel-media-label"><span class="panel-language-badge ${language === 'wo' ? 'wo' : ''}">${language === 'wo' ? 'SN' : 'FR'}</span><strong>${escapeHTML(label)}</strong></div>
-        <video controls playsinline preload="metadata" src="${escapeAttr(src)}"></video>
+        <div class="panel-media-label"><span class="panel-language-badge ${languageClass}">${languageCode}</span><strong>${escapeHTML(label)}</strong></div>
+        <video controls playsinline preload="metadata" src="${escapeAttr(src)}" data-panel-video></video>
       </div>`;
   }
   return `
-    <div class="panel-media-card">
-      <div class="panel-media-label"><span class="panel-language-badge ${language === 'wo' ? 'wo' : ''}">${language === 'wo' ? 'SN' : 'FR'}</span><strong>${escapeHTML(label)}</strong></div>
-      <audio controls preload="none" src="${escapeAttr(src)}"></audio>
-    </div>`;
+    <button class="panel-play-card" type="button" data-panel-audio="${escapeAttr(src)}" aria-pressed="false">
+      <span class="panel-language-badge ${languageClass}">${languageCode}</span>
+      <span class="panel-play-copy"><strong>${escapeHTML(label)}</strong><small data-panel-audio-status>Audio auto-école</small></span>
+      <span class="panel-play-action" aria-hidden="true"><i class="fas fa-play"></i></span>
+    </button>`;
 }
 
 function bindPanelMedia(scope, sign) {
-  const ttsButton = scope.querySelector('[data-panel-tts]');
-  if (!ttsButton) return;
-  ttsButton.addEventListener('click', () => speakFrench(`${sign.name}. ${sign.description || ''}`, ttsButton));
+  scope.querySelectorAll('[data-panel-tts]').forEach((button) => {
+    button.addEventListener('click', () => toggleFrenchSpeech(`${sign.name}. ${sign.description || ''}`, button));
+  });
+  scope.querySelectorAll('[data-panel-audio]').forEach((button) => {
+    button.addEventListener('click', () => togglePanelAudio(button));
+  });
+  scope.querySelectorAll('[data-panel-video]').forEach((video) => bindPanelVideo(video));
 }
 
-function speakFrench(text, button) {
-  stopPanelSpeech();
+function toggleFrenchSpeech(text, button) {
+  if (currentPlayback?.kind === 'speech' && currentPlayback.button === button) {
+    stopPanelPlayback();
+    return;
+  }
+  stopPanelPlayback();
   if (!('speechSynthesis' in window)) {
     window.eautoToast?.('Lecture vocale indisponible sur cet appareil.');
     return;
   }
+
+  const sequence = ++playbackSequence;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'fr-FR';
-  currentSpeech = utterance;
-  button.classList.add('playing');
-  button.disabled = true;
+  currentPlayback = { kind: 'speech', button, utterance, sequence };
+  setPlaybackButtonState(button, true, 'Lecture en cours');
+
   const done = () => {
-    if (currentSpeech === utterance) currentSpeech = null;
-    button.classList.remove('playing');
-    button.disabled = false;
+    if (currentPlayback?.sequence !== sequence) return;
+    currentPlayback = null;
+    setPlaybackButtonState(button, false, 'Lecture vocale du texte');
   };
   utterance.onend = done;
   utterance.onerror = done;
   window.speechSynthesis.speak(utterance);
 }
 
-function stopPanelSpeech() {
+function togglePanelAudio(button) {
+  if (currentPlayback?.kind === 'audio' && currentPlayback.button === button) {
+    stopPanelPlayback();
+    return;
+  }
+
+  const src = button.dataset.panelAudio;
+  if (!src) return;
+  stopPanelPlayback();
+
+  const sequence = ++playbackSequence;
+  const audio = new Audio(src);
+  audio.preload = 'metadata';
+  currentPlayback = { kind: 'audio', button, element: audio, sequence };
+  setPlaybackButtonState(button, true, 'Lecture en cours');
+
+  audio.addEventListener('loadedmetadata', () => {
+    if (currentPlayback?.sequence !== sequence) return;
+    const duration = formatTime(audio.duration);
+    setPlaybackStatus(button, duration ? `Lecture en cours · ${duration}` : 'Lecture en cours');
+  });
+  audio.addEventListener('ended', () => finishMediaPlayback(sequence, button, 'Audio auto-école'));
+  audio.addEventListener('error', () => {
+    if (currentPlayback?.sequence !== sequence) return;
+    stopPanelPlayback();
+    window.eautoToast?.('Impossible de lire cet audio.');
+  });
+
+  const playPromise = audio.play();
+  if (playPromise?.catch) {
+    playPromise.catch(() => {
+      if (currentPlayback?.sequence !== sequence) return;
+      stopPanelPlayback();
+      window.eautoToast?.('Lecture audio bloquée par le navigateur. Réessaie.');
+    });
+  }
+}
+
+function bindPanelVideo(video) {
+  video.addEventListener('play', () => {
+    if (currentPlayback?.kind === 'video' && currentPlayback.element === video) return;
+    stopPanelPlayback();
+    const sequence = ++playbackSequence;
+    currentPlayback = { kind: 'video', element: video, sequence };
+  });
+  const clearVideo = () => {
+    if (currentPlayback?.kind === 'video' && currentPlayback.element === video) currentPlayback = null;
+  };
+  video.addEventListener('pause', clearVideo);
+  video.addEventListener('ended', clearVideo);
+}
+
+function finishMediaPlayback(sequence, button, idleLabel) {
+  if (currentPlayback?.sequence !== sequence) return;
+  currentPlayback = null;
+  setPlaybackButtonState(button, false, idleLabel);
+}
+
+function stopPanelPlayback() {
+  playbackSequence += 1;
+  const active = currentPlayback;
+  currentPlayback = null;
+
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  currentSpeech = null;
+  if (active?.element) {
+    active.element.pause();
+    try { active.element.currentTime = 0; } catch {}
+  }
+  if (active?.button) {
+    const idleLabel = active.kind === 'speech' ? 'Lecture vocale du texte' : 'Audio auto-école';
+    setPlaybackButtonState(active.button, false, idleLabel);
+  }
+}
+
+function setPlaybackButtonState(button, playing, status) {
+  if (!button) return;
+  button.classList.toggle('playing', playing);
+  button.setAttribute('aria-pressed', playing ? 'true' : 'false');
+  const icon = button.querySelector('.panel-play-action i');
+  if (icon) icon.className = `fas ${playing ? 'fa-stop' : 'fa-play'}`;
+  setPlaybackStatus(button, status);
+}
+
+function setPlaybackStatus(button, text) {
+  const status = button?.querySelector('[data-panel-audio-status], .panel-play-copy small');
+  if (status) status.textContent = text;
+}
+
+function formatTime(value) {
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const total = Math.round(value);
+  const minutes = Math.floor(total / 60);
+  const seconds = String(total % 60).padStart(2, '0');
+  return `${minutes}:${seconds}`;
 }
 
 function isVideoSource(src) {
@@ -198,6 +311,7 @@ function isVideoSource(src) {
 }
 
 function renderPanelReview(root) {
+  stopPanelPlayback();
   const allSigns = PANELS_DATA.flatMap((category) => category.signs.map((sign) => ({ ...sign, category: category.name })));
   const sign = allSigns[Math.floor(Math.random() * allSigns.length)];
   const options = buildReviewOptions(allSigns, sign);
