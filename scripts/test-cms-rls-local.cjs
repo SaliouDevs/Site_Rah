@@ -218,6 +218,12 @@ async function createLocalUser(config, role = null) {
     password: `Local-${token}-password`,
     email_confirm: true,
     app_metadata: role ? { role } : {},
+    user_metadata: {
+      prenom: role === 'admin' ? 'Admin RLS' : 'Student RLS',
+      telephone: `99${Date.now().toString().slice(-7)}`,
+      formule: 'Formule Illimitee',
+      prix: 2000,
+    },
   });
   if (res.status >= 400) {
     throw new Error(`Failed to create local auth user: HTTP ${res.status}: ${res.body}`);
