@@ -13,7 +13,11 @@ const FALLBACK_SCHOOL = Object.freeze({
   city: 'Dakar',
   logo_url: null,
   primary_color: '#155EEF',
-  accent_color: '#12B76A'
+  accent_color: '#12B76A',
+  plan_name: 'Formule Illimitée',
+  registration_price: 2000,
+  wave_payment_url: 'https://pay.wave.com/m/M_sn_h8KvN46A4_zB/c/sn/',
+  payments_enabled: true
 });
 
 let cache = null;
@@ -34,7 +38,9 @@ export async function loadSchoolSettings({ force = false } = {}) {
 
 export async function saveSchoolSettings(settings = {}) {
   if (!window.sb) throw new Error('Supabase indisponible');
-  const { data, error } = await window.sb.rpc('save_school_settings', { p_settings: settings });
+  const normalized = { ...settings };
+  if (typeof normalized.payments_enabled === 'string') normalized.payments_enabled = normalized.payments_enabled === 'true' || normalized.payments_enabled === 'on';
+  const { data, error } = await window.sb.rpc('save_school_settings', { p_settings: normalized });
   if (error) throw error;
   cache = { ...FALLBACK_SCHOOL, ...(data || {}) };
   return applySchoolSettings(cache);
@@ -46,6 +52,8 @@ export function getCachedSchoolSettings() {
 
 export function applySchoolSettings(settings = {}) {
   const merged = { ...FALLBACK_SCHOOL, ...settings };
+  merged.registration_price = Number(merged.registration_price || 0);
+  merged.payments_enabled = merged.payments_enabled !== false;
   window.EAUTO_SCHOOL_SETTINGS = merged;
   if (window.APP_CONFIG) {
     window.APP_CONFIG.name = merged.app_name || window.APP_CONFIG.name;
