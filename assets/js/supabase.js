@@ -4,7 +4,7 @@
 // ================================================================
 
 const SUPABASE_PRODUCTION_URL = 'https://mhoxpqskssbxuuyzjsqx.supabase.co';
-const SUPABASE_PRODUCTION_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJtaG94cHFza3NzYnh1dXl6anNxeCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NzA3Nzc5LCJleHAiOjIxMDIyODM3Nzl9.INVALID_REPLACED';
+const SUPABASE_PRODUCTION_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ob3hwcXNrc3NieHV1eXpqc3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDc3NzksImV4cCI6MjEwMjI4Mzc3OX0.psB1yyyAjzPNPsymyxUGiki3mS6CiZd8NKHlnGC0b78';
 const SUPABASE_LOCAL_URL = 'http://127.0.0.1:54321';
 const SUPABASE_LOCAL_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
 const isLocalFrontendHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
