@@ -88,7 +88,7 @@
 
 .panel-media-heading,
 .panel-media-label,
-.panel-tts-card,
+.panel-play-card,
 .panel-media-empty {
   display: flex;
   align-items: center;
@@ -137,7 +137,7 @@
 }
 
 .panel-media-card,
-.panel-tts-card,
+.panel-play-card,
 .panel-media-empty {
   min-width: 0;
   padding: 11px;
@@ -157,13 +157,14 @@
 
 .panel-language-badge {
   display: grid;
-  width: 36px;
-  height: 30px;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
   place-items: center;
   color: #fff;
   background: #155eef;
-  border-radius: 9px;
-  font-size: 0.78rem;
+  border-radius: 11px;
+  font-size: 0.82rem;
   font-weight: 900;
 }
 
@@ -171,7 +172,6 @@
   background: #067647;
 }
 
-.panel-media-card audio,
 .panel-media-card video {
   width: 100%;
 }
@@ -182,37 +182,74 @@
   border-radius: 10px;
 }
 
-.panel-tts-card {
+.panel-play-card {
   width: 100%;
-  gap: 10px;
+  min-height: 76px;
+  gap: 12px;
+  appearance: none;
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease, background 140ms ease;
 }
 
-.panel-tts-card > span:nth-child(2),
+.panel-play-card:active {
+  transform: scale(0.992);
+}
+
+.panel-play-card:focus-visible {
+  outline: 3px solid rgba(21, 94, 239, 0.18);
+  outline-offset: 2px;
+}
+
+.panel-play-card.playing {
+  border-color: rgba(21, 94, 239, 0.42);
+  background: rgba(21, 94, 239, 0.035);
+  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.07);
+}
+
+.panel-play-copy,
 .panel-media-empty > span:nth-child(2) {
   display: grid;
   flex: 1;
-  gap: 2px;
+  min-width: 0;
+  gap: 3px;
 }
 
-.panel-tts-card small,
+.panel-play-copy strong,
+.panel-media-empty strong {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.panel-play-copy small,
 .panel-media-empty small {
+  overflow: hidden;
   color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.panel-tts-card > i {
+.panel-play-action {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
   color: #155eef;
-  font-size: 1.15rem;
+  background: rgba(21, 94, 239, 0.1);
+  border-radius: 50%;
+  font-size: 1rem;
 }
 
-.panel-tts-card.playing {
-  opacity: 0.72;
+.panel-play-card.playing .panel-play-action {
+  color: #b42318;
+  background: #fef3f2;
 }
 
 .panel-media-empty {
-  gap: 10px;
+  min-height: 76px;
+  gap: 12px;
   opacity: 0.78;
 }
 
@@ -270,5 +307,10 @@
   .panel-media-fallback {
     max-width: 120px;
     text-align: center;
+  }
+
+  .panel-play-card,
+  .panel-media-empty {
+    min-height: 82px;
   }
 }
